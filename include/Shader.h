@@ -1,0 +1,220 @@
+#ifndef SHADER_H
+#define SHADER_H
+
+#include <Config.h>
+#include <Math3D.h>
+#include <Utility.h>
+#include <Render.h>
+
+namespace Easy3D{
+
+	class Uniform{
+	protected:
+		virtual void  set(const void*) = 0;
+		virtual void  set(const void*, size_t i,size_t n) = 0;
+		virtual void* get() = 0;
+		virtual const void* get() const = 0;
+		virtual ~Uniform(){};
+	};
+
+	class CInt : Uniform {
+	public:
+		CInt(int i){
+			Uniform::set(&i);
+		}
+		operator int() const{
+			return *((int*)(this->get()));
+		}
+		void setValue(int i){
+			set(&i);
+		}
+		int operator = (int i){
+			set(&i);
+			return i;
+		}
+	};
+	class CFloat : Uniform {
+	public:
+		CFloat(float f){
+			set(&f);
+		}
+		operator float() const{
+			return *((float*)(this->get()));
+		}
+		void setValue(float f){
+			set(&f);
+		}
+		float operator = (float f){
+			set(&f);
+			return f;
+		}
+	};
+	class CVec2 : Uniform {
+	public:
+		CVec2(const Vec2& v2){
+			set(&v2.x);
+		}
+		operator const Vec2&() const{
+			return *((Vec2*)(this->get()));
+		}
+		void setValue(const Vec2& v2){
+			set(&v2.x);
+		}
+		const Vec2& operator = (const Vec2& v2){
+			set(&v2.x);
+			return v2;
+		}
+	};
+	class CVec3 : Uniform {
+	public:
+		CVec3(const Vec3& v3){
+			set(&v3.x);
+		}
+		operator const Vec3&() const{
+			return *((Vec3*)(this->get()));
+		}
+		void setValue(const Vec3& v3){
+			set(&v3.x);
+		}
+		const Vec3& operator = (const Vec3& v3){
+			set(&v3.x);
+			return v3;
+		}
+	};
+	class CVec4 : Uniform {
+	public:
+		CVec4(const Vec4& v4){
+			set(&v4.x);
+		}
+		operator const Vec4&() const{
+			return *((Vec4*)(this->get()));
+		}
+		void setValue(const Vec4& v4){
+			set(&v4.x);
+		}
+		const Vec4& operator = (const Vec4& v4){
+			set(&v4.x);
+			return v4;
+		}
+	};
+	class CMat4 : Uniform {
+	public:
+		CMat4(const Mat4 & m4){
+			set(&m4.m00);
+		}
+		operator const Mat4&() const{
+			return *((Mat4*)(this->get()));
+		}
+		void setValue(const Mat4& m4){
+			set(&m4.m00);
+		}
+		const Mat4& operator = (const Mat4& m4){
+			set(&m4.m00);
+			return m4;
+		}
+	};
+	
+	class CIntArray : Uniform {
+	public:
+		void set(int i, size_t n){
+			Uniform::set(&i, n, 1);
+		}
+		void set(int* i, size_t n){
+			Uniform::set(i, 0, n);
+		}
+		int get(size_t n) const{
+			return ((const int*)Uniform::get())[n];
+		}
+	};
+	class CFloatArray : Uniform{
+	public:
+		void set(float f, size_t n){
+			Uniform::set(&f, n, 1);
+		}
+		void set(float* f, size_t n){
+			Uniform::set(f, 0, n);
+		}
+		float get(size_t n) const{
+			return ((const float*)Uniform::get())[n];
+		}
+	};
+	class CVec2Array : Uniform {
+	public:
+		void set(const Vec2& v2, size_t n){
+			Uniform::set(&v2, n, 1);
+		}
+		void set(Vec2* v2, size_t n){
+			Uniform::set(v2, 0, n);
+		}
+		Vec2 get(size_t n) const{
+			return ((const Vec2*)Uniform::get())[n];
+		}
+	};
+	class CVec3Array : Uniform {
+	public:
+		void set(const Vec3& v3, size_t n){
+			Uniform::set(&v3, n, 1);
+		}
+		void set(Vec3* v3, size_t n){
+			Uniform::set(v3, 0, n);
+		}
+		Vec3 get(size_t n) const{
+			return ((const Vec3*)Uniform::get())[n];
+		}
+	};
+	class CVec4Array : Uniform {
+	public:
+		void set(const Vec4& v4, size_t n){
+			Uniform::set(&v4, n, 1);
+		}
+		void set(Vec4* v4, size_t n){
+			Uniform::set(v4, 0, n);
+		}
+		Vec4 get(size_t n) const{
+			return ((const Vec4*)Uniform::get())[n];
+		}
+	};
+	class CMat4Array : Uniform {
+	public:
+		void set(const Mat4& v4, size_t n){
+			Uniform::set(&v4, n, 1);
+		}
+		void set(Mat4* v4, size_t n){
+			Uniform::set(v4, 0, n);
+		}
+		Mat4 get(size_t n) const{
+			return ((const Mat4*)Uniform::get())[n];
+		}
+	};
+
+	class Shader{
+
+	public:
+        
+		virtual ~Shader(){};
+		virtual void loadShader(const Utility::Path& vs,const Utility::Path& fs,const std::vector<String>& defines)=0;
+		
+		//get consts
+		virtual CInt* getConstInt(const char *name) = 0;
+		virtual CFloat* getConstFloat(const char *name) = 0;
+		virtual CVec2* getConstVec2(const char *name) = 0;
+		virtual CVec3* getConstVec3(const char *name) = 0;
+		virtual CVec4* getConstVec4(const char *name) = 0;
+		virtual CMat4* getConstMat4(const char *name) = 0;
+		virtual CIntArray* getConstIntArray(const char *name) = 0;
+		virtual CFloatArray* getConstFloatArray(const char *name) = 0;
+		virtual CVec2Array* getConstVec2Array(const char *name) = 0;
+		virtual CVec3Array* getConstVec3Array(const char *name) = 0;
+		virtual CVec4Array* getConstVec4Array(const char *name) = 0;
+		virtual CMat4Array* getConstMat4Array(const char *name) = 0;
+		
+	protected:
+
+		//imposta shader
+		virtual void bind() = 0;
+		virtual void unbind() = 0;
+		virtual void uniform() = 0;
+
+	};
+};
+#endif
