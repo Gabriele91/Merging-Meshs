@@ -123,6 +123,9 @@
     <ClInclude Include="appsrc\MathUtility.h">
       <Filter>appsrc</Filter>
     </ClInclude>
+    <ClInclude Include="appsrc\Mesh.h">
+      <Filter>appsrc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Application.cpp">
@@ -204,6 +207,9 @@
       <Filter>File di origine</Filter>
     </ClCompile>
     <ClCompile Include="appsrc\MathUtility.cpp">
+      <Filter>appsrc</Filter>
+    </ClCompile>
+    <ClCompile Include="appsrc\Mesh.cpp">
       <Filter>appsrc</Filter>
     </ClCompile>
   </ItemGroup>

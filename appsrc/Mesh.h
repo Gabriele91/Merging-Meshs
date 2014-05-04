@@ -26,6 +26,7 @@ namespace Easy3D{
         
         //begin create mash
         void begin(uchar type, size_t size);
+
         //like opengl 1.4
         void vertex(const Vec2& vt);
         void vertex(const Vec3& vt);
@@ -33,13 +34,16 @@ namespace Easy3D{
         void color(const Vec4& color);
         void color(const Color& color);
         void uv(const Vec2& uv);
-        
+
+		//bind
+		bool end();
+
         //like OpenGL 2.X, 3.X, 4.x
         void buffer(const byte* b, size_t size);
         
-        //bind
-        bool end();
-        
+		//index
+		void index(ushort i);
+
         //draw mode
         void mode(TypeDraw m);
        
@@ -57,7 +61,6 @@ namespace Easy3D{
         //cpu buffer
         byte* currentVertex{NULL};
         std::vector<byte> vertexs;
-        ushort* currentIndex{NULL};
         std::vector<ushort> indexs;
         //gpu buffer
         BaseVertexBufferObject* bVertex;

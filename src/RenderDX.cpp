@@ -397,7 +397,7 @@ BaseVertexBufferObject* RenderDX::createVBO(const byte* vbo, size_t stride, size
 }
 BaseIndextBufferObject* RenderDX::createIBO(const ushort* ibo, size_t size){
 	auto ptr = new BaseIndextBufferObject();
-	ptr->genBuffer(d3dDevice, ibo, size);
+	ptr->genBuffer(d3dDevice, ibo, size*sizeof(ushort));
     return ptr;
 }
 void RenderDX::bindVBO(BaseVertexBufferObject* vbo){

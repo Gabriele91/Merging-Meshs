@@ -91,6 +91,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="appsrc\MathUtility.h" />
+    <ClInclude Include="appsrc\Mesh.h" />
     <ClInclude Include="include\Application.h" />
     <ClInclude Include="include\Blend.h" />
     <ClInclude Include="include\Color.h" />
@@ -125,6 +126,7 @@
   <ItemGroup>
     <ClCompile Include="appsrc\main.cpp" />
     <ClCompile Include="appsrc\MathUtility.cpp" />
+    <ClCompile Include="appsrc\Mesh.cpp" />
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\Color.cpp" />
     <ClCompile Include="src\Config.cpp" />

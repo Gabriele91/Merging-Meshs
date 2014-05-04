@@ -7,6 +7,7 @@
 #include <Debug.h>
 
 #include "MathUtility.h"
+#include "Mesh.h"
 
 using namespace Easy3D;
 
@@ -21,7 +22,7 @@ public:
     Mat4 projection;
     Mat4 view;
     Mat4 model;
-
+	Mesh geometry;
     
 
     BaseVertexBufferObject *bvb;
@@ -59,6 +60,14 @@ public:
 			ptrCModel = shobj->getConstMat4("vs.model");
 		}
 
+		AttributeList atl({
+			{ "inPosition", ATT_FLOAT3 },
+			{ "inColor", ATT_FLOAT4 }
+		});
+		bil = getRender().createIL(shobj, atl);
+
+
+		/*
 		struct SimpleVertex{
 			float x, y, z;
 			float r, g, b, a;
@@ -67,21 +76,35 @@ public:
 						 :x(x), y(y), z(z),
 						  r(r), g(g), b(b),a(a){}
 		};
-
+		
 		SimpleVertex vertexBuffer[] = {
 			SimpleVertex(   0.0f,  0.5f, 0.0f,  0.0f, 1.0f, 1.0 , 1.0),
 			SimpleVertex(   0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 1.0 , 1.0),
 			SimpleVertex(  -0.5f, -0.5f, 0.0f,  1.0f, 1.0f, 0.0 , 1.0)
 		};
         
-        AttributeList atl({
-            {"inPosition",ATT_FLOAT3},
-            {"inColor"   ,ATT_FLOAT4}
-        });
         
 		bvb = getRender().createVBO((uchar*)(&vertexBuffer[0]), sizeof(SimpleVertex), 3);
-        bil = getRender().createIL(shobj,atl);
-        
+        */
+		
+		geometry.begin(Mesh::POSITION3D | Mesh::COLOR, 3);
+		
+		/* vertexs */
+		geometry.vertex(Vec3(0.0f, 0.5f, 0.0f));
+		geometry.color(Vec4(0.0f, 1.0f, 1.0, 1.0));
+		geometry.vertex(Vec3(0.5f, -0.5f, 0.0f));
+		geometry.color(Vec4(1.0f, 0.0f, 1.0, 1.0));
+		geometry.vertex(Vec3(-0.5f, -0.5f, 0.0f));
+		geometry.color(Vec4(1.0f, 1.0f, 0.0, 1.0));
+
+		/* index */
+		geometry.index(0);
+		geometry.index(1);
+		geometry.index(2);
+
+		geometry.end();
+		geometry.mode(DRAW_TRIANGLES);
+
         //init
         projection=getRender().calculatesProjection(45.0f, 0.75f, 0.1f, 20.0f);
 		
@@ -107,19 +130,21 @@ public:
 		ptrCProjection->setValue(projection);
 		ptrCView->setValue(view);
         
-        getRender().bindVBO(bvb);
+        //getRender().bindVBO(bvb);
         getRender().bindIL(bil);
         
         ///draw 1
 		model.setScale(Vec3(5, 5, 1));
 		model.addTranslation(Vec3(0,0,-10));
 		ptrCModel->setValue(model);
-        getRender().drawArrays(DRAW_TRIANGLES, 3);
-        ///draw 2
+        //getRender().drawArrays(DRAW_TRIANGLES, 3);
+		geometry.draw();
+		///draw 2
 		model.setScale(Vec3(5, 5, 1));
 		model.addTranslation(Vec3(-0.5,0,-11));
 		ptrCModel->setValue(model);
-        getRender().drawArrays(DRAW_TRIANGLES, 3);
+		//getRender().drawArrays(DRAW_TRIANGLES, 3);
+		geometry.draw();
 
 		getRender().unbindShader();
         getRender().unbindIL(bil);
@@ -131,7 +156,10 @@ public:
 };
 
 int main(){
-	Easy3D::Application::create("Easy3DExemple");
+	Easy3D::Application::create("Easy3DExemple", 
+												//OPENGL_DRIVER
+												DIRECTX_DRIVER
+												);
 	Easy3D::Application::instance()->exec(new MyGame());
 	delete Easy3D::Application::instance()->getGame();
 	return 0;

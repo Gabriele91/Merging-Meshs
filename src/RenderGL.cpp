@@ -172,19 +172,19 @@ BaseVertexBufferObject* RenderGL::createVBO(const byte* vbo, size_t stride, size
 BaseIndextBufferObject* RenderGL::createIBO(const ushort* ibo, size_t size){
     auto ptr=new BaseIndextBufferObject();
     ptr->genBuffer();
-    glBindBuffer(GL_ARRAY_BUFFER, *ptr);
-    glBufferData(GL_ARRAY_BUFFER,  size, *ptr, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *ptr);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(ushort)*size, ibo, GL_STATIC_DRAW);
     return ptr;
 }
 void RenderGL::bindVBO(BaseVertexBufferObject* vbo){
 	DEBUG_ASSERT(currentShader);
-	currentShader->uniform();
+	//currentShader->uniform();
     glBindBuffer(GL_ARRAY_BUFFER,*vbo);
 }
 void RenderGL::bindIBO(BaseIndextBufferObject* ibo){
 	DEBUG_ASSERT(currentShader);
-	currentShader->uniform();
-    glBindBuffer(GL_ARRAY_BUFFER,*ibo);
+	//currentShader->uniform();
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,*ibo);
 }
 void RenderGL::deleteVBO(BaseVertexBufferObject* vbo){
     glDeleteBuffers(1, *vbo);

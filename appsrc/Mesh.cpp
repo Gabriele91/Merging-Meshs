@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include <Math3D.h>
 #include <Debug.h>
+#include <Application.h>
 #include "Mesh.h"
 
 using namespace Easy3D;
@@ -33,16 +34,20 @@ void Mesh::calcVertexSize(uchar type){
     vSize+=attSize(type & VertexField::UV);
     vSize+=attSize(type & VertexField::COLOR);
 }
-void Mesh::addFild(const float* b,size_t size){
-    Math::memcpy(&vertexs[0], (const byte*)b, sizeof(float)*size);
-    currentVertex += size;
+void Mesh::addFild(const float* b, size_t size){
+	DEBUG_ASSERT(currentVertex);
+
+	Math::memcpy(currentVertex, (const byte*)b, sizeof(float)*size);
+	currentVertex += sizeof(float)*size;
+
+	DEBUG_ASSERT(currentVertex <= &vertexs[0] + vertexs.size());
 }
 
 //begin create mash
 void Mesh::begin(uchar type, size_t size){
     calcVertexSize(type);
-    vertexs.resize(size);
-    currentVertex=0;
+	vertexs.resize(vSize*size);
+	currentVertex = &vertexs[0];
 }
 //like opengl 1.4
 void Mesh::vertex(const Vec2& vt){
@@ -65,10 +70,43 @@ void Mesh::uv(const Vec2& uv){
 }
 
 //like OpenGL 2.X, 3.X, 4.x
-void buffer(const byte* b, size_t size){
+void Mesh::buffer(const Easy3D::byte* b, size_t size){
     Math::memcpy(&vertexs[0], b, size);
     currentVertex+=size;
 }
 
 //bind
-bool end();
+bool Mesh::end(){
+	Render& r = *Application::instance()->getRender();
+	//vertex buffer
+	DEBUG_ASSERT(currentVertex);
+	bVertex=r.createVBO(&vertexs[0], vSize, vertexs.size() / vSize);
+	//index buffer
+	if(indexs.size())
+		bIndex = r.createIBO(&indexs[0], indexs.size());
+	//end
+	currentVertex = NULL;
+	//return 
+	return bVertex != NULL;
+}
+
+
+void Mesh::index(ushort i){
+	indexs.push_back(i);
+}
+
+void Mesh::mode(TypeDraw m){
+	dMode = m;
+}
+
+void Mesh::draw(){
+	Render& r = *Application::instance()->getRender();
+	r.bindVBO(bVertex);
+	if (bIndex){
+		r.bindIBO(bIndex);
+		r.drawElements(dMode, indexs.size());
+	}
+	else{
+		r.drawArrays(dMode, vertexs.size() / vSize);
+	}
+}
