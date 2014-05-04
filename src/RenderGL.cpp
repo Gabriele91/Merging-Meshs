@@ -228,6 +228,7 @@ public:
     
     GLuint idshader;
     std::vector<AInput> layouts;
+	typedef std::vector<AInput>::iterator itLayouts;
     void addAttribute(const String& name,
                  size_t size,
                  size_t strip,
@@ -292,19 +293,19 @@ void RenderGL::bindIL(BaseInputLayout* il){
     #ifndef GL_BUFFER_OFFSET
         #define GL_BUFFER_OFFSET(x) ((char *)NULL + (x))
     #endif
-    for(const auto& i: il->layouts){
-        glEnableVertexAttribArray(i.attribute);
-        glVertexAttribPointer(i.attribute,
-                              (int)i.size,                  //nvalues 1-2-3-4
-                              GL_FLOAT,                     //type value
-                              GL_FALSE,                     //normalize -> no
-                              (int)i.strip,                 //size of structure
-                              GL_BUFFER_OFFSET(i.offset));  //offset param
+	for (size_t i = 0; i != il->layouts.size();++i){
+		glEnableVertexAttribArray(il->layouts[i].attribute);
+		glVertexAttribPointer(il->layouts[i].attribute,
+							 (int)il->layouts[i].size,                   //nvalues 1-2-3-4
+                             GL_FLOAT,									 //type value
+                             GL_FALSE,									 //normalize -> no
+							 (int)il->layouts[i].strip,                  //size of structure
+							 GL_BUFFER_OFFSET(il->layouts[i].offset));   //offset param
     }
 }
 void RenderGL::unbindIL(BaseInputLayout* il){
-    for(const auto& i: il->layouts){
-        glDisableVertexAttribArray(i.attribute);
+	for (size_t i = 0; i != il->layouts.size(); ++i){
+		glDisableVertexAttribArray(il->layouts[i].attribute);
     }
 }
 void RenderGL::deleteIL(BaseInputLayout* il){

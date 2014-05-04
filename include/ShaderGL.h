@@ -53,8 +53,7 @@ namespace Easy3D{
 		uint shader_id;
 		uint shader_vs;
 		uint shader_fs;
-		bool deleteProgram;
-
+		void deleteProgram();
 
 	};
 };

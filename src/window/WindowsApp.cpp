@@ -14,9 +14,11 @@
 ///////////////////////
 using namespace Easy3D;
 
-WindowsApp::WindowsApp(const String& name):Application(){
-	//render = (Render*)new RenderGL();
-	render = (Render*)new RenderDX();
+WindowsApp::WindowsApp(const String& name, RenderDriver tRender) :Application(){
+	if (tRender==OPENGL_DRIVER)
+		render = (Render*)new RenderGL();
+	else
+		render = (Render*)new RenderDX();
 	screen = (Screen*)new WindowsScreen();
 	input = (Input*)new WindowsInput();
    //savename
@@ -128,9 +130,12 @@ void WindowsApp::loop(){
 }
 
 void WindowsApp::exec(Game *ptrMainInstance){
-	mainInstance=ptrMainInstance;
+	mainInstance = ptrMainInstance;
+	//start
 	mainInstance->start();
+	//loop
 	loop();
+	//end
 	mainInstance->end();
 }
 

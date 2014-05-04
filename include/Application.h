@@ -3,6 +3,7 @@
 
 #include <Config.h>
 #include <EString.h>
+#include <Render.h>
 
 
 namespace Easy3D {
@@ -24,7 +25,7 @@ namespace Easy3D {
 		/**
 		* create singleton (if already created raises an exception)
 		*/
-		static Application *create(const String& name);
+		static Application *create(const String& name, RenderDriver tRender=OPENGL_DRIVER);
 		/**
 		* return singleton istance
 		*/

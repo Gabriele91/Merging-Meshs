@@ -32,7 +32,7 @@ Application::~Application(){
 	appSingleton=NULL;	
 }
 
-Application *Application::create(const String& name){
+Application *Application::create(const String& name, RenderDriver tRender){
 
 	DEBUG_ASSERT(!appSingleton);
 	
@@ -42,7 +42,7 @@ Application *Application::create(const String& name){
 #elif defined( PLATFORM_OSX )    
 	appSingleton=new CocoaApp(name);
 #elif defined( PLATFORM_WINDOW )
-	appSingleton=new WindowsApp(name);
+	appSingleton = new WindowsApp(name, tRender);
 #elif defined( PLATFORM_LINUX )
 	appSingleton=new LinuxApp(name);
 #elif defined( PLATFORM_ANDROID )

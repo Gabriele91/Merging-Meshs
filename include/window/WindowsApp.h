@@ -63,7 +63,7 @@ namespace Easy3D {
 		//local vars
 		int doexit;
 		//protected constructor
-		WindowsApp(const String& name);
+		WindowsApp(const String& name, RenderDriver tRender );
         //file data path
         String dataPath;
 

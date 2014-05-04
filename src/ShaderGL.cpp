@@ -49,8 +49,7 @@ void ShaderGL::loadShader(const Utility::Path& vsFile,
                         const Utility::Path& fsFile,
                         const std::vector<String>& defines){
 	//delete last shader
-	this->~ShaderGL();
-	shader_fs=shader_vs=shader_id=0;
+	deleteProgram();
 	GLint compiled=0,linked=0;
 	// load shaders files
 	String fileVS=textFileRead(vsFile);
@@ -126,8 +125,8 @@ void ShaderGL::loadShader(const Utility::Path& vsFile,
 
 }
 //distruttore
-ShaderGL::~ShaderGL() {
-	if( shader_id ){
+inline void ShaderGL::deleteProgram(){
+	if (shader_id){
 		glUseProgram(0);
 		//"stacca" gli schader dal shader program
 		glDetachShader(shader_id, shader_fs);
@@ -137,8 +136,14 @@ ShaderGL::~ShaderGL() {
 		glDeleteShader(shader_vs);
 		//cancella lo shader program
 		glDeleteProgram(shader_id);
+		//to null
+		shader_fs = 0;
+		shader_vs = 0;
+		shader_id = 0;
 	}
-
+}
+ShaderGL::~ShaderGL() {
+	deleteProgram();
 }
 //imposta shader
 void ShaderGL::bind(){
