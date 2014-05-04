@@ -19,7 +19,7 @@ namespace Easy3D{
 
 		RenderDX* render = NULL;
 
-		ID3DBlob* vShaderBinary = NULL;
+		ID3D10Blob* vShaderBinary = NULL;
 		ID3D10VertexShader *vShader = NULL;
 		DUNORDERED_MAP <String, size_t> vVariablesRef;
 		std::vector<uchar> vBufferCpu;
@@ -27,7 +27,7 @@ namespace Easy3D{
 		ID3D10Buffer*  vConstantBuffer10 = NULL;
 
 
-		ID3DBlob* pShaderBinary = NULL;
+		ID3D10Blob* pShaderBinary = NULL;
 		ID3D10PixelShader *pShader = NULL;
 		DUNORDERED_MAP <String, size_t> pVariablesRef;
 		std::vector<uchar> pBufferCpu;

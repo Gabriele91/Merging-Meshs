@@ -2,7 +2,6 @@
 #include <ShaderDX.h>
 #include <Application.h>
 #include <Debug.h>
-//#include <D3DX10Core.h>
 #include <D3D10.h>
 #include <Dxerr.h>
 ////////////////////////
@@ -20,7 +19,7 @@ inline static bool dxAssertMsg(HRESULT hr, const char* strcommand, const char* f
 	return true;
 }
 
-inline static bool dxShaderError(ID3DBlob* dxerrors = NULL){
+inline static bool dxShaderError(ID3D10Blob* dxerrors = NULL){
 	if (dxerrors){
 		String errors;
 		char* compileErrors = (char*)(dxerrors->GetBufferPointer());
@@ -57,7 +56,7 @@ inline static ID3D10Buffer* genBufferObject(ID3D10Device* device, size_t size)
 DFORCEINLINE static void getContants(ID3D10Device *d3dDevice,
 									 const String& prefix,
 								     DUNORDERED_MAP <String, size_t>& mapVars, 
-									 ID3DBlob* pCode,
+									 ID3D10Blob* pCode,
 									 ID3D10Buffer** pBuffer,
 									 size_t& size){
 	HRESULT hr;
@@ -160,7 +159,7 @@ void ShaderDX::loadShader(const Utility::Path& vs,
 
 	String vShaderFile = textFileRead(vs);
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	ID3DBlob* vErrors=NULL;
+	ID3D10Blob* vErrors=NULL;
 	hr = D3D10CompileShader(vShaderFile, vShaderFile.size(), String(vs.getFilename()), NULL, NULL, "main", "vs_4_0", vShaderFlags, &vShaderBinary, &vErrors);
 	dxShaderError(vErrors);
 	DX_ASSERT_MSG(hr);
@@ -177,7 +176,7 @@ void ShaderDX::loadShader(const Utility::Path& vs,
 #endif
 	String pShaderFile = textFileRead(ps);
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	ID3DBlob* pErrors = NULL;
+	ID3D10Blob* pErrors = NULL;
 	hr = D3D10CompileShader(pShaderFile, pShaderFile.size(), String(ps.getFilename()), NULL, NULL, "main", "ps_4_0", pShaderFlags, &pShaderBinary, &pErrors);
 	dxShaderError(pErrors);
 	DX_ASSERT_MSG(hr);

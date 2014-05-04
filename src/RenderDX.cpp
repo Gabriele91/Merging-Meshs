@@ -419,11 +419,11 @@ void RenderDX::deleteIBO(BaseIndextBufferObject* ibo){
 /*
  Draw
  */
-inline static D3D_PRIMITIVE_TOPOLOGY getDirectXDrawType(TypeDraw type){
+inline static D3D10_PRIMITIVE_TOPOLOGY getDirectXDrawType(TypeDraw type){
 	switch (type){
 		case DRAW_POINTS: return D3D10_PRIMITIVE_TOPOLOGY_POINTLIST;  break;
-		case DRAW_LINES: return D3D_PRIMITIVE_TOPOLOGY_LINELIST;  break;
-		case DRAW_LINE_LOOP: return D3D_PRIMITIVE_TOPOLOGY_LINESTRIP;  break;
+		case DRAW_LINES: return D3D10_PRIMITIVE_TOPOLOGY_LINELIST;  break;
+		case DRAW_LINE_LOOP: return D3D10_PRIMITIVE_TOPOLOGY_LINESTRIP;  break;
 		case DRAW_TRIANGLES: return D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST; break;
 		case DRAW_TRIANGLE_STRIP: return D3D10_PRIMITIVE_TOPOLOGY_LINESTRIP;  break;
 		default: return D3D10_PRIMITIVE_TOPOLOGY_UNDEFINED; break;
@@ -526,7 +526,7 @@ inline static DXGI_FORMAT convertTypeIL(AttributeType type){
 BaseInputLayout* RenderDX::createIL(Shader* shader, const AttributeList& atl){
 	
 	//get binary code vertex shader
-	ID3DBlob *vShaderBinary = ((ShaderDX*)shader)->vShaderBinary;
+	ID3D10Blob *vShaderBinary = ((ShaderDX*)shader)->vShaderBinary;
 	
 	//create input li
     auto il=new BaseInputLayout();
