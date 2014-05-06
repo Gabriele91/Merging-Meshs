@@ -66,8 +66,16 @@ public:
 		});
 		bil = getRender().createIL(shobj, atl);
 
-
+		geometry.format(Mesh::POSITION3D | Mesh::COLOR, 3);
 		/*
+		float vbfr[] = {
+			 0.0f,  0.5f, 0.0f, 0.0f, 1.0f, 1.0, 1.0,
+			 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0, 1.0,
+			-0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0, 1.0,
+		};
+		geometry.vbuffer((Easy3D::byte*)vbfr);
+		*/
+		
 		struct SimpleVertex{
 			float x, y, z;
 			float r, g, b, a;
@@ -83,26 +91,28 @@ public:
 			SimpleVertex(  -0.5f, -0.5f, 0.0f,  1.0f, 1.0f, 0.0 , 1.0)
 		};
         
+		geometry.vbuffer((Easy3D::byte*)vertexBuffer);
+
         
-		bvb = getRender().createVBO((uchar*)(&vertexBuffer[0]), sizeof(SimpleVertex), 3);
-        */
-		
-		geometry.begin(Mesh::POSITION3D | Mesh::COLOR, 3);
-		
-		/* vertexs */
+		/*
+
+		// index //
+		geometry.index(0);
+		geometry.index(1);
+		geometry.index(2);
+
+		// vertexs //
 		geometry.vertex(Vec3(0.0f, 0.5f, 0.0f));
 		geometry.color(Vec4(0.0f, 1.0f, 1.0, 1.0));
 		geometry.vertex(Vec3(0.5f, -0.5f, 0.0f));
 		geometry.color(Vec4(1.0f, 0.0f, 1.0, 1.0));
 		geometry.vertex(Vec3(-0.5f, -0.5f, 0.0f));
 		geometry.color(Vec4(1.0f, 1.0f, 0.0, 1.0));
+		*/
 
-		/* index */
-		geometry.index(0);
-		geometry.index(1);
-		geometry.index(2);
+		geometry.bind();
+		
 
-		geometry.end();
 		geometry.mode(DRAW_TRIANGLES);
 
         //init

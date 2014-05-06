@@ -5,7 +5,9 @@
 #include "Mesh.h"
 
 using namespace Easy3D;
-
+#define VBO_N_PAGE  256
+#define IBO_N_PAGE  256
+//utility
 
 size_t Mesh::attSize(uchar type){
     switch (type) {
@@ -35,19 +37,28 @@ void Mesh::calcVertexSize(uchar type){
     vSize+=attSize(type & VertexField::COLOR);
 }
 void Mesh::addFild(const float* b, size_t size){
-	DEBUG_ASSERT(currentVertex);
-
-	Math::memcpy(currentVertex, (const byte*)b, sizeof(float)*size);
+	addVertexCPage(sizeof(float)*size);
+	Math::memcpy(&vertexs[currentVertex], (const byte*)b, sizeof(float)*size);	
 	currentVertex += sizeof(float)*size;
-
-	DEBUG_ASSERT(currentVertex <= &vertexs[0] + vertexs.size());
 }
 
+void Mesh::addVertexCPage(size_t next){
+	while ( (currentVertex+next) >=  vertexs.size() ){
+		vertexs.resize(vertexs.size() + VBO_N_PAGE*vSize);
+	}
+}
+void Mesh::addIndexCPage(){
+	if ( currentIndex == indexs.size() ){
+		indexs.resize(indexs.size() + IBO_N_PAGE);
+	}
+}
 //begin create mash
-void Mesh::begin(uchar type, size_t size){
-    calcVertexSize(type);
-	vertexs.resize(vSize*size);
-	currentVertex = &vertexs[0];
+void Mesh::format(uchar type, size_t vsize, size_t isize){
+	calcVertexSize(type);
+	vertexs = std::vector<byte> (vSize*(vsize != 0 ? vsize : VBO_N_PAGE));
+	indexs = std::vector<uint> (isize != 0 ? isize : IBO_N_PAGE);
+	currentVertex = 0;
+	currentIndex = 0;
 }
 //like opengl 1.4
 void Mesh::vertex(const Vec2& vt){
@@ -70,29 +81,42 @@ void Mesh::uv(const Vec2& uv){
 }
 
 //like OpenGL 2.X, 3.X, 4.x
-void Mesh::buffer(const Easy3D::byte* b, size_t size){
-    Math::memcpy(&vertexs[0], b, size);
-    currentVertex+=size;
+void Mesh::vbuffer(const Easy3D::byte* b){
+	Math::memcpy(&vertexs[0], b, vertexs.size());
+	currentVertex = vertexs.size();
+}
+void Mesh::ibuffer(const Easy3D::uint* b){
+	Math::memcpy((Easy3D::byte*)&indexs[0], (Easy3D::byte*)b, indexs.size()*sizeof(uint));
+	currentIndex = indexs.size();
 }
 
+//
+void Mesh::index(uint i){
+	addIndexCPage();
+	indexs[currentIndex] = i;
+	++currentIndex;
+}
+
+
 //bind
-bool Mesh::end(){
+bool Mesh::bind(bool force){
 	Render& r = *Application::instance()->getRender();
 	//vertex buffer
 	DEBUG_ASSERT(currentVertex);
 	bVertex=r.createVBO(&vertexs[0], vSize, vertexs.size() / vSize);
 	//index buffer
-	if(indexs.size())
+	if(currentIndex)
 		bIndex = r.createIBO(&indexs[0], indexs.size());
-	//end
-	currentVertex = NULL;
+    //sizes
+    sBVertex=(uint)(vertexs.size()/vSize);
+    sBIndex=(uint)(indexs.size());
+	//delete cpu info
+	if (force){
+		vertexs = std::vector<byte>(0);
+		indexs = std::vector<uint>(0);
+	}
 	//return 
 	return bVertex != NULL;
-}
-
-
-void Mesh::index(uint i){
-	indexs.push_back(i);
 }
 
 void Mesh::mode(TypeDraw m){
@@ -104,9 +128,9 @@ void Mesh::draw(){
 	r.bindVBO(bVertex);
 	if (bIndex){
 		r.bindIBO(bIndex);
-		r.drawElements(dMode, indexs.size());
+		r.drawElements(dMode, sBIndex);
 	}
 	else{
-		r.drawArrays(dMode, vertexs.size() / vSize);
+		r.drawArrays(dMode, sBVertex);
 	}
 }

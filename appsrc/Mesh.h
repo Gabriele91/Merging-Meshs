@@ -25,7 +25,7 @@ namespace Easy3D{
         
         
         //begin create mash
-        void begin(uchar type, size_t size);
+		void format(uchar type, size_t vsize=0, size_t isize=0);
 
         //like opengl 1.4
         void vertex(const Vec2& vt);
@@ -36,11 +36,14 @@ namespace Easy3D{
         void uv(const Vec2& uv);
 
 		//bind
-		bool end();
+		bool bind(bool deletecpuinfo=true);
 
-        //like OpenGL 2.X, 3.X, 4.x
-        void buffer(const byte* b, size_t size);
-        
+		//like OpenGL 2.X, 3.X, 4.x
+		void vbuffer(const byte* b);
+
+		//like OpenGL 2.X, 3.X, 4.x
+		void ibuffer(const uint* b);
+
 		//index
 		void index(uint i);
 
@@ -58,17 +61,22 @@ namespace Easy3D{
         AABox mBox;
         //size of vertex
         size_t vSize;
-        //cpu buffer
-        byte* currentVertex{NULL};
-        std::vector<byte> vertexs;
-        std::vector<uint> indexs;
+        //cpu buffers
+		size_t currentIndex{ 0 };
+		std::vector<uint> indexs;
+		size_t currentVertex{ 0 };
+		std::vector<byte> vertexs;
         //gpu buffer
-        BaseVertexBufferObject* bVertex;
-        BaseIndextBufferObject* bIndex;
+        uint sBVertex;
+        BaseVertexBufferObject* bVertex{ NULL };
+        uint sBIndex;
+        BaseIndextBufferObject* bIndex{ NULL };
         //calc size
         static size_t attSize(uchar type);
-        void calcVertexSize(uchar type);
-        void addFild(const float* b,size_t size);
+		void calcVertexSize(uchar type);
+		void addFild(const float* b, size_t size);
+		void addVertexCPage(size_t next);
+		void addIndexCPage();
         
     };
     
