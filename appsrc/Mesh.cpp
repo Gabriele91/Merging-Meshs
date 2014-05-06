@@ -190,10 +190,6 @@ void Mesh::index(uint i){
 	++currentIndex;
 }
 
-inline static size_t multipleOfX(size_t size, size_t x) //constexpr
-{
-	return ((size / x) + ((size % x) != 0)) * x;
-}
 //bind
 bool Mesh::bind(bool force){
 	Render& r = *Application::instance()->getRender();
