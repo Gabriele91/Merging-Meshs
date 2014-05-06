@@ -1,7 +1,6 @@
 
 out vec4 oColor;
-in  vec4 vtColor;
 
 void main(){
-    oColor = vtColor;
+    oColor =  vec4(1.0,1.0,1.0,1.0);;
 }

@@ -5,7 +5,6 @@
 struct VS_OUTPUT
 {
 	float4 position   : SV_Position;   // vertex position 
-	float4 diffuse    : COLOR0;        // vertex diffuse color
 };
 
 //-----------------------------------------------------------------------------
@@ -15,5 +14,5 @@ struct VS_OUTPUT
 //-----------------------------------------------------------------------------
 float4 main(VS_OUTPUT input) : SV_Target
 {
-	return input.diffuse;
+	return float4(1.0,1.0,1.0,1.0);
 }

@@ -26,7 +26,7 @@ extern Easy3D::Mat4 computeSVD(const std::vector<Easy3D::Vec3>& p,const std::vec
 
 	Easy3D::Vec3 centroidP, centroidQ;
 
-	Easy3D::DEBUG_ASSERT(p.size() == q.size());
+	//Easy3D::DEBUG_ASSERT(p.size() == q.size());
 
 	Eigen::MatrixXf v_0=centroidToZero(p, centroidP); // is V^T  = J
 	Eigen::MatrixXf v_1=centroidToZero(q, centroidQ); // is V'^T = J'

@@ -4,6 +4,7 @@
 #include <Math3D.h>
 #include <Color.h>
 #include <Render.h>
+#include <Utility.h>
 
 namespace Easy3D{
 
@@ -22,7 +23,8 @@ namespace Easy3D{
         
     public:
         
-        
+		//load mesh from off file
+		void loadOFF(const Utility::Path& path);
         
         //begin create mash
 		void format(uchar type, size_t vsize=0, size_t isize=0);

@@ -1001,6 +1001,11 @@ namespace Easy3D{
 		   }
 		   return true;
 		}
+		//sup multiple Of X
+		static DFORCEINLINE size_t multipleOfX(size_t size, size_t x) //constexpr
+		{
+			return ((size / x) + ((size % x) != 0)) * x;
+		}
 		//random values
 		static void seedRandom(unsigned int seed=0) ;
 		static float random();

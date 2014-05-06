@@ -34,7 +34,34 @@ namespace Easy3D{
 	}
 	//
 	//split
-	void split(const String& delimiters , std::vector<String>& tokens);
+	void split(const String& delimiters, std::vector<String>& tokens);
+	DFORCEINLINE std::vector<String> split(char delim) const {
+		//var dec
+		size_t i = 0, s = 0, j = 0, alloc_s = 1;
+		//vector
+		std::vector<String> out;
+		//memory alloc
+		for (size_t i = 0; i != this->size(); ++i){
+			if ((*this)[i] == delim)
+				++alloc_s;
+		}
+		out.resize(alloc_s);
+		//loop
+		while (i != this->size()) {
+			if ((*this)[i] == delim){
+				out[j] = (this->substr(s, i - s));
+				++j;
+				s = i + 1;
+			}
+			++i;
+		}
+		//end case
+		if (s != (this->size() - 1)){
+			out[j] = this->substr(s, i - s);
+		}
+		//return 
+		return out;
+	}
 	//
 	template<class T> static String toString(T dato){
 		   std::stringstream br;//creo il buffer
@@ -63,6 +90,57 @@ namespace Easy3D{
 	operator const char *() const{
 		return c_str();
 	}
+
+	//split static op
+	static DFORCEINLINE void split(const String& in, std::vector<String> & out, char delim) {
+		//var dec
+		size_t i = 0, s = 0, j = 0, alloc_s = 1;
+		//memory alloc
+		for (size_t i = 0; i != in.size(); ++i){
+			if (in[i] == delim)
+				++alloc_s;
+		}
+		out.resize(alloc_s);
+		//loop
+		while (i != in.size()) {
+			if (in[i] == delim){
+				out[j] = (in.substr(s, i - s));
+				++j;
+				s = i + 1;
+			}
+			++i;
+		}
+		//end case
+		if (s != (in.size() - 1)){
+			out[j] = in.substr(s, i - s);
+		}
+	}
+	static DFORCEINLINE void unsafe_split(String* in, std::vector<char *> & out, char delim) {
+		//var dec
+		size_t i = 0, s = 0, j = 0, alloc_s = 1;
+		//memory alloc
+		for (size_t i = 0; i != (*in).size(); ++i){
+			if ((*in)[i] == delim)
+				++alloc_s;
+		}
+		out.resize(alloc_s);
+		//loop
+		while (i != (*in).size()) {
+			if ((*in)[i] == delim){
+				out[j] = &((*in)[s]);
+				(*in)[i] = '\0';
+				++j;
+				s = i + 1;
+			}
+			++i;
+		}
+		//end case
+		if (s != ((*in).size() - 1)){
+			out[j] = (char*)&((*in)[s]);
+			(*in)[i] = '\0';
+		}
+	}
+
 
 	};
 

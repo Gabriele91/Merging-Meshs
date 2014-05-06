@@ -32,10 +32,6 @@ inline static bool dxShaderError(ID3D10Blob* dxerrors = NULL){
 	return true;
 }
 
-inline static size_t multipleOfX(size_t size, size_t x) //constexpr
-{
-	return ((size / x) + ((size % x) != 0)) * x;
-}
 
 //create buffer
 inline static ID3D10Buffer* genBufferObject(ID3D10Device* device, size_t size) 
@@ -100,7 +96,7 @@ DFORCEINLINE static void getContants(ID3D10Device *d3dDevice,
 		}
 	}
 	//save size buffer
-	size = multipleOfX(valueOffset, 16);
+	size = Math::multipleOfX(valueOffset, 16);
 	//
 	if (valueOffset)
 	{
