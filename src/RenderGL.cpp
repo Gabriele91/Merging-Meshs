@@ -169,11 +169,11 @@ BaseVertexBufferObject* RenderGL::createVBO(const byte* vbo, size_t stride, size
 	glBufferData(GL_ARRAY_BUFFER, stride*n, vbo, GL_STATIC_DRAW);
     return ptr;
 }
-BaseIndextBufferObject* RenderGL::createIBO(const ushort* ibo, size_t size){
+BaseIndextBufferObject* RenderGL::createIBO(const uint* ibo, size_t size){
     auto ptr=new BaseIndextBufferObject();
     ptr->genBuffer();
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *ptr);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(ushort)*size, ibo, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint)*size, ibo, GL_STATIC_DRAW);
     return ptr;
 }
 void RenderGL::bindVBO(BaseVertexBufferObject* vbo){
@@ -211,7 +211,7 @@ void RenderGL::drawArrays(TypeDraw type, uint n){
     glDrawArrays(getOpenGLDrawType(type), 0, n);
 }
 void RenderGL::drawElements(TypeDraw type, uint n){
-    glDrawElements(getOpenGLDrawType(type), n, GL_UNSIGNED_SHORT, (void*)NULL);
+    glDrawElements(getOpenGLDrawType(type), n, GL_UNSIGNED_INT, (void*)NULL);
 }
 /*
  InputLayout

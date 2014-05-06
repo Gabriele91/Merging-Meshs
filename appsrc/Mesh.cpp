@@ -91,7 +91,7 @@ bool Mesh::end(){
 }
 
 
-void Mesh::index(ushort i){
+void Mesh::index(uint i){
 	indexs.push_back(i);
 }
 

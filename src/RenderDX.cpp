@@ -373,7 +373,7 @@ public:
 class BaseIndextBufferObject : public BufferObject  {
 public:
 	BaseIndextBufferObject(ID3D10Buffer*  buffer = 0) :BufferObject(buffer){}
-	void genBuffer(ID3D10Device* device, const ushort* ibo, size_t size) {
+	void genBuffer(ID3D10Device* device, const uint* ibo, size_t size) {
 		D3D10_BUFFER_DESC bd;
 		bd.Usage = D3D10_USAGE_DEFAULT;
 		bd.ByteWidth = size;
@@ -395,9 +395,9 @@ BaseVertexBufferObject* RenderDX::createVBO(const byte* vbo, size_t stride, size
 	ptr->genBuffer(d3dDevice, vbo, ptr->size);
     return ptr;
 }
-BaseIndextBufferObject* RenderDX::createIBO(const ushort* ibo, size_t size){
+BaseIndextBufferObject* RenderDX::createIBO(const uint* ibo, size_t size){
 	auto ptr = new BaseIndextBufferObject();
-	ptr->genBuffer(d3dDevice, ibo, size*sizeof(ushort));
+	ptr->genBuffer(d3dDevice, ibo, size*sizeof(uint));
     return ptr;
 }
 void RenderDX::bindVBO(BaseVertexBufferObject* vbo){
@@ -405,7 +405,7 @@ void RenderDX::bindVBO(BaseVertexBufferObject* vbo){
 	d3dDevice->IASetVertexBuffers(0, 1, &vbo->buffer, &vbo->stride, &vbo->offset);
 }
 void RenderDX::bindIBO(BaseIndextBufferObject* ibo){
-	d3dDevice->IASetIndexBuffer(*ibo, DXGI_FORMAT_R16_UINT, 0);
+	d3dDevice->IASetIndexBuffer(*ibo, DXGI_FORMAT_R32_UINT, 0);
     //glBindBuffer(GL_ARRAY_BUFFER,*ibo);
 }
 void RenderDX::deleteVBO(BaseVertexBufferObject* vbo){

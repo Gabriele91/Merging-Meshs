@@ -42,7 +42,7 @@ namespace Easy3D{
         void buffer(const byte* b, size_t size);
         
 		//index
-		void index(ushort i);
+		void index(uint i);
 
         //draw mode
         void mode(TypeDraw m);
@@ -61,7 +61,7 @@ namespace Easy3D{
         //cpu buffer
         byte* currentVertex{NULL};
         std::vector<byte> vertexs;
-        std::vector<ushort> indexs;
+        std::vector<uint> indexs;
         //gpu buffer
         BaseVertexBufferObject* bVertex;
         BaseIndextBufferObject* bIndex;

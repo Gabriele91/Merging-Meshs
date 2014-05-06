@@ -246,7 +246,7 @@ namespace Easy3D {
         //BO
 		//virtual BaseVertexBufferObject* createVBO(const byte* vbo, size_t size, size_t strip, size_t offset)=0;
 		virtual BaseVertexBufferObject* createVBO(const byte* vbo, size_t stride, size_t n) = 0;
-		virtual BaseIndextBufferObject* createIBO(const ushort* ibo, size_t size) = 0;
+		virtual BaseIndextBufferObject* createIBO(const uint* ibo, size_t size) = 0;
         
         
 		virtual void bindVBO(BaseVertexBufferObject*)=0;
