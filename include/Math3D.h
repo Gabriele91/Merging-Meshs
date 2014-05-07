@@ -570,6 +570,7 @@ namespace Easy3D{
         ~AABox();
         //setting
         void setBox(const Vec3& center, Vec3 size);
+        void addPoint(const Vec3& point);
         //getter
         Vec3 getCenter() const{
             return (min+max)*0.5;

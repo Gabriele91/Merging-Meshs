@@ -654,7 +654,10 @@ String	Plane::toString(const String& start,
 AABox::AABox(const Vec3& center,Vec3 size) {
     setBox(center,size);
 }
-AABox::AABox(){}
+AABox::AABox(){
+    min=Vec3::MAX;
+    max=Vec3::MIN;
+}
 AABox::~AABox() {}
 
 void AABox::setBox(const Vec3& center,Vec3 size) {
@@ -662,7 +665,16 @@ void AABox::setBox(const Vec3& center,Vec3 size) {
     min=center-size*0.5;
     max=center+size*0.5;
 }
-
+void AABox::addPoint(const Vec3& point){
+    //get min
+    min.x=Math::min(point.x,min.x);
+    min.y=Math::min(point.y,min.y);
+    min.z=Math::min(point.z,min.z);
+    //get max
+    max.x=Math::max(point.x,max.x);
+    max.y=Math::max(point.y,max.y);
+    max.z=Math::max(point.z,max.z);
+}
 Vec3 AABox::getVertexP(const Vec3 &normal) const {
     
 	Vec3 res = min;

@@ -5,6 +5,7 @@
 #include <Render.h>
 #include <Shader.h>
 #include <Math3D.h>
+#include <Object.h>
 #include <Debug.h>
 
 #include "MathUtility.h"
@@ -24,7 +25,8 @@ public:
     Mat4 view;
     Mat4 model;
 	Mesh geometry;
-
+    Quaternion rotconst;
+    Quaternion rotation;
 	float increment;
     
 
@@ -44,8 +46,8 @@ public:
 
 		if (getRender().getRenderDriver() == OPENGL_DRIVER){
 			getRender().setCullFaceState(CullFace::BACK);
-			shobj->loadShader(rspath + "/shader/base.vs.glsl",
-                              rspath + "/shader/base.fs.glsl",
+			shobj->loadShader(rspath + "/shader/normals.vs.glsl",
+                              rspath + "/shader/normals.fs.glsl",
                               { "OpenGL_3_2 true" });
 
 			ptrCProjection = shobj->getConstMat4("projection");
@@ -65,11 +67,14 @@ public:
 
 		AttributeList atl({
 			{ "inPosition", ATT_FLOAT3 },
-			//{ "inColor", ATT_FLOAT4 }
+			{ "inNormal", ATT_FLOAT3 }
 		});
 		bil = getRender().createIL(shobj, atl);
-
-		geometry.loadOFF("meshs/faccia000.off");
+        
+		//geometry.loadOFF(rspath+"/meshs/lato225.off",Mesh::OFF_VERTEX_NORMALS);
+		//geometry.loadOFF(rspath+"/meshs/faccia000.off",Mesh::OFF_VERTEX_NORMALS);
+		geometry.loadOFF(rspath+"/meshs/faccia045.off",Mesh::OFF_VERTEX_NORMALS);
+		//geometry.loadOFF(rspath+"/meshs/cube.off",Mesh::OFF_VERTEX_NORMALS);
 
         //init
         projection=getRender().calculatesProjection(45.0f, 0.75f, 0.1f, 1000.0f);
@@ -86,7 +91,8 @@ public:
             {  0, 1, 0 }
 		});
         
-        
+        rotconst=Quaternion::fromEulero(Vec3(0, -0.005, -0.006));
+        rotation=Quaternion::fromEulero(Vec3(0, 0, 0));
 	}
 	void run(float dt){
 
@@ -106,10 +112,18 @@ public:
         getRender().bindIL(bil);
         
         ///draw 1
-		model.setScale(Vec3(0.25, 0.25, 0.1));
-		model.addTranslation(Vec3(0,0,0));
-		model.addEulerRotation(Vec3(0, 0, increment+=1*dt));
-		ptrCModel->setValue(model);
+        auto scale=Vec3::ONE/geometry.getBox().getSize();
+        auto pos=Vec3(0,0,geometry.getBox().getCenter().z);
+        Object obj,objRelative;
+        
+        obj.addChild(&objRelative);
+        objRelative.setTranslation(-pos*2);
+        obj.setTranslation(pos+Vec3(0,0,-10));
+        rotation=rotation.mul(rotconst);
+        obj.setRotation(rotation);
+		
+        ptrCModel->setValue(objRelative.getGlobalMatrix());
+        obj.erseChild(&objRelative);
         //getRender().drawArrays(DRAW_TRIANGLES, 3);
 		geometry.draw();
 		///draw 2
@@ -130,8 +144,8 @@ public:
 
 int main(){
 	Easy3D::Application::create("Easy3DExemple", 
-												OPENGL_DRIVER
-												//DIRECTX_DRIVER
+												//OPENGL_DRIVER
+												DIRECTX_DRIVER
 												);
 	Easy3D::Application::instance()->exec(new MyGame());
 	delete Easy3D::Application::instance()->getGame();

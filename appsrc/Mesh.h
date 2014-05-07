@@ -20,11 +20,13 @@ namespace Easy3D{
             UV        =16
         };
         
-        
-    public:
+        enum OFFCompute{
+            OFF_NO_NORMALS,
+            OFF_VERTEX_NORMALS
+        };
         
 		//load mesh from off file
-		void loadOFF(const Utility::Path& path);
+		void loadOFF(const Utility::Path& path,OFFCompute normals=OFF_NO_NORMALS);
         
         //begin create mash
 		void format(uchar type, size_t vsize=0, size_t isize=0);
@@ -55,6 +57,9 @@ namespace Easy3D{
         //draw element
         void draw();
         
+        //get box
+        const AABox& getBox(){ return  mBox; };
+        
     private:
         
         //draw mode
@@ -79,6 +84,15 @@ namespace Easy3D{
 		void addFild(const float* b, size_t size);
 		void addVertexCPage(size_t next);
 		void addIndexCPage();
+        
+        //loader utils
+        Easy3D::Vec3 __OFFGetV(size_t i);
+        Easy3D::Vec3 __OFFGetN(size_t i);
+        void __OFFSetN(size_t i,const Easy3D::Vec3& n);
+        void __OFFSumN(size_t i,const Easy3D::Vec3& n);
+        void __OFFNormalizeNormals();
+        void __OFFVNormals();
+
         
     };
     

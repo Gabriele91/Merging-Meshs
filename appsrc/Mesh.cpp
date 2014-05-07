@@ -22,7 +22,84 @@ DFORCEINLINE static void textFileRead(String& out,const Utility::Path &path) {
 	/////////////////////////////////////////////////////////////////////
 }
 
-void Mesh::loadOFF(const Utility::Path& path){
+inline void str_string(const char *in,size_t n,String& out){
+    out.resize(n);
+    Math::memcpy((Easy3D::byte*)&out[0],(Easy3D::byte*)in, n);
+}
+inline void fast_split(const char* str, std::vector<String>& out, char delimiter ){
+    //dec variables
+    out.resize(0);
+    size_t s=0,i=0,iout=0,size=1;
+    //size of vector
+    while(str[i++]){
+        if(str[i]==delimiter)
+            ++size;
+    }
+    out.resize(size);
+    i=0;
+    //split
+    while (str[i]) {
+        if(str[i]==delimiter){
+            str_string(&str[s],i-s,out[iout]);
+            s=i+1;
+            ++iout;
+        }
+        ++i;
+    }
+    //end case
+    if (iout!=size){
+        str_string(&str[s],i-s,out[iout]);
+    }
+}
+
+
+
+Easy3D::Vec3 Mesh::__OFFGetV(size_t i){
+    Easy3D::Vec3 out;
+    Math::memcpy((Easy3D::byte*)&out.x,
+                 (Easy3D::byte*)&vertexs[vSize*i],
+                 sizeof(float)*3);
+    return out;
+}
+Easy3D::Vec3 Mesh::__OFFGetN(size_t i){
+    Easy3D::Vec3 out;
+    Math::memcpy((Easy3D::byte*)&out.x,
+                 (Easy3D::byte*)&vertexs[vSize*i+sizeof(float)*3],
+                 sizeof(float)*3);
+    return out;
+}
+void Mesh::__OFFSetN(size_t i,const Easy3D::Vec3& n){
+    Math::memcpy((Easy3D::byte*)&vertexs[vSize*i+sizeof(float)*3],
+                 (Easy3D::byte*)&n.x,
+                 sizeof(float)*3);
+}
+void Mesh::__OFFSumN(size_t i,const Easy3D::Vec3& n){
+    __OFFSetN(i,__OFFGetN(i)+n);
+}
+void Mesh::__OFFNormalizeNormals(){
+    size_t nvertex= Math::multipleOfX(currentVertex, vSize) / vSize;
+    for(size_t i=0;i!=nvertex;++i){
+        Easy3D::Vec3 n=__OFFGetN(i);
+        n.normalize();
+        __OFFSetN(i,n);
+    }
+}
+void Mesh::__OFFVNormals(){
+    for(size_t i=0;i!=currentIndex;i+=3){
+        auto p=__OFFGetV(indexs[i]);
+        auto v1=p-__OFFGetV(indexs[i+1]);
+        auto v2=p-__OFFGetV(indexs[i+2]);
+        auto norm=v1.cross(v2);
+        __OFFSumN(indexs[i],norm);
+        __OFFSumN(indexs[i+1],norm);
+        __OFFSumN(indexs[i+2],norm);
+    }
+    //normalize normals
+    __OFFNormalizeNormals();
+}
+
+
+void Mesh::loadOFF(const Utility::Path& path,OFFCompute normals){
 	DEBUG_ASSERT(!bVertex);
 	//load file
 	String textfile;
@@ -39,17 +116,21 @@ void Mesh::loadOFF(const Utility::Path& path){
 		VERTEX,
 		FACE
 	};
-	std::vector<String> values;
+    std::vector<String> values;
 	POFFState state = SHOFF;
-	size_t nvertex;
-	size_t nface;
-	size_t nindex;
-	size_t iindex;
+    //type mesh
+    uchar type;                         type =Mesh::POSITION3D;
+    if(normals!=Mesh::OFF_NO_NORMALS)   type|=Mesh::NORMAL;
+    //
+	size_t nvertex=0;
+	size_t nface=0;
+	size_t nindex=0;
+	size_t iindex=0;
 	//parser
 	for (size_t i = 0; i != lines.size();++i){
 		//get values
 		values.resize(0);
-		String::split(lines[i], values,' ');
+		fast_split(lines[i], values,' ');
 		if (!values.size()) return;
 		//parser
 		switch (state)
@@ -63,14 +144,17 @@ void Mesh::loadOFF(const Utility::Path& path){
 		case COUNT:
 			nvertex = values[0].toInt(); DEBUG_ASSERT(nvertex != 0);
 			nface = values[1].toInt(); DEBUG_ASSERT(nface != 0);
-			format(Mesh::POSITION3D, nvertex, nface * 3);
+			format(type, nvertex, nface * 3);
 			state = VERTEX;
 			break;
-		case VERTEX:
-			//add vertex
-			vertex(Vec3(values[0].toDouble(), 
-					    values[1].toDouble(), 
-					    values[2].toDouble()));
+        case VERTEX:
+            //add vertex
+            vertex(Vec3(values[0].toDouble(),
+                        values[1].toDouble(),
+                        values[2].toDouble()));
+            //add normal
+            if(normals!=Mesh::OFF_NO_NORMALS)
+                normal(Vec3::ZERO);
 			//next vertex
 			--nvertex;
 			if (!nvertex)
@@ -96,11 +180,16 @@ void Mesh::loadOFF(const Utility::Path& path){
 			break;
 		}
 	}
+    //normals
+    if(normals!=Mesh::OFF_NO_NORMALS)
+        __OFFVNormals();
 	//draw mode
 	mode(DRAW_TRIANGLES);
 	//bind mesh
 	bind();
 }
+
+
 
 size_t Mesh::attSize(uchar type){
     switch (type) {
@@ -152,12 +241,16 @@ void Mesh::format(uchar type, size_t vsize, size_t isize){
 	indexs = std::vector<uint> (isize != 0 ? isize : IBO_N_PAGE);
 	currentVertex = 0;
 	currentIndex = 0;
+    mBox=AABox();
 }
 //like opengl 1.4
 void Mesh::vertex(const Vec2& vt){
+    mBox.addPoint(Vec3(vt,0.0));
     addFild(vt,2);
 }
 void Mesh::vertex(const Vec3& vt){
+    
+    mBox.addPoint(vt);
     addFild(vt,3);
 }
 void Mesh::normal(const Vec3& normal){
@@ -193,17 +286,17 @@ void Mesh::index(uint i){
 //bind
 bool Mesh::bind(bool force){
 	Render& r = *Application::instance()->getRender();
-	//vertex buffer
 	DEBUG_ASSERT(currentVertex);
-	bVertex = r.createVBO(&vertexs[0], vSize, /* vertexs.size() / vSize */  
-											  Math::multipleOfX(currentVertex, vSize) / vSize);
+    
+    //sizes
+    sBVertex=(uint)(Math::multipleOfX(currentVertex, vSize) / vSize);
+    sBIndex=(uint)(currentIndex);
+    //vertex buffer
+	bVertex = r.createVBO(&vertexs[0], vSize, /* vertexs.size() / vSize */ sBVertex);
 	//index buffer
 	if(currentIndex)
-		bIndex = r.createIBO(&indexs[0],/* indexs.size() */
-										   currentIndex);
-    //sizes
-    sBVertex=(uint)(vertexs.size()/vSize);
-    sBIndex=(uint)(indexs.size());
+		bIndex = r.createIBO(&indexs[0],/* indexs.size() */ sBIndex);
+
 	//delete cpu info
 	if (force){
 		vertexs = std::vector<byte>(0);
