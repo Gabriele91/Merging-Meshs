@@ -26,78 +26,184 @@ inline void str_string(const char *in,size_t n,String& out){
     out.resize(n);
     Math::memcpy((Easy3D::byte*)&out[0],(Easy3D::byte*)in, n);
 }
-inline void fast_split(const char* str, std::vector<String>& out, char delimiter ){
-    //dec variables
-    out.resize(0);
-    size_t s=0,i=0,iout=0,size=1;
+inline void space_split(const char* str, std::vector<String>& out ){
+	//define a space
+	#define isspace(x) ((x) == ' '|| (x) == '\t')
+	#define eatspaces(x,i) while (isspace(x[i])) ++i;
+	#define eatnospaces(x,i) while ((!isspace(x[i])) && x[i]) ++i;
+	//dec variables
+	size_t s = 0, i = 0, iout = 0, size = 1; 
+	out.resize(0);
+	//jmp space
+	eatspaces(str, i)
     //size of vector
-    while(str[i++]){
-        if(str[i]==delimiter)
-            ++size;
+	while (str[i]){
+		//id is a space
+		if (isspace(str[i])){
+				//a new split
+				++size;
+				//jump space
+				eatspaces(str, i)
+		}
+		++i;
     }
     out.resize(size);
-    i=0;
+	//restart
+	i = 0;
+	//jmp space
+	eatspaces(str, i)
+	//save first no space char
+	s = i;
     //split
     while (str[i]) {
-        if(str[i]==delimiter){
+		if (isspace(str[i])){
+			//copy string
             str_string(&str[s],i-s,out[iout]);
-            s=i+1;
+			//jump next space
+			eatspaces(str, i)
+			//next start
+            s=i;
+			//next string
             ++iout;
         }
-        ++i;
+		else
+			 ++i;
     }
     //end case
     if (iout!=size){
         str_string(&str[s],i-s,out[iout]);
     }
+	//undefs
+	#undef isspace
+	#undef eatspaces
+	#undef eatnospaces
 }
 
 
-
-Easy3D::Vec3 Mesh::__OFFGetV(size_t i){
-    Easy3D::Vec3 out;
-    Math::memcpy((Easy3D::byte*)&out.x,
-                 (Easy3D::byte*)&vertexs[vSize*i],
-                 sizeof(float)*3);
-    return out;
+Easy3D::Vec3& Mesh::offV(size_t i){
+	return *((Easy3D::Vec3*)&vertexs[vSize*i]);
 }
-Easy3D::Vec3 Mesh::__OFFGetN(size_t i){
-    Easy3D::Vec3 out;
-    Math::memcpy((Easy3D::byte*)&out.x,
-                 (Easy3D::byte*)&vertexs[vSize*i+sizeof(float)*3],
-                 sizeof(float)*3);
-    return out;
+Easy3D::Vec3& Mesh::offN(size_t i){
+	return *((Easy3D::Vec3*)&vertexs[vSize*i + sizeof(float)* 3]);
 }
-void Mesh::__OFFSetN(size_t i,const Easy3D::Vec3& n){
-    Math::memcpy((Easy3D::byte*)&vertexs[vSize*i+sizeof(float)*3],
-                 (Easy3D::byte*)&n.x,
-                 sizeof(float)*3);
-}
-void Mesh::__OFFSumN(size_t i,const Easy3D::Vec3& n){
-    __OFFSetN(i,__OFFGetN(i)+n);
-}
-void Mesh::__OFFNormalizeNormals(){
-    size_t nvertex= Math::multipleOfX(currentVertex, vSize) / vSize;
-    for(size_t i=0;i!=nvertex;++i){
-        Easy3D::Vec3 n=__OFFGetN(i);
-        n.normalize();
-        __OFFSetN(i,n);
+void Mesh::offNormalize(){
+	size_t nsize = sizeVertexs();
+	for (size_t i = 0; i != nsize; ++i){
+		offN(i).normalize();
     }
 }
-void Mesh::__OFFVNormals(){
-    for(size_t i=0;i!=currentIndex;i+=3){
-        auto p=__OFFGetV(indexs[i]);
-        auto v1=p-__OFFGetV(indexs[i+1]);
-        auto v2=p-__OFFGetV(indexs[i+2]);
-        auto norm=v1.cross(v2);
-        __OFFSumN(indexs[i],norm);
-        __OFFSumN(indexs[i+1],norm);
-        __OFFSumN(indexs[i+2],norm);
+void Mesh::offComputeNormals(){
+	size_t nsize = sizeIndexs();
+	for (size_t i = 0; i != nsize; i += 3){
+		auto v1 = offV(indexs[i+1]) - offV(indexs[i]);
+		auto v2 = offV(indexs[i+2]) - offV(indexs[i]);
+		auto norm = (v1.cross(v2)).getNormalize();
+
+		offN(indexs[i])   += norm;
+		offN(indexs[i+1]) += norm;
+		offN(indexs[i+2]) += norm;
     }
-    //normalize normals
-    __OFFNormalizeNormals();
+    //normalize all normals
+	offNormalize();
 }
 
+Easy3D::Vec3 Mesh::offFaceNormal(size_t i){
+	auto v1 = offV(indexs[i + 1]) - offV(indexs[i]);
+	auto v2 = offV(indexs[i + 2]) - offV(indexs[i]);
+	return (v1.cross(v2)).getNormalize();
+}
+Easy3D::Vec3 Mesh::offFaceNormal(size_t v0, size_t v1, size_t v2){
+	auto dv1 = offV(indexs[v1]) - offV(indexs[v0]);
+	auto dv2 = offV(indexs[v2]) - offV(indexs[v0]);
+	return (dv1.cross(dv2)).getNormalize();
+}
+float Mesh::offFaceArea(size_t i){
+	auto v1 = offV(indexs[i + 1]) - offV(indexs[i]);
+	auto v2 = offV(indexs[i + 2]) - offV(indexs[i]);
+	auto v3 = v1.cross(v2);
+	return 0.5f*std::sqrt(v3.x*v3.x + v3.y*v3.y + v3.z*v3.z);
+}
+inline float angleVectors(const Vec3& a,const Vec3& b){
+	return std::acos( a.dot(b) / (a.length()*b.length()) );
+}
+float Mesh::offFaceAngle(size_t v0, size_t v1, size_t v2){
+	return angleVectors(offV(indexs[v0]) - offV(indexs[v1]),
+						offV(indexs[v0]) - offV(indexs[v2]));
+}
+void Mesh::offSlowComputeNormals(){
+	//calc size
+	size_t nsize = sizeIndexs();
+	size_t adj = 0;
+	size_t av = 0;
+	// A as a face of Mesh
+	//#pragma omp for
+	for (size_t a = 0; a != nsize; a += 3){
+		//for all vertex of A
+		for (size_t v = 0; v != 3; ++v){
+			//adjacency
+			adj = 0;
+			//vertex
+			av = a + v;
+			//for all face of mesh (exclude A)
+			for (size_t b = 0; b != nsize; b += 3){
+				//A!=B
+				if (b == a) continue;
+				//
+				#if 0
+				if (indexs[av] == indexs[b]){
+					++adj;
+					offN(indexs[av]) += offFaceNormal(b, b + 1, b + 2);
+				}
+				if (indexs[av] == indexs[b + 1]){
+					++adj;
+					offN(indexs[av]) += offFaceNormal(b + 1, b, b + 2);
+				}
+				if (indexs[av] == indexs[b + 2]){
+					++adj;
+					offN(indexs[av]) += offFaceNormal(b + 2, b, b + 1);
+				}
+				#elif 1
+				auto bNA = offFaceNormal(b) *offFaceArea(b);
+				if (indexs[av] == indexs[b]){
+					++adj;
+					offN(indexs[av]) += bNA * offFaceAngle(b, b + 1, b + 2);
+				}
+				if (indexs[av] == indexs[b + 1]){
+					++adj;
+					offN(indexs[av]) += bNA * offFaceAngle(b + 1, b, b + 2);
+				}
+				if (indexs[av] == indexs[b + 2]){
+					++adj;
+					offN(indexs[av]) += bNA * offFaceAngle(b + 2, b, b + 1);
+				}
+				#elif 0
+				if (indexs[av] == indexs[b]){
+					++adj;
+					offN(indexs[av]) += offFaceNormal(b, b + 1, b + 2) * offFaceArea(b) * offFaceAngle(b, b + 1, b + 2);
+				}
+				if (indexs[av] == indexs[b + 1]){
+					++adj;
+					offN(indexs[av]) += offFaceNormal(b + 1, b, b + 2) * offFaceArea(b) * offFaceAngle(b + 1, b, b + 2);
+				}
+				if (indexs[av] == indexs[b + 2]){
+					++adj;
+					offN(indexs[av]) += offFaceNormal(b + 2, b, b + 1) * offFaceArea(b) * offFaceAngle(b + 2, b, b + 1);
+				}
+				#else
+				if (indexs[av] == indexs[b] || 
+					indexs[av] == indexs[b + 1] ||
+					indexs[av] == indexs[b + 2]){
+					++adj;
+					offN(indexs[av]) += offFaceNormal(b);
+				}
+				#endif
+			}
+			//normalize
+			if (adj)
+				offN(indexs[av]).normalize();
+		}
+	}
+}
 
 void Mesh::loadOFF(const Utility::Path& path,OFFCompute normals){
 	DEBUG_ASSERT(!bVertex);
@@ -130,7 +236,7 @@ void Mesh::loadOFF(const Utility::Path& path,OFFCompute normals){
 	for (size_t i = 0; i != lines.size();++i){
 		//get values
 		values.resize(0);
-		fast_split(lines[i], values,' ');
+		space_split(lines[i], values);
 		if (!values.size()) return;
 		//parser
 		switch (state)
@@ -181,15 +287,15 @@ void Mesh::loadOFF(const Utility::Path& path,OFFCompute normals){
 		}
 	}
     //normals
-    if(normals!=Mesh::OFF_NO_NORMALS)
-        __OFFVNormals();
+	if (normals == Mesh::OFF_VERTEX_NORMALS)
+		offComputeNormals();
+	else if (normals == Mesh::OFF_VERTEX_NORMALS_SLOW)
+		offSlowComputeNormals();
 	//draw mode
 	mode(DRAW_TRIANGLES);
 	//bind mesh
 	bind();
 }
-
-
 
 size_t Mesh::attSize(uchar type){
     switch (type) {
@@ -209,7 +315,6 @@ size_t Mesh::attSize(uchar type){
         break;
     }
 }
-
 void Mesh::calcVertexSize(uchar type){
     vSize=0;
     vSize+=attSize(type & VertexField::POSITION2D);
@@ -222,6 +327,12 @@ void Mesh::addFild(const float* b, size_t size){
 	addVertexCPage(sizeof(float)*size);
 	Math::memcpy(&vertexs[currentVertex], (const byte*)b, sizeof(float)*size);	
 	currentVertex += sizeof(float)*size;
+}
+size_t Mesh::sizeVertexs(){
+	return (Math::multipleOfX(currentVertex, vSize) / vSize);
+}
+size_t Mesh::sizeIndexs(){
+	return currentIndex;
 }
 
 void Mesh::addVertexCPage(size_t next){
@@ -243,6 +354,7 @@ void Mesh::format(uchar type, size_t vsize, size_t isize){
 	currentIndex = 0;
     mBox=AABox();
 }
+
 //like opengl 1.4
 void Mesh::vertex(const Vec2& vt){
     mBox.addPoint(Vec3(vt,0.0));
@@ -276,7 +388,7 @@ void Mesh::ibuffer(const Easy3D::uint* b){
 	currentIndex = indexs.size();
 }
 
-//
+//add a index
 void Mesh::index(uint i){
 	addIndexCPage();
 	indexs[currentIndex] = i;
@@ -289,8 +401,8 @@ bool Mesh::bind(bool force){
 	DEBUG_ASSERT(currentVertex);
     
     //sizes
-    sBVertex=(uint)(Math::multipleOfX(currentVertex, vSize) / vSize);
-    sBIndex=(uint)(currentIndex);
+	sBVertex = (uint)sizeVertexs();
+	sBIndex = (uint)sizeIndexs();
     //vertex buffer
 	bVertex = r.createVBO(&vertexs[0], vSize, /* vertexs.size() / vSize */ sBVertex);
 	//index buffer
@@ -305,11 +417,9 @@ bool Mesh::bind(bool force){
 	//return 
 	return bVertex != NULL;
 }
-
 void Mesh::mode(TypeDraw m){
 	dMode = m;
 }
-
 void Mesh::draw(){
 	Render& r = *Application::instance()->getRender();
 	r.bindVBO(bVertex);

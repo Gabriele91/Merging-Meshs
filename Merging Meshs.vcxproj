@@ -104,6 +104,7 @@
     <ClInclude Include="include\Input.h" />
     <ClInclude Include="include\Math3D.h" />
     <ClInclude Include="include\Memory.h" />
+    <ClInclude Include="include\Object.h" />
     <ClInclude Include="include\Render.h" />
     <ClInclude Include="include\RenderDX.h" />
     <ClInclude Include="include\RenderGL.h" />
@@ -139,6 +140,7 @@
     <ClCompile Include="src\Math3D.cpp" />
     <ClCompile Include="src\Math3D_SSE2.cpp" />
     <ClCompile Include="src\Memory.cpp" />
+    <ClCompile Include="src\Object.cpp" />
     <ClCompile Include="src\RenderDX.cpp" />
     <ClCompile Include="src\RenderGL.cpp" />
     <ClCompile Include="src\Screen.cpp" />
@@ -159,6 +161,8 @@
   <ItemGroup>
     <None Include="shader\base.fs.glsl" />
     <None Include="shader\base.vs.glsl" />
+    <None Include="shader\normals.fs.glsl" />
+    <None Include="shader\normals.vs.glsl" />
     <None Include="shader\test.fs.glsl" />
     <None Include="shader\test.vs.glsl" />
   </ItemGroup>
@@ -175,6 +179,14 @@
       <FileType>Document</FileType>
     </Text>
     <Text Include="shader\test.vs.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="shader\normals.fs.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+    <Text Include="shader\normals.vs.hlsl">
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>

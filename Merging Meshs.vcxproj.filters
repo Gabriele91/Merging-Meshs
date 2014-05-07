@@ -126,6 +126,9 @@
     <ClInclude Include="appsrc\Mesh.h">
       <Filter>appsrc</Filter>
     </ClInclude>
+    <ClInclude Include="include\Object.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Application.cpp">
@@ -212,6 +215,9 @@
     <ClCompile Include="appsrc\Mesh.cpp">
       <Filter>appsrc</Filter>
     </ClCompile>
+    <ClCompile Include="src\Object.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\base.fs.glsl">
@@ -226,6 +232,12 @@
     <None Include="shader\test.vs.glsl">
       <Filter>File di risorse\test</Filter>
     </None>
+    <None Include="shader\normals.fs.glsl">
+      <Filter>File di risorse</Filter>
+    </None>
+    <None Include="shader\normals.vs.glsl">
+      <Filter>File di risorse</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="shader\base.fs.hlsl">
@@ -239,6 +251,12 @@
     </Text>
     <Text Include="shader\test.vs.hlsl">
       <Filter>File di risorse\test</Filter>
+    </Text>
+    <Text Include="shader\normals.fs.hlsl">
+      <Filter>File di risorse</Filter>
+    </Text>
+    <Text Include="shader\normals.vs.hlsl">
+      <Filter>File di risorse</Filter>
     </Text>
   </ItemGroup>
 </Project>

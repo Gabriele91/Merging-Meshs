@@ -21,8 +21,9 @@ namespace Easy3D{
         };
         
         enum OFFCompute{
-            OFF_NO_NORMALS,
-            OFF_VERTEX_NORMALS
+			OFF_NO_NORMALS,
+			OFF_VERTEX_NORMALS,
+			OFF_VERTEX_NORMALS_SLOW
         };
         
 		//load mesh from off file
@@ -84,14 +85,21 @@ namespace Easy3D{
 		void addFild(const float* b, size_t size);
 		void addVertexCPage(size_t next);
 		void addIndexCPage();
+		size_t sizeVertexs();
+		size_t sizeIndexs();
         
         //loader utils
-        Easy3D::Vec3 __OFFGetV(size_t i);
-        Easy3D::Vec3 __OFFGetN(size_t i);
-        void __OFFSetN(size_t i,const Easy3D::Vec3& n);
-        void __OFFSumN(size_t i,const Easy3D::Vec3& n);
-        void __OFFNormalizeNormals();
-        void __OFFVNormals();
+		Easy3D::Vec3& offV(size_t i);
+		Easy3D::Vec3& offN(size_t i);
+		void offNormalize();
+		//fast normals (like mesh lab)
+		void offComputeNormals();
+		//slow normals
+		Easy3D::Vec3 offFaceNormal(size_t i);
+		float offFaceArea(size_t i);
+		Easy3D::Vec3 offFaceNormal(size_t v0, size_t v1, size_t v2);
+		float offFaceAngle(size_t v0, size_t v1, size_t v2);
+		void offSlowComputeNormals();
 
         
     };
