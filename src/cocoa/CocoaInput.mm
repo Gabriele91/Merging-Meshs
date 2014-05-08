@@ -179,6 +179,8 @@ using namespace Easy3D;
 	easy2Dinput->ekeyboard.__init();
 	//input mouse hit
 	easy2Dinput->emouse.__init();
+    //update scroll
+    easy2Dinput->emouse.scroll=0;
 }
 -(void) mouseMoved:(NSEvent *) theEvent{
     NSPoint point=[theEvent locationInWindow];
@@ -414,6 +416,8 @@ void CocoaInput::update(){
 	//update hit
 	ekeyboard.__clearHit();
 	emouse.__clearHit();
+	//update scroll
+	emouse.scroll = 0;
 	//update cocoa events
     __updateCocoaEvent();
 	///////////////////////////LOOP EVENT

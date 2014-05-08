@@ -29,14 +29,15 @@ public:
 	Mat4 model;
 	Mesh geometry;
 	Mesh geometry2;
-	bool g1org2;
-    Quaternion rotconst;
-    Quaternion rotation;
-	float increment;
-    
+	BaseInputLayout *bil;
 
-    BaseVertexBufferObject *bvb;
-    BaseInputLayout *bil;
+	//ogic
+	bool g1org2;
+	float zDelta;
+	float increment;
+	Quaternion rotconst;
+	Quaternion rotation;
+    
 
 	MyGame() :Game("Easy3D exemple", 640, 640){}
 
@@ -79,21 +80,13 @@ public:
 			{ "inNormal", ATT_FLOAT3 }
 		});
 		bil = getRender().createIL(shobj, atl);
-        
-		//geometry.loadOFF(rspath+"/meshs/lato225.off",Mesh::OFF_VERTEX_NORMALS);
+		
 		geometry.loadOFF(rspath + "/meshs/faccia000.off", Mesh::OFF_VERTEX_NORMALS);
-		//geometry.loadOFF(rspath + "/meshs/Apple.off", Mesh::OFF_VERTEX_NORMALS);
-		//geometry.loadOFF(rspath + "/meshs/dragon.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
-		//geometry.loadOFF(rspath + "/meshs/box.off", Mesh::OFF_VERTEX_NORMALS);
-		//geometry2.loadOFF(rspath + "/meshs/box.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
-		//geometry.loadOFF(rspath + "/meshs/box2.off", Mesh::OFF_VERTEX_NORMALS);
-		//geometry2.loadOFF(rspath + "/meshs/box2.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
-		//geometry.loadOFF(rspath + "/meshs/cone.off", Mesh::OFF_VERTEX_NORMALS);
-		//geometry2.loadOFF(rspath + "/meshs/cone.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
-		//geometry.loadOFF(rspath+"/meshs/faccia045.off",Mesh::OFF_VERTEX_NORMALS);
-		//geometry.loadOFF(rspath + "/meshs/cube.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
-		//geometry.loadOFF(rspath + "/meshs/cube.off", Mesh::OFF_VERTEX_NORMALS);
-		geometry2.loadOFF(rspath + "/meshs/cube.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
+		geometry2.loadOFF(rspath + "/meshs/cube.off", Mesh::OFF_VERTEX_NORMALS);
+		
+		//geometry.loadOFF(rspath + "/meshs/ship.off", Mesh::OFF_VERTEX_NORMALS);
+		//geometry2.loadOFF(rspath + "/meshs/ship.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
+
 		g1org2 = false;
 
         //init
@@ -111,8 +104,9 @@ public:
             {  0, 1, 0 }
 		});
         
-        rotconst=Quaternion::fromEulero(Vec3(0.0,0.001, 0));
+		rotconst = Quaternion::fromEulero(Vec3(0.0, .01, 0));
         rotation=Quaternion::fromEulero(Vec3(0, 0, 0));
+		zDelta = 1.0;
 	}
 	void run(float dt){
 
@@ -120,54 +114,46 @@ public:
 			getRender().setCullFaceState(CullFace::FRONT);
 		if (getInput().getKeyDown(Key::B))
 			getRender().setCullFaceState(CullFace::BACK);
-
-		getRender().doClear();
-		//bind
-		getRender().bindShader(shobj);
-        
-		ptrCProjection->setValue(projection);
-		ptrCView->setValue(view);
-        
-        //getRender().bindVBO(bvb);
-        getRender().bindIL(bil);
-        
-        ///draw 1
-        auto scale=Vec3::ONE/geometry.getBox().getSize();
-        auto pos=Vec3(0,0,geometry.getBox().getCenter().z);
-        Object obj,objRelative;
-        
-        obj.addChild(&objRelative);
-        objRelative.setTranslation(-pos*2);
-        obj.setTranslation(pos+Vec3(0,0,-10));
-        rotation=rotation.mul(rotconst);
-        obj.setRotation(rotation);
-		
-        ptrCModel->setValue(objRelative.getGlobalMatrix());
-        obj.erseChild(&objRelative);
-        //getRender().drawArrays(DRAW_TRIANGLES, 3);
 		if (getInput().getKeyHit(Key::A)){
 			g1org2 = !g1org2;
-			Debug::message() << (!g1org2? "g1" : "g2") << '\n';
+			Debug::message() << (!g1org2 ? "g1" : "g2") << '\n';
 		}
+		auto posLight = getInput().getMouse() / getScreen().getSize();
+		zDelta -= getInput().getScroll()*0.1*dt;
+		//logic
+		auto box = geometry.getBox();
+		auto size = box.getSize();
+		auto msize = Math::max(size.x, size.y, size.z);
+        Object obj,objRelative;
         
-        auto posLight=getInput().getMouse()/getScreen().getSize();
-        
-        ptrCLight->setValue(Vec3( posLight.x, 1.0-posLight.y , 1.0 ));
+        obj.addChild(&objRelative,false);
+		objRelative.setTranslation(-box.getCenter());
+
+		obj.setTranslation(-Vec3(0, 0, msize)*zDelta);
+        rotation=rotation.mul(rotconst);
+        obj.setRotation(rotation);
+
+		//draw
+		getRender().doClear();
+		//shader
+		getRender().bindShader(shobj);
+		getRender().bindIL(bil);
+		//PVM
+		ptrCProjection->setValue(projection);
+		ptrCView->setValue(view);
+        ptrCModel->setValue(objRelative.getGlobalMatrix());
+		//light
+		ptrCLight->setValue(Vec3(posLight.x - 0.5, 0.5 - posLight.y, 1.0));
         ptrCDiffuse->setValue({ 1.0, 1.0 , 1.0, 1.0 });
-        
-        
+                
 		if (!g1org2)
 			geometry.draw();
 		else
 			geometry2.draw();
-		///draw 2
-		//model.setScale(Vec3(5, 5, 1));
-		//model.addTranslation(Vec3(-0.5,0,-11));
-		//ptrCModel->setValue(model);
-		//getRender().drawArrays(DRAW_TRIANGLES, 3);
 
+		//unbind 
 		getRender().unbindShader();
-        getRender().unbindIL(bil);
+		getRender().unbindIL(bil);
 	}
 	void end(){
 

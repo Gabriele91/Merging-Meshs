@@ -95,6 +95,9 @@ void Object::change(){
 		changeValue=true;
 	}
 }
+void Object::addChild(Object *child, bool hard){
+	addChild(child,ENABLE_ALL,hard);
+}
 void Object::addChild(Object *child,ParentMode type,bool hard){
 
 	if(child->parent==this) return;

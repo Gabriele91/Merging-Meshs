@@ -29,7 +29,8 @@ namespace Easy3D{
 		void setMove(const Vector3D &move);
 		void setTurn(const Quaternion& rotation);
 		//childs
-		void addChild(Object *child,ParentMode type=ENABLE_ALL,bool hard=true);
+		void addChild(Object *child, bool hard = true);
+		void addChild(Object *child, ParentMode type, bool hard = true);
 		void erseChild(Object *child);
 		void changeParentMode(ParentMode type);
 		//

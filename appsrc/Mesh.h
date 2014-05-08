@@ -60,13 +60,14 @@ namespace Easy3D{
         
         //get box
         const AABox& getBox(){ return  mBox; };
-        
+		        
     private:
         
         //draw mode
         TypeDraw dMode;
         //burning box
         AABox mBox;
+		Vec3  center;
         //size of vertex
         size_t vSize;
         //cpu buffers

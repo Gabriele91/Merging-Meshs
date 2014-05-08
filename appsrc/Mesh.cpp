@@ -149,13 +149,21 @@ float Mesh::offFaceAngle(size_t v0, size_t v1, size_t v2){
 
 void Mesh::offSlowComputeNormals(){
 	//calc size
-	size_t       nsize = sizeIndexs();
-	size_t       adj = 0;
+	long		 nsize = (long)sizeIndexs();
+	bool		 adj = 0;
 	size_t       av = 0;
     Easy3D::Vec3 n;
+	//compute normals
+	std::vector<Vec3> planesNormals(nsize);
+	for (size_t abn = 0; abn != nsize; abn += 3){
+		planesNormals[abn    ] = offFaceNormal(abn) * offFaceArea(abn) * offFaceAngle(abn, abn + 1, abn + 2);
+		planesNormals[abn + 1] = offFaceNormal(abn) * offFaceArea(abn) * offFaceAngle(abn + 1, abn, abn + 2);
+		planesNormals[abn + 2] = offFaceNormal(abn) * offFaceArea(abn) * offFaceAngle(abn + 2, abn, abn + 1);
+	}
 	// A as a face of Mesh
-	//#pragma omp for
-	for (size_t a = 0; a != nsize; a += 3){
+	//#pragma loop(hint_parallel(4))
+	#pragma omp parallel for private(adj,av,n) num_threads(2)
+	for (long a = 0; a < (nsize-1); a += 3){
 		//for all vertex of A
 		for (size_t v = 0; v != 3; ++v){
 			//adjacency
@@ -168,25 +176,23 @@ void Mesh::offSlowComputeNormals(){
 			for (size_t b = 0; b != nsize; b += 3){
 				//A!=B
 				if (b == a) continue;
-				//slow
-				auto bNA = offFaceNormal(b) * offFaceArea(b);
                 //calc angle
 				if (indexs[av] == indexs[b]){
-					n += bNA * offFaceAngle(b, b + 1, b + 2);
-					++adj;
+					n += planesNormals[b];
+					adj = true;
 				}
 				if (indexs[av] == indexs[b + 1]){
-					n += bNA * offFaceAngle(b + 1, b, b + 2);
-					++adj;
+					n += planesNormals[b + 1];
+					adj = true;
 				}
 				if (indexs[av] == indexs[b + 2]){
-					n += bNA * offFaceAngle(b + 2, b, b + 1);
-					++adj;
+					n += planesNormals[b + 2];
+					adj = true;
 				}
 				
 			}
 			//normalize
-			if (adj) offN(indexs[av]) += n/adj;
+			if (adj) offN(indexs[av]) += n.getNormalize();
 		}
 	}
     //
@@ -341,16 +347,18 @@ void Mesh::format(uchar type, size_t vsize, size_t isize){
 	currentVertex = 0;
 	currentIndex = 0;
     mBox=AABox();
+	center = Vec3::ZERO;
 }
 
 //like opengl 1.4
 void Mesh::vertex(const Vec2& vt){
-    mBox.addPoint(Vec3(vt,0.0));
+	mBox.addPoint(Vec3(vt, 0.0));
+	center += Vec3(vt, 0.0);
     addFild(vt,2);
 }
 void Mesh::vertex(const Vec3& vt){
-    
     mBox.addPoint(vt);
+	center += vt;
     addFild(vt,3);
 }
 void Mesh::normal(const Vec3& normal){
@@ -387,10 +395,17 @@ void Mesh::index(uint i){
 bool Mesh::bind(bool force){
 	Render& r = *Application::instance()->getRender();
 	DEBUG_ASSERT(currentVertex);
-    
     //sizes
 	sBVertex = (uint)sizeVertexs();
 	sBIndex = (uint)sizeIndexs();
+	//calc center
+	center /= (float)sBVertex;
+	Vec3 size;
+	#define max1DDisance( a, b, c )(Math::max(std::abs(a-c),std::abs(b-c)))
+	size.x = max1DDisance(mBox.max.x, mBox.min.x, center.x);
+	size.y = max1DDisance(mBox.max.y, mBox.min.y, center.y);
+	size.z = max1DDisance(mBox.max.z, mBox.min.z, center.z);
+	mBox.setBox(center, size);
     //vertex buffer
 	bVertex = r.createVBO(&vertexs[0], vSize, /* vertexs.size() / vSize */ sBVertex);
 	//index buffer

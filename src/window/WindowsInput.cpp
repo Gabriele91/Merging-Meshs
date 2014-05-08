@@ -197,6 +197,8 @@ void WindowsInput::update(){
 	//update hit
 	ekeyboard.__clearHit();
 	emouse.__clearHit();
+	//update scroll
+	emouse.scroll = 0;
 	//update windows message
 	MSG		msg;
     //take message and send it...
@@ -237,6 +239,8 @@ void WindowsInput::update(){
 			ekeyboard.__init();
 			//reset mouse hit
 			emouse.__init();
+			//update scroll
+			emouse.scroll = 0;
 	}
 	///////////////////////////LOOP EVENT
 	//update event

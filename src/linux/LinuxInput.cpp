@@ -196,6 +196,8 @@ void LinuxInput::__update(XEvent &event){
                 ekeyboard.__init();
                 //reset mouse hit
                 emouse.__init();
+                //update scroll
+                emouse.scroll = 0;
             }
             //
             ewindow.focus=false;
@@ -307,6 +309,8 @@ void LinuxInput::update(){
 	//update hit
 	ekeyboard.__clearHit();
 	emouse.__clearHit();
+    //update scroll
+    emouse.scroll = 0;
 	//update x11 events
     XEvent event;
     while (XPending(display) > 0){
