@@ -347,18 +347,18 @@ void Mesh::format(uchar type, size_t vsize, size_t isize){
 	currentVertex = 0;
 	currentIndex = 0;
     mBox=AABox();
-	center = Vec3::ZERO;
+	centroid = Vec3::ZERO;
 }
 
 //like opengl 1.4
 void Mesh::vertex(const Vec2& vt){
 	mBox.addPoint(Vec3(vt, 0.0));
-	center += Vec3(vt, 0.0);
+	centroid += Vec3(vt, 0.0);
     addFild(vt,2);
 }
 void Mesh::vertex(const Vec3& vt){
     mBox.addPoint(vt);
-	center += vt;
+	centroid += vt;
     addFild(vt,3);
 }
 void Mesh::normal(const Vec3& normal){
@@ -399,13 +399,7 @@ bool Mesh::bind(bool force){
 	sBVertex = (uint)sizeVertexs();
 	sBIndex = (uint)sizeIndexs();
 	//calc center
-	center /= (float)sBVertex;
-	Vec3 size;
-	#define max1DDisance( a, b, c )(Math::max(std::abs(a-c),std::abs(b-c)))
-	size.x = max1DDisance(mBox.max.x, mBox.min.x, center.x);
-	size.y = max1DDisance(mBox.max.y, mBox.min.y, center.y);
-	size.z = max1DDisance(mBox.max.z, mBox.min.z, center.z);
-	mBox.setBox(center, size);
+	centroid /= (float)sBVertex;
     //vertex buffer
 	bVertex = r.createVBO(&vertexs[0], vSize, /* vertexs.size() / vSize */ sBVertex);
 	//index buffer

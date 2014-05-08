@@ -35,15 +35,14 @@ public:
 	bool g1org2;
 	float zDelta;
 	float increment;
-	Quaternion rotconst;
 	Quaternion rotation;
     
 
-	MyGame() :Game("Easy3D exemple", 640, 640){}
+	MyGame() :Game("Easy3D exemple", 1280, 720){}
 
 	void start(){
 
-		getRender().setViewportState(Vec4(0, 0, 640, 640));
+		getRender().setViewportState(Vec4(0, 0, 1280, 720));
 		getRender().setZBufferState(true);
 		getRender().setBlendState(BlendState(BLEND::ONE, BLEND::ZERO));
         
@@ -82,16 +81,14 @@ public:
 		bil = getRender().createIL(shobj, atl);
 		
 		geometry.loadOFF(rspath + "/meshs/faccia000.off", Mesh::OFF_VERTEX_NORMALS);
-		geometry2.loadOFF(rspath + "/meshs/cube.off", Mesh::OFF_VERTEX_NORMALS);
+		geometry2.loadOFF(rspath + "/meshs/cube.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
 		
-		//geometry.loadOFF(rspath + "/meshs/ship.off", Mesh::OFF_VERTEX_NORMALS);
-		//geometry2.loadOFF(rspath + "/meshs/ship.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
 
-		g1org2 = false;
 
         //init
-        projection=getRender().calculatesProjection(45.0f, 0.75f, 0.1f, 1000.0f);
-		
+		float wfactor = (float)getScreen().getWidth() / (float)getScreen().getHeight();
+		projection = getRender().calculatesProjection(45.0f,wfactor,0.1f,1000.0f);
+
 		Mat4 tranform=computeSVD(
 		{
             { -1, 0, 0 },
@@ -104,9 +101,9 @@ public:
             {  0, 1, 0 }
 		});
         
-		rotconst = Quaternion::fromEulero(Vec3(0.0, .01, 0));
-        rotation=Quaternion::fromEulero(Vec3(0, 0, 0));
+        rotation = Quaternion::fromEulero(Vec3(0, 0, 0));
 		zDelta = 1.0;
+		g1org2 = false;
 	}
 	void run(float dt){
 
@@ -114,23 +111,33 @@ public:
 			getRender().setCullFaceState(CullFace::FRONT);
 		if (getInput().getKeyDown(Key::B))
 			getRender().setCullFaceState(CullFace::BACK);
-		if (getInput().getKeyHit(Key::A)){
+		if (getInput().getKeyDown(Key::D))
+			getRender().setCullFaceState(CullFace::DISABLE);
+		if (getInput().getKeyHit(Key::A))
 			g1org2 = !g1org2;
-			Debug::message() << (!g1org2 ? "g1" : "g2") << '\n';
-		}
+
+		if (getInput().getKeyDown(Key::LEFT))
+			rotation = rotation.mul(Quaternion::fromEulero(Vec3(0.0, Math::PI*dt, 0)));
+		if (getInput().getKeyDown(Key::RIGHT))
+			rotation = rotation.mul(Quaternion::fromEulero(Vec3(0.0, -Math::PI*dt, 0)));
+		if (getInput().getKeyDown(Key::UP))
+			rotation = rotation.mul(Quaternion::fromEulero(Vec3( Math::PI*dt, 0.0, 0.0)));
+		if (getInput().getKeyDown(Key::DOWN))
+			rotation = rotation.mul(Quaternion::fromEulero(Vec3(-Math::PI*dt, 0.0, 0.0)));
+
 		auto posLight = getInput().getMouse() / getScreen().getSize();
 		zDelta -= getInput().getScroll()*0.1*dt;
 		//logic
-		auto box = geometry.getBox();
-		auto size = box.getSize();
-		auto msize = Math::max(size.x, size.y, size.z);
+		auto box = !g1org2 ? geometry.getBox() : geometry2.getBox();
+		auto centroid = !g1org2 ? geometry.getCentroid() : geometry2.getCentroid();
+		auto bsize = box.getSize();
         Object obj,objRelative;
+
         
         obj.addChild(&objRelative,false);
-		objRelative.setTranslation(-box.getCenter());
+		objRelative.setTranslation(-centroid);
 
-		obj.setTranslation(-Vec3(0, 0, msize)*zDelta);
-        rotation=rotation.mul(rotconst);
+		obj.setTranslation(-Vec3(0, 0,(bsize.z*2 + centroid.z)*2)*zDelta);
         obj.setRotation(rotation);
 
 		//draw

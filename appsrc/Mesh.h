@@ -59,7 +59,8 @@ namespace Easy3D{
         void draw();
         
         //get box
-        const AABox& getBox(){ return  mBox; };
+		const AABox& getBox(){ return  mBox; };
+		const Vec3&  getCentroid(){ return  centroid; };
 		        
     private:
         
@@ -67,7 +68,7 @@ namespace Easy3D{
         TypeDraw dMode;
         //burning box
         AABox mBox;
-		Vec3  center;
+		Vec3  centroid;
         //size of vertex
         size_t vSize;
         //cpu buffers

@@ -575,8 +575,8 @@ namespace Easy3D{
         Vec3 getCenter() const{
             return (min+max)*0.5;
         }
-        Vec3 getSize() const{
-            return (max-getCenter());
+		Vec3 getSize() const{
+			return max-getCenter();
         }
         // for use in frustum computations
         Vec3 getVertexP(const Vec3 &normal) const ;
