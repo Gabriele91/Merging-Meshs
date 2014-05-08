@@ -40,12 +40,13 @@ inline void space_split(const char* str, std::vector<String>& out ){
 	while (str[i]){
 		//id is a space
 		if (isspace(str[i])){
+                //jump space
+                eatspaces(str, i)
 				//a new split
 				++size;
-				//jump space
-				eatspaces(str, i)
 		}
-		++i;
+        else
+            ++i;
     }
     out.resize(size);
 	//restart
@@ -107,6 +108,7 @@ void Mesh::offComputeNormals(){
 	offNormalize();
 }
 
+/* normals */
 Easy3D::Vec3 Mesh::offFaceNormal(size_t i){
 	auto v1 = offV(indexs[i + 1]) - offV(indexs[i]);
 	auto v2 = offV(indexs[i + 2]) - offV(indexs[i]);
@@ -117,24 +119,40 @@ Easy3D::Vec3 Mesh::offFaceNormal(size_t v0, size_t v1, size_t v2){
 	auto dv2 = offV(indexs[v2]) - offV(indexs[v0]);
 	return (dv1.cross(dv2)).getNormalize();
 }
+
+/* face area */
 float Mesh::offFaceArea(size_t i){
 	auto v1 = offV(indexs[i + 1]) - offV(indexs[i]);
 	auto v2 = offV(indexs[i + 2]) - offV(indexs[i]);
 	auto v3 = v1.cross(v2);
 	return 0.5f*std::sqrt(v3.x*v3.x + v3.y*v3.y + v3.z*v3.z);
 }
+float Mesh::offFaceArea(size_t v0, size_t v1, size_t v2){
+	auto dv1 = offV(indexs[v0]) - offV(indexs[v1]);
+	auto dv2 = offV(indexs[v0]) - offV(indexs[v2]);
+	auto dv3 = dv1.cross(dv2);
+	return 0.5f*std::sqrt(dv3.x*dv3.x + dv3.y*dv3.y + dv3.z*dv3.z);
+}
+
+/* angles */
 inline float angleVectors(const Vec3& a,const Vec3& b){
 	return std::acos( a.dot(b) / (a.length()*b.length()) );
+}
+float Mesh::offFaceAngle(size_t i){
+	return angleVectors(offV(indexs[i]) - offV(indexs[i+1]),
+						offV(indexs[i]) - offV(indexs[i+2]));
 }
 float Mesh::offFaceAngle(size_t v0, size_t v1, size_t v2){
 	return angleVectors(offV(indexs[v0]) - offV(indexs[v1]),
 						offV(indexs[v0]) - offV(indexs[v2]));
 }
+
 void Mesh::offSlowComputeNormals(){
 	//calc size
-	size_t nsize = sizeIndexs();
-	size_t adj = 0;
-	size_t av = 0;
+	size_t       nsize = sizeIndexs();
+	size_t       adj = 0;
+	size_t       av = 0;
+    Easy3D::Vec3 n;
 	// A as a face of Mesh
 	//#pragma omp for
 	for (size_t a = 0; a != nsize; a += 3){
@@ -144,65 +162,35 @@ void Mesh::offSlowComputeNormals(){
 			adj = 0;
 			//vertex
 			av = a + v;
+            //init norm
+            n=Easy3D::Vec3::ZERO;
 			//for all face of mesh (exclude A)
 			for (size_t b = 0; b != nsize; b += 3){
 				//A!=B
 				if (b == a) continue;
-				//
-				#if 0
+				//slow
+				auto bNA = offFaceNormal(b) * offFaceArea(b);
+                //calc angle
 				if (indexs[av] == indexs[b]){
+					n += bNA * offFaceAngle(b, b + 1, b + 2);
 					++adj;
-					offN(indexs[av]) += offFaceNormal(b, b + 1, b + 2);
 				}
 				if (indexs[av] == indexs[b + 1]){
+					n += bNA * offFaceAngle(b + 1, b, b + 2);
 					++adj;
-					offN(indexs[av]) += offFaceNormal(b + 1, b, b + 2);
 				}
 				if (indexs[av] == indexs[b + 2]){
+					n += bNA * offFaceAngle(b + 2, b, b + 1);
 					++adj;
-					offN(indexs[av]) += offFaceNormal(b + 2, b, b + 1);
 				}
-				#elif 1
-				auto bNA = offFaceNormal(b) *offFaceArea(b);
-				if (indexs[av] == indexs[b]){
-					++adj;
-					offN(indexs[av]) += bNA * offFaceAngle(b, b + 1, b + 2);
-				}
-				if (indexs[av] == indexs[b + 1]){
-					++adj;
-					offN(indexs[av]) += bNA * offFaceAngle(b + 1, b, b + 2);
-				}
-				if (indexs[av] == indexs[b + 2]){
-					++adj;
-					offN(indexs[av]) += bNA * offFaceAngle(b + 2, b, b + 1);
-				}
-				#elif 0
-				if (indexs[av] == indexs[b]){
-					++adj;
-					offN(indexs[av]) += offFaceNormal(b, b + 1, b + 2) * offFaceArea(b) * offFaceAngle(b, b + 1, b + 2);
-				}
-				if (indexs[av] == indexs[b + 1]){
-					++adj;
-					offN(indexs[av]) += offFaceNormal(b + 1, b, b + 2) * offFaceArea(b) * offFaceAngle(b + 1, b, b + 2);
-				}
-				if (indexs[av] == indexs[b + 2]){
-					++adj;
-					offN(indexs[av]) += offFaceNormal(b + 2, b, b + 1) * offFaceArea(b) * offFaceAngle(b + 2, b, b + 1);
-				}
-				#else
-				if (indexs[av] == indexs[b] || 
-					indexs[av] == indexs[b + 1] ||
-					indexs[av] == indexs[b + 2]){
-					++adj;
-					offN(indexs[av]) += offFaceNormal(b);
-				}
-				#endif
+				
 			}
 			//normalize
-			if (adj)
-				offN(indexs[av]).normalize();
+			if (adj) offN(indexs[av]) += n/adj;
 		}
 	}
+    //
+    offNormalize();
 }
 
 void Mesh::loadOFF(const Utility::Path& path,OFFCompute normals){

@@ -2,6 +2,7 @@
 #include <Application.h>
 #include <Game.h>
 #include <Input.h>
+#include <Screen.h>
 #include <Render.h>
 #include <Shader.h>
 #include <Math3D.h>
@@ -21,6 +22,8 @@ public:
     CMat4* ptrCProjection;
     CMat4* ptrCView;
     CMat4* ptrCModel;
+    CVec3* ptrCLight;
+    CVec4* ptrCDiffuse;
     Mat4 projection;
     Mat4 view;
 	Mat4 model;
@@ -55,6 +58,8 @@ public:
 			ptrCProjection = shobj->getConstMat4("projection");
 			ptrCView = shobj->getConstMat4("view");
 			ptrCModel = shobj->getConstMat4("model");
+			ptrCLight = shobj->getConstVec3("light");
+			ptrCDiffuse = shobj->getConstVec4("diffuse");
 		}
 
 		if (getRender().getRenderDriver() == DIRECTX_DRIVER){
@@ -65,6 +70,8 @@ public:
 			ptrCProjection = shobj->getConstMat4("vs.projection");
 			ptrCView = shobj->getConstMat4("vs.view");
 			ptrCModel = shobj->getConstMat4("vs.model");
+			ptrCLight = shobj->getConstVec3("ps.light");
+			ptrCDiffuse = shobj->getConstVec4("ps.diffuse");
 		}
 
 		AttributeList atl({
@@ -74,19 +81,19 @@ public:
 		bil = getRender().createIL(shobj, atl);
         
 		//geometry.loadOFF(rspath+"/meshs/lato225.off",Mesh::OFF_VERTEX_NORMALS);
-		//geometry.loadOFF(rspath + "/meshs/faccia000.off", Mesh::OFF_VERTEX_NORMALS);
+		geometry.loadOFF(rspath + "/meshs/faccia000.off", Mesh::OFF_VERTEX_NORMALS);
 		//geometry.loadOFF(rspath + "/meshs/Apple.off", Mesh::OFF_VERTEX_NORMALS);
 		//geometry.loadOFF(rspath + "/meshs/dragon.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
-		//sgeometry.loadOFF(rspath + "/meshs/box.off", Mesh::OFF_VERTEX_NORMALS);
+		//geometry.loadOFF(rspath + "/meshs/box.off", Mesh::OFF_VERTEX_NORMALS);
 		//geometry2.loadOFF(rspath + "/meshs/box.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
 		//geometry.loadOFF(rspath + "/meshs/box2.off", Mesh::OFF_VERTEX_NORMALS);
 		//geometry2.loadOFF(rspath + "/meshs/box2.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
-		geometry.loadOFF(rspath + "/meshs/cone.off", Mesh::OFF_VERTEX_NORMALS);
-		geometry2.loadOFF(rspath + "/meshs/cone.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
+		//geometry.loadOFF(rspath + "/meshs/cone.off", Mesh::OFF_VERTEX_NORMALS);
+		//geometry2.loadOFF(rspath + "/meshs/cone.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
 		//geometry.loadOFF(rspath+"/meshs/faccia045.off",Mesh::OFF_VERTEX_NORMALS);
 		//geometry.loadOFF(rspath + "/meshs/cube.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
 		//geometry.loadOFF(rspath + "/meshs/cube.off", Mesh::OFF_VERTEX_NORMALS);
-		//geometry2.loadOFF(rspath + "/meshs/cube.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
+		geometry2.loadOFF(rspath + "/meshs/cube.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
 		g1org2 = false;
 
         //init
@@ -104,7 +111,7 @@ public:
             {  0, 1, 0 }
 		});
         
-        rotconst=Quaternion::fromEulero(Vec3(0.01,0, 0));
+        rotconst=Quaternion::fromEulero(Vec3(0.0,0.001, 0));
         rotation=Quaternion::fromEulero(Vec3(0, 0, 0));
 	}
 	void run(float dt){
@@ -131,7 +138,7 @@ public:
         
         obj.addChild(&objRelative);
         objRelative.setTranslation(-pos*2);
-        obj.setTranslation(pos+Vec3(0,0,-1));
+        obj.setTranslation(pos+Vec3(0,0,-10));
         rotation=rotation.mul(rotconst);
         obj.setRotation(rotation);
 		
@@ -142,6 +149,13 @@ public:
 			g1org2 = !g1org2;
 			Debug::message() << (!g1org2? "g1" : "g2") << '\n';
 		}
+        
+        auto posLight=getInput().getMouse()/getScreen().getSize();
+        
+        ptrCLight->setValue(Vec3( posLight.x, 1.0-posLight.y , 1.0 ));
+        ptrCDiffuse->setValue({ 1.0, 1.0 , 1.0, 1.0 });
+        
+        
 		if (!g1org2)
 			geometry.draw();
 		else

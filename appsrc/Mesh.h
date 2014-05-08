@@ -95,10 +95,12 @@ namespace Easy3D{
 		//fast normals (like mesh lab)
 		void offComputeNormals();
 		//slow normals
-		Easy3D::Vec3 offFaceNormal(size_t i);
 		float offFaceArea(size_t i);
-		Easy3D::Vec3 offFaceNormal(size_t v0, size_t v1, size_t v2);
+		float offFaceAngle(size_t i);
+		Easy3D::Vec3 offFaceNormal(size_t i);
+		float offFaceArea(size_t v0, size_t v1, size_t v2);
 		float offFaceAngle(size_t v0, size_t v1, size_t v2);
+		Easy3D::Vec3 offFaceNormal(size_t v0, size_t v1, size_t v2);
 		void offSlowComputeNormals();
 
         

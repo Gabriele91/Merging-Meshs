@@ -157,7 +157,7 @@ void ShaderGL::bind(){
     public:\
         CName( GLuint id): id(id){}\
         virtual void  set(const void* value, size_t s, size_t n){\
-             uniform (id+s, n, (const T*)value); \
+             uniform (id+s, (GLuint)n, (const T*)value); \
         }\
         virtual void  set(const void* value) {\
             uniform (id, 1, (const T*)value);\
@@ -179,7 +179,7 @@ class UniformGLMat4 : Uniform {
 public:
 	UniformGLMat4(GLuint id) : id(id){}
 	virtual void  set(const void* value, size_t s, size_t n){
-		glUniformMatrix4fv(id+s, n, false, (const float*)value);
+		glUniformMatrix4fv(id+s, (GLuint)n, false, (const float*)value);
 	}
     virtual void  set(const void* value) {
         glUniformMatrix4fv (id, 1, false, (const float*)value);
