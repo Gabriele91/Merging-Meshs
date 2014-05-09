@@ -8,16 +8,20 @@
 
 namespace Easy3D{
 
+	template <class T>
 	class Uniform{
+	public:
+		typedef DS_PTR<T> ptr;
+		ptr shared(){ return ptr((T*)this); }
+		virtual ~Uniform(){};
 	protected:
 		virtual void  set(const void*) = 0;
 		virtual void  set(const void*, size_t i,size_t n) = 0;
 		virtual void* get() = 0;
 		virtual const void* get() const = 0;
-		virtual ~Uniform(){};
 	};
 
-	class CInt : Uniform {
+	class CInt : public Uniform<CInt> {
 	public:
 		CInt(int i){
 			Uniform::set(&i);
@@ -33,7 +37,7 @@ namespace Easy3D{
 			return i;
 		}
 	};
-	class CFloat : Uniform {
+	class CFloat : public Uniform<CFloat> {
 	public:
 		CFloat(float f){
 			set(&f);
@@ -49,7 +53,7 @@ namespace Easy3D{
 			return f;
 		}
 	};
-	class CVec2 : Uniform {
+	class CVec2 : public Uniform<CVec2> {
 	public:
 		CVec2(const Vec2& v2){
 			set(&v2.x);
@@ -65,7 +69,7 @@ namespace Easy3D{
 			return v2;
 		}
 	};
-	class CVec3 : Uniform {
+	class CVec3 : public Uniform<CVec3> {
 	public:
 		CVec3(const Vec3& v3){
 			set(&v3.x);
@@ -81,7 +85,7 @@ namespace Easy3D{
 			return v3;
 		}
 	};
-	class CVec4 : Uniform {
+	class CVec4 : public Uniform<CVec4> {
 	public:
 		CVec4(const Vec4& v4){
 			set(&v4.x);
@@ -97,7 +101,7 @@ namespace Easy3D{
 			return v4;
 		}
 	};
-	class CMat4 : Uniform {
+	class CMat4 : public Uniform<CMat4> {
 	public:
 		CMat4(const Mat4 & m4){
 			set(&m4.m00);
@@ -114,7 +118,7 @@ namespace Easy3D{
 		}
 	};
 	
-	class CIntArray : Uniform {
+	class CIntArray : public Uniform<CIntArray> {
 	public:
 		void set(int i, size_t n){
 			Uniform::set(&i, n, 1);
@@ -126,7 +130,7 @@ namespace Easy3D{
 			return ((const int*)Uniform::get())[n];
 		}
 	};
-	class CFloatArray : Uniform{
+	class CFloatArray : public Uniform<CFloatArray>{
 	public:
 		void set(float f, size_t n){
 			Uniform::set(&f, n, 1);
@@ -138,7 +142,7 @@ namespace Easy3D{
 			return ((const float*)Uniform::get())[n];
 		}
 	};
-	class CVec2Array : Uniform {
+	class CVec2Array : public Uniform<CVec2Array> {
 	public:
 		void set(const Vec2& v2, size_t n){
 			Uniform::set(&v2, n, 1);
@@ -150,7 +154,7 @@ namespace Easy3D{
 			return ((const Vec2*)Uniform::get())[n];
 		}
 	};
-	class CVec3Array : Uniform {
+	class CVec3Array : public Uniform<CVec3Array> {
 	public:
 		void set(const Vec3& v3, size_t n){
 			Uniform::set(&v3, n, 1);
@@ -162,7 +166,7 @@ namespace Easy3D{
 			return ((const Vec3*)Uniform::get())[n];
 		}
 	};
-	class CVec4Array : Uniform {
+	class CVec4Array : public Uniform<CVec4Array> {
 	public:
 		void set(const Vec4& v4, size_t n){
 			Uniform::set(&v4, n, 1);
@@ -174,7 +178,7 @@ namespace Easy3D{
 			return ((const Vec4*)Uniform::get())[n];
 		}
 	};
-	class CMat4Array : Uniform {
+	class CMat4Array : public Uniform<CMat4Array> {
 	public:
 		void set(const Mat4& v4, size_t n){
 			Uniform::set(&v4, n, 1);

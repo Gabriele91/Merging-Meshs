@@ -19,11 +19,11 @@ public:
 
 	Easy3D::Shader* shobj;
 	
-    CMat4* ptrCProjection;
-    CMat4* ptrCView;
-    CMat4* ptrCModel;
-    CVec3* ptrCLight;
-    CVec4* ptrCDiffuse;
+    CMat4::ptr ptrCProjection;
+    CMat4::ptr ptrCView;
+    CMat4::ptr ptrCModel;
+    CVec3::ptr ptrCLight;
+    CVec4::ptr ptrCDiffuse;
     Mat4 projection;
     Mat4 view;
 	Mat4 model;
@@ -55,11 +55,11 @@ public:
                               rspath + "/shader/normals.fs.glsl",
                               { "OpenGL_3_2 true" });
 
-			ptrCProjection = shobj->getConstMat4("projection");
-			ptrCView = shobj->getConstMat4("view");
-			ptrCModel = shobj->getConstMat4("model");
-			ptrCLight = shobj->getConstVec3("light");
-			ptrCDiffuse = shobj->getConstVec4("diffuse");
+			ptrCProjection = shobj->getConstMat4("projection")->shared();
+			ptrCView = shobj->getConstMat4("view")->shared();
+			ptrCModel = shobj->getConstMat4("model")->shared();
+			ptrCLight = shobj->getConstVec3("light")->shared();
+			ptrCDiffuse = shobj->getConstVec4("diffuse")->shared();
 		}
 
 		if (getRender().getRenderDriver() == DIRECTX_DRIVER){
@@ -67,11 +67,11 @@ public:
 			shobj->loadShader(rspath + "/shader/normals.vs.hlsl",
                               rspath + "/shader/normals.fs.hlsl",
                               { "DirectX_10 true" });
-			ptrCProjection = shobj->getConstMat4("vs.projection");
-			ptrCView = shobj->getConstMat4("vs.view");
-			ptrCModel = shobj->getConstMat4("vs.model");
-			ptrCLight = shobj->getConstVec3("ps.light");
-			ptrCDiffuse = shobj->getConstVec4("ps.diffuse");
+			ptrCProjection = shobj->getConstMat4("vs.projection")->shared();
+			ptrCView = shobj->getConstMat4("vs.view")->shared();
+			ptrCModel = shobj->getConstMat4("vs.model")->shared();
+			ptrCLight = shobj->getConstVec3("ps.light")->shared();
+			ptrCDiffuse = shobj->getConstVec4("ps.diffuse")->shared();
 		}
 
 		AttributeList atl({

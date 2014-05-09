@@ -196,7 +196,7 @@ inline static void sendBinaryData(ID3D10Buffer* pConst, size_t offset, const voi
 //uniform whit name
 //get consts
 
-class UniformDXVS : Uniform{
+class UniformDXVS : public Uniform<UniformDXVS>{
 
 	ShaderDX* shader;
 	size_t offset;
@@ -225,7 +225,7 @@ public:
 	virtual ~UniformDXVS(){
 	}
 }; 
-class UniformDXPS : Uniform{
+class UniformDXPS : public Uniform<UniformDXPS> {
 
 	ShaderDX* shader;
 	size_t offset;

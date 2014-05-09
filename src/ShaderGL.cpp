@@ -152,7 +152,7 @@ void ShaderGL::bind(){
 
 
 #define UniformGLT(CName,T,uniform)\
-    class CName : Uniform {\
+    class CName : public Uniform<CName> {\
         GLuint id;\
     public:\
         CName( GLuint id): id(id){}\
@@ -174,7 +174,7 @@ UniformGLT(UniformGLVec2, float, glUniform2fv)
 UniformGLT(UniformGLVec3, float, glUniform3fv)
 UniformGLT(UniformGLVec4, float, glUniform4fv)
 
-class UniformGLMat4 : Uniform {
+class UniformGLMat4 : public Uniform<UniformGLMat4> {
     GLuint id;
 public:
 	UniformGLMat4(GLuint id) : id(id){}
