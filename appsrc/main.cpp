@@ -11,6 +11,9 @@
 
 #include "MathUtility.h"
 #include "Mesh.h"
+#include "Trackball.h"
+#include "Camera.h"
+#include "Geometry.h"
 
 using namespace Easy3D;
 
@@ -23,13 +26,13 @@ public:
     CMat4::ptr ptrCView;
     CMat4::ptr ptrCModel;
     CVec3::ptr ptrCLight;
-    CVec4::ptr ptrCDiffuse;
-    Mat4 projection;
-    Mat4 view;
-	Mat4 model;
-	Mesh geometry;
-	Mesh geometry2;
+	CVec4::ptr ptrCDiffuse;
 	BaseInputLayout *bil;
+	Camera camera;
+	Geometry geometry;
+	Mesh model1;
+	Mesh model2;
+	Trackball trackball;
 
 	//ogic
 	bool g1org2;
@@ -45,66 +48,29 @@ public:
 		getRender().setViewportState(Vec4(0, 0, 1280, 720));
 		getRender().setZBufferState(true);
 		getRender().setBlendState(BlendState(BLEND::ONE, BLEND::ZERO));
-        
-        Easy3D::String rspath=Easy3D::Application::instance()->appResourcesDirectory();
-		shobj = getRender().createShader();
+		getRender().setCullFaceState(CullFace::DISABLE);
+		//init renders
+		trackball.init();
+		geometry.init();
+		//load models
+		String rspath = Application::instance()->appResourcesDirectory();
+		model1.loadOFF(rspath + "/meshs/faccia000.off", Mesh::OFF_VERTEX_NORMALS);
+		model2.loadOFF(rspath + "/meshs/cone.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
+		//set mesh
+		geometry.setMesh(&model1);
 
-		if (getRender().getRenderDriver() == OPENGL_DRIVER){
-			getRender().setCullFaceState(CullFace::BACK);
-			shobj->loadShader(rspath + "/shader/normals.vs.glsl",
-                              rspath + "/shader/normals.fs.glsl",
-                              { "OpenGL_3_2 true" });
-
-			ptrCProjection = shobj->getConstMat4("projection")->shared();
-			ptrCView = shobj->getConstMat4("view")->shared();
-			ptrCModel = shobj->getConstMat4("model")->shared();
-			ptrCLight = shobj->getConstVec3("light")->shared();
-			ptrCDiffuse = shobj->getConstVec4("diffuse")->shared();
-		}
-
-		if (getRender().getRenderDriver() == DIRECTX_DRIVER){
-			getRender().setCullFaceState(CullFace::FRONT);
-			shobj->loadShader(rspath + "/shader/normals.vs.hlsl",
-                              rspath + "/shader/normals.fs.hlsl",
-                              { "DirectX_10 true" });
-			ptrCProjection = shobj->getConstMat4("vs.projection")->shared();
-			ptrCView = shobj->getConstMat4("vs.view")->shared();
-			ptrCModel = shobj->getConstMat4("vs.model")->shared();
-			ptrCLight = shobj->getConstVec3("ps.light")->shared();
-			ptrCDiffuse = shobj->getConstVec4("ps.diffuse")->shared();
-		}
-
-		AttributeList atl({
-			{ "inPosition", ATT_FLOAT3 },
-			{ "inNormal", ATT_FLOAT3 }
-		});
-		bil = getRender().createIL(shobj, atl);
-		
-		geometry.loadOFF(rspath + "/meshs/faccia000.off", Mesh::OFF_VERTEX_NORMALS);
-		geometry2.loadOFF(rspath + "/meshs/cube.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
-		
-
-
-        //init
-		float wfactor = (float)getScreen().getWidth() / (float)getScreen().getHeight();
-		projection = getRender().calculatesProjection(45.0f,wfactor,0.1f,1000.0f);
-
-		Mat4 tranform=computeSVD(
-		{
-            { -1, 0, 0 },
-            {  1, 0, 0 },
-            {  0, 1, 0 }
-		},
-        {
-            { -1, 2, 0 },
-            {  1, 2, 0 },
-            {  0, 1, 0 }
-		});
-        
+        //init camera
+		camera.setViewport(getRender().getViewportState());
+		camera.setPerspective(45.0f, 0.1f, 1000.0f);
+		camera.setPosition(Vec3(0, 0, 4.0));
         rotation = Quaternion::fromEulero(Vec3(0, 0, 0));
 		zDelta = 1.0;
 		g1org2 = false;
 	}
+	
+	//rotation = 
+	//Quaternion::fromLookRotation(camera.getPointFrom2DView(getInput().getMouse()), Vec3(0,1,0)).getInverse();
+
 	void run(float dt){
 
 		if (getInput().getKeyDown(Key::F))
@@ -113,8 +79,6 @@ public:
 			getRender().setCullFaceState(CullFace::BACK);
 		if (getInput().getKeyDown(Key::D))
 			getRender().setCullFaceState(CullFace::DISABLE);
-		if (getInput().getKeyHit(Key::A))
-			g1org2 = !g1org2;
 
 		if (getInput().getKeyDown(Key::LEFT))
 			rotation = rotation.mul(Quaternion::fromEulero(Vec3(0.0, Math::PI*dt, 0)));
@@ -124,43 +88,46 @@ public:
 			rotation = rotation.mul(Quaternion::fromEulero(Vec3( Math::PI*dt, 0.0, 0.0)));
 		if (getInput().getKeyDown(Key::DOWN))
 			rotation = rotation.mul(Quaternion::fromEulero(Vec3(-Math::PI*dt, 0.0, 0.0)));
-
-		auto posLight = getInput().getMouse() / getScreen().getSize();
+		//delta
 		zDelta -= getInput().getScroll()*0.1*dt;
-		//logic
-		auto box = !g1org2 ? geometry.getBox() : geometry2.getBox();
-		auto centroid = !g1org2 ? geometry.getCentroid() : geometry2.getCentroid();
-		auto bsize = box.getSize();
-        Object obj,objRelative;
-
-        
-        obj.addChild(&objRelative,false);
-		objRelative.setTranslation(-centroid);
-
-		obj.setTranslation(-Vec3(0, 0,(bsize.z*2 + centroid.z)*2)*zDelta);
-        obj.setRotation(rotation);
-
-		//draw
+		//clear
 		getRender().doClear();
-		//shader
-		getRender().bindShader(shobj);
-		getRender().bindIL(bil);
-		//PVM
-		ptrCProjection->setValue(projection);
-		ptrCView->setValue(view);
-        ptrCModel->setValue(objRelative.getGlobalMatrix());
-		//light
-		ptrCLight->setValue(Vec3(posLight.x - 0.5, 0.5 - posLight.y, 1.0));
-        ptrCDiffuse->setValue({ 1.0, 1.0 , 1.0, 1.0 });
-                
-		if (!g1org2)
-			geometry.draw();
-		else
-			geometry2.draw();
 
-		//unbind 
-		getRender().unbindShader();
-		getRender().unbindIL(bil);
+		//camera left
+		getRender().setViewportState(Vec4(0, 0, 1280 * 0.5, 720));
+		camera.setViewport(getRender().getViewportState());
+		camera.setPerspective(45.0f, 0.1f, 1000.0f);
+		//rotation
+		rotation = 
+		Quaternion::fromLookRotation(camera.getPointFrom2DView(getInput().getMouse()), Vec3(0,1,0)).getInverse();
+		//draw model
+		geometry.setRotation(rotation);
+		geometry.setScale(Vec3::ONE*zDelta);
+		geometry.draw(camera);
+		//draw trackball
+		trackball.setPosition(geometry.getPosition());
+		trackball.setScale(Vec3::ONE*1.5);
+		trackball.setRotation(rotation);
+		trackball.draw(camera);
+
+		
+		//camera right
+		getRender().setViewportState(Vec4(1280 * 0.5, 0, 1280 * 0.5, 720));
+		camera.setViewport(getRender().getViewportState());
+		camera.setPerspective(45.0f, 0.1f, 1000.0f);
+		//rotation
+		rotation =
+		Quaternion::fromLookRotation(camera.getPointFrom2DView(getInput().getMouse()), Vec3(0, 1, 0)).getInverse();
+		//draw model
+		geometry.setRotation(rotation);
+		geometry.setScale(Vec3::ONE*zDelta);
+		geometry.draw(camera);
+		//draw trackball
+		trackball.setPosition(geometry.getPosition());
+		trackball.setScale(Vec3::ONE*1.5);
+		trackball.setRotation(rotation);
+		trackball.draw(camera);
+
 	}
 	void end(){
 

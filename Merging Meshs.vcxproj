@@ -91,8 +91,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="appsrc\Camera.h" />
+    <ClInclude Include="appsrc\Geometry.h" />
     <ClInclude Include="appsrc\MathUtility.h" />
     <ClInclude Include="appsrc\Mesh.h" />
+    <ClInclude Include="appsrc\Trackball.h" />
     <ClInclude Include="include\Application.h" />
     <ClInclude Include="include\Blend.h" />
     <ClInclude Include="include\Color.h" />
@@ -126,9 +129,12 @@
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="appsrc\Camera.cpp" />
+    <ClCompile Include="appsrc\Geometry.cpp" />
     <ClCompile Include="appsrc\main.cpp" />
     <ClCompile Include="appsrc\MathUtility.cpp" />
     <ClCompile Include="appsrc\Mesh.cpp" />
+    <ClCompile Include="appsrc\Trackball.cpp" />
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\Color.cpp" />
     <ClCompile Include="src\Config.cpp" />
@@ -160,34 +166,22 @@
     <ClCompile Include="src\window\WindowsScreen.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader\base.fs.glsl" />
-    <None Include="shader\base.vs.glsl" />
-    <None Include="shader\normals.fs.glsl" />
-    <None Include="shader\normals.vs.glsl" />
-    <None Include="shader\test.fs.glsl" />
-    <None Include="shader\test.vs.glsl" />
+    <None Include="shader\meshs\meshs.fs.glsl" />
+    <None Include="shader\meshs\meshs.vs.glsl" />
+    <None Include="shader\trackball\trackball.fs.glsl" />
+    <None Include="shader\trackball\trackball.vs.glsl" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="shader\base.fs.hlsl">
+    <Text Include="shader\meshs\meshs.fs.hlsl">
       <FileType>Document</FileType>
     </Text>
-    <Text Include="shader\base.vs.hlsl">
+    <Text Include="shader\meshs\meshs.vs.hlsl">
       <FileType>Document</FileType>
     </Text>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="shader\test.fs.hlsl">
+    <Text Include="shader\trackball\trackball.fs.hlsl">
       <FileType>Document</FileType>
     </Text>
-    <Text Include="shader\test.vs.hlsl">
-      <FileType>Document</FileType>
-    </Text>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="shader\normals.fs.hlsl">
-      <FileType>Document</FileType>
-    </Text>
-    <Text Include="shader\normals.vs.hlsl">
+    <Text Include="shader\trackball\trackball.vs.hlsl">
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>

@@ -116,24 +116,24 @@ namespace Easy3D {
 		ClearColorState clearColorState;
 		GLuint		 vaoAttributes;
 		bool         contextInit;
-		ShaderDX*    currentShader = NULL;
+		ShaderDX*    currentShader{ nullptr };
 		/// d3d device
-		ID3D10Device* d3dDevice = NULL;
+		ID3D10Device* d3dDevice{ nullptr };
 		/// d3d swap
-		IDXGISwapChain* d3dSwap = NULL;
+		IDXGISwapChain* d3dSwap{ nullptr };
 		/// zbuffer & target view
-		ID3D10RenderTargetView*     g_pRenderTargetView = NULL;
-		ID3D10Texture2D*            g_pDepthStencil = NULL;
-		ID3D10DepthStencilView*     g_pDepthStencilView = NULL;
+		ID3D10RenderTargetView*     g_pRenderTargetView{ nullptr };
+		ID3D10Texture2D*            g_pDepthStencil{ nullptr };
+		ID3D10DepthStencilView*     g_pDepthStencilView{ nullptr };
 		// zbuffer state
-		ID3D10DepthStencilState*    g_depthStencilState = NULL;         //enable
-		ID3D10DepthStencilState*    g_depthDisabledStencilState = NULL; //disable
+		ID3D10DepthStencilState*    g_depthStencilState{ nullptr };         //enable
+		ID3D10DepthStencilState*    g_depthDisabledStencilState{ nullptr }; //disable
 		// render state
-		ID3D10RasterizerState*    g_cullface_back = NULL;     //back
-		ID3D10RasterizerState*    g_cullface_front = NULL;	//front
-		ID3D10RasterizerState*    g_cullface_disable = NULL;  //disable
+		ID3D10RasterizerState*    g_cullface_back{ nullptr };     //back
+		ID3D10RasterizerState*    g_cullface_front{ nullptr };	  //front
+		ID3D10RasterizerState*    g_cullface_disable{ nullptr };  //disable
 		// blend state
-		ID3D10BlendState*		  g_pBlendState = NULL;
+		ID3D10BlendState*		  g_pBlendState{ nullptr };
 		void dxCreateBlend(bool blend,GLenum src,GLenum dst);
 	};
 

@@ -56,7 +56,7 @@ namespace Easy3D{
         void mode(TypeDraw m);
        
         //draw element
-        void draw();
+        void draw(BaseInputLayout* il);
         
         //get box
 		const AABox& getBox(){ return  mBox; };
@@ -81,6 +81,8 @@ namespace Easy3D{
         BaseVertexBufferObject* bVertex{ NULL };
         uint sBIndex;
         BaseIndextBufferObject* bIndex{ NULL };
+		//set buffers
+		void set();
         //calc size
         static size_t attSize(uchar type);
 		void calcVertexSize(uchar type);
@@ -94,6 +96,8 @@ namespace Easy3D{
 		Easy3D::Vec3& offV(size_t i);
 		Easy3D::Vec3& offN(size_t i);
 		void offNormalize();
+		//recalc box
+		void offFixBox();
 		//fast normals (like mesh lab)
 		void offComputeNormals();
 		//slow normals

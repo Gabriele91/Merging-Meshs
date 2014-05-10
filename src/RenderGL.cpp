@@ -253,12 +253,15 @@ void RenderGL::deleteShader(Shader* s){
         delete ((ShaderGL*)s);
 }
 void RenderGL::bindShader(Shader* shader){
+	if (currentShader) unbindShader();
 	currentShader = (ShaderGL*)shader;
 	currentShader->bind();
 }
 void RenderGL::unbindShader(){
-	currentShader->unbind();
-	currentShader = NULL;
+	if (currentShader){
+		currentShader->unbind();
+		currentShader = NULL;
+	}
 }
 
 BaseInputLayout* RenderGL::createIL(Shader* shader,const AttributeList& atl){

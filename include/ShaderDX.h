@@ -13,26 +13,6 @@ namespace Easy3D{
     
 	class ShaderDX : public Shader {
 
-	private:
-
-		friend class RenderDX;
-
-		RenderDX* render = NULL;
-
-		ID3D10Blob* vShaderBinary = NULL;
-		ID3D10VertexShader *vShader = NULL;
-		DUNORDERED_MAP <String, size_t> vVariablesRef;
-		std::vector<uchar> vBufferCpu;
-		size_t vSizeConstantBuffer;
-		ID3D10Buffer*  vConstantBuffer10 = NULL;
-
-
-		ID3D10Blob* pShaderBinary = NULL;
-		ID3D10PixelShader *pShader = NULL;
-		DUNORDERED_MAP <String, size_t> pVariablesRef;
-		std::vector<uchar> pBufferCpu;
-		size_t pSizeConstantBuffer;
-		ID3D10Buffer*  pConstantBuffer10 = NULL;
 
 	public:
 		//costruttore
@@ -69,6 +49,26 @@ namespace Easy3D{
 		virtual void unbind();
 		virtual void uniform();
 
+	private:
+
+		friend class RenderDX;
+
+		RenderDX* render{ nullptr };
+
+		ID3D10Blob* vShaderBinary{ nullptr };
+		ID3D10VertexShader *vShader{ nullptr };
+		DUNORDERED_MAP <String, size_t> vVariablesRef;
+		std::vector<uchar> vBufferCpu;
+		size_t vSizeConstantBuffer;
+		ID3D10Buffer*  vConstantBuffer10{ nullptr };
+
+
+		ID3D10Blob* pShaderBinary{ nullptr };
+		ID3D10PixelShader *pShader{ nullptr };
+		DUNORDERED_MAP <String, size_t> pVariablesRef;
+		std::vector<uchar> pBufferCpu;
+		size_t pSizeConstantBuffer;
+		ID3D10Buffer*  pConstantBuffer10{ nullptr };
 
 
 	};

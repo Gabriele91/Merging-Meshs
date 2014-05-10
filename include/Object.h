@@ -40,8 +40,8 @@ namespace Easy3D{
 		ParentMode getParentMode() const;
 		//math
 		void change();
-		DFORCEINLINE bool isChange(){ return changeValue; }
-		const Matrix4x4& getGlobalMatrix();
+		bool isChange(){ return changeValue; }
+		virtual const Matrix4x4& getGlobalMatrix();
 		//for each methods
 		std::list<Object*>::iterator begin();
 		std::list<Object*>::iterator end();

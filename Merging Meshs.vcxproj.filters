@@ -25,8 +25,11 @@
     <Filter Include="appsrc">
       <UniqueIdentifier>{a903e192-bb95-41d8-a0ce-36e2fb4261f3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="File di risorse\test">
-      <UniqueIdentifier>{9d181420-d9d1-4c88-b02f-75640afa046e}</UniqueIdentifier>
+    <Filter Include="File di risorse\trackball">
+      <UniqueIdentifier>{a0f5a1ba-ccf3-4d7e-9889-80664fb923bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di risorse\meshs">
+      <UniqueIdentifier>{ce5d4d72-2660-4f0a-afd1-9471da373949}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -129,6 +132,15 @@
     <ClInclude Include="include\Object.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
+    <ClInclude Include="appsrc\Trackball.h">
+      <Filter>appsrc</Filter>
+    </ClInclude>
+    <ClInclude Include="appsrc\Camera.h">
+      <Filter>appsrc</Filter>
+    </ClInclude>
+    <ClInclude Include="appsrc\Geometry.h">
+      <Filter>appsrc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Application.cpp">
@@ -218,45 +230,42 @@
     <ClCompile Include="src\Object.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
+    <ClCompile Include="appsrc\Trackball.cpp">
+      <Filter>appsrc</Filter>
+    </ClCompile>
+    <ClCompile Include="appsrc\Camera.cpp">
+      <Filter>appsrc</Filter>
+    </ClCompile>
+    <ClCompile Include="appsrc\Geometry.cpp">
+      <Filter>appsrc</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader\base.fs.glsl">
-      <Filter>File di risorse</Filter>
+    <None Include="shader\trackball\trackball.fs.glsl">
+      <Filter>File di risorse\trackball</Filter>
     </None>
-    <None Include="shader\base.vs.glsl">
-      <Filter>File di risorse</Filter>
+    <None Include="shader\trackball\trackball.vs.glsl">
+      <Filter>File di risorse\trackball</Filter>
     </None>
-    <None Include="shader\test.fs.glsl">
-      <Filter>File di risorse\test</Filter>
+    <None Include="shader\meshs\meshs.fs.glsl">
+      <Filter>File di risorse\meshs</Filter>
     </None>
-    <None Include="shader\test.vs.glsl">
-      <Filter>File di risorse\test</Filter>
-    </None>
-    <None Include="shader\normals.fs.glsl">
-      <Filter>File di risorse</Filter>
-    </None>
-    <None Include="shader\normals.vs.glsl">
-      <Filter>File di risorse</Filter>
+    <None Include="shader\meshs\meshs.vs.glsl">
+      <Filter>File di risorse\meshs</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="shader\base.fs.hlsl">
-      <Filter>File di risorse</Filter>
+    <Text Include="shader\meshs\meshs.fs.hlsl">
+      <Filter>File di risorse\meshs</Filter>
     </Text>
-    <Text Include="shader\base.vs.hlsl">
-      <Filter>File di risorse</Filter>
+    <Text Include="shader\meshs\meshs.vs.hlsl">
+      <Filter>File di risorse\meshs</Filter>
     </Text>
-    <Text Include="shader\test.fs.hlsl">
-      <Filter>File di risorse\test</Filter>
+    <Text Include="shader\trackball\trackball.fs.hlsl">
+      <Filter>File di risorse\trackball</Filter>
     </Text>
-    <Text Include="shader\test.vs.hlsl">
-      <Filter>File di risorse\test</Filter>
-    </Text>
-    <Text Include="shader\normals.fs.hlsl">
-      <Filter>File di risorse</Filter>
-    </Text>
-    <Text Include="shader\normals.vs.hlsl">
-      <Filter>File di risorse</Filter>
+    <Text Include="shader\trackball\trackball.vs.hlsl">
+      <Filter>File di risorse\trackball</Filter>
     </Text>
   </ItemGroup>
 </Project>

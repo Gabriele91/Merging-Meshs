@@ -198,6 +198,14 @@ void Mesh::offSlowComputeNormals(){
     //
     offNormalize();
 }
+//recalc center of box
+void Mesh::offFixBox(){
+	auto isize = (uint)sizeIndexs();
+	mBox = AABox();
+	for (uint i = 0; i != isize; ++i){
+		mBox.addPoint(offV(indexs[i]));
+	}
+}
 
 void Mesh::loadOFF(const Utility::Path& path,OFFCompute normals){
 	DEBUG_ASSERT(!bVertex);
@@ -287,6 +295,8 @@ void Mesh::loadOFF(const Utility::Path& path,OFFCompute normals){
 		offSlowComputeNormals();
 	//draw mode
 	mode(DRAW_TRIANGLES);
+	//fix box
+	//offFixBox(); //not necessary
 	//bind mesh
 	bind();
 }
@@ -405,7 +415,6 @@ bool Mesh::bind(bool force){
 	//index buffer
 	if(currentIndex)
 		bIndex = r.createIBO(&indexs[0],/* indexs.size() */ sBIndex);
-
 	//delete cpu info
 	if (force){
 		vertexs = std::vector<byte>(0);
@@ -417,14 +426,18 @@ bool Mesh::bind(bool force){
 void Mesh::mode(TypeDraw m){
 	dMode = m;
 }
-void Mesh::draw(){
+void Mesh::set(){
 	Render& r = *Application::instance()->getRender();
 	r.bindVBO(bVertex);
-	if (bIndex){
-		r.bindIBO(bIndex);
+	if (bIndex) r.bindIBO(bIndex);
+}
+void Mesh::draw(BaseInputLayout* il){
+	Render& r = *Application::instance()->getRender();
+	set();
+	r.bindIL(il);
+	if (bIndex)
 		r.drawElements(dMode, sBIndex);
-	}
-	else{
+	else
 		r.drawArrays(dMode, sBVertex);
-	}
+	r.bindIL(il);
 }

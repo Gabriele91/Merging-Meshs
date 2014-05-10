@@ -1,11 +1,11 @@
 #include <stdafx.h>
 #include <Render.h>
+#include <Shader.h>
 #include <RenderDX.h>
+#include <ShaderDX.h>
 #include <Application.h>
 #include <Screen.h>
 #include <WindowsScreen.h>
-#include <Shader.h>
-#include <ShaderDX.h>
 #include <Debug.h>
 #include <EString.h>
 #include <Dxerr.h>
@@ -452,18 +452,20 @@ public:
     
     
 Shader* RenderDX::createShader(){
-    return (Shader*)new ShaderDX(this);
+	auto newShader=new ShaderDX(this);
+	return static_cast<Shader*>(newShader);
 }
-void RenderDX::deleteShader(Shader* s){
-    delete ((ShaderDX*)s);
+void RenderDX::deleteShader(Shader* inshader){
+	auto sdx = dynamic_cast<ShaderDX*>(inshader);
+	delete sdx;
 }
-void RenderDX::bindShader(Shader* shader){
-	currentShader = (ShaderDX*)shader;
+void RenderDX::bindShader(Shader* inshader){
+	currentShader = dynamic_cast<ShaderDX*>(inshader);
 	currentShader->bind();
 }
 void RenderDX::unbindShader(){
 	currentShader->unbind();
-	currentShader = NULL;
+	currentShader = nullptr;
 }
 
 inline static DXGI_FORMAT convertTypeIL(AttributeType type){

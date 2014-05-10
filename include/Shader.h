@@ -194,7 +194,8 @@ namespace Easy3D{
 	class Shader{
 
 	public:
-        
+
+		Shader(){};
 		virtual ~Shader(){};
 		virtual void loadShader(const Utility::Path& vs,const Utility::Path& fs,const std::vector<String>& defines)=0;
 		

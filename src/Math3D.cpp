@@ -655,8 +655,8 @@ AABox::AABox(const Vec3& center,Vec3 size) {
     setBox(center,size);
 }
 AABox::AABox(){
-    min=Vec3::MAX;
-    max=Vec3::MIN;
+    min =  Vec3::MAX;
+	max = -Vec3::MAX;
 }
 AABox::~AABox() {}
 

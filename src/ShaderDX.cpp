@@ -139,7 +139,13 @@ DFORCEINLINE static bool logError(unsigned int shader,int status) {
 //costruttore
 ShaderDX::ShaderDX(RenderDX* render):render(render){}
 //distruttore
-ShaderDX::~ShaderDX(){}
+#define releaseDX(x) if(x){ x->Release(); x=NULL; } 
+ShaderDX::~ShaderDX(){
+	releaseDX(vShaderBinary)
+	releaseDX(vConstantBuffer10)
+	releaseDX(pShaderBinary)
+	releaseDX(pConstantBuffer10)
+}
 
 //inizializza
 void ShaderDX::loadShader(const Utility::Path& vs, 
@@ -255,90 +261,34 @@ public:
 	}
 };
 
-CInt* ShaderDX::getConstInt(const char *name){
-	if ('v'==*name)
-		return (CInt*)new UniformDXVS(this, vVariablesRef[name], sizeof(int));
-	if ('p' == *name)
-		return (CInt*)new UniformDXPS(this, pVariablesRef[name], sizeof(int));
-	return NULL;
+#define uniformMethod(name,type,ctype)\
+	ctype* ShaderDX::name(const char *name){\
+	if (name[0] && name[1] && '.' == name[2]){\
+	    if ('v' == *name)\
+	       return (ctype*)new UniformDXVS(this, vVariablesRef[name], sizeof(type));\
+		else if ('p' == *name)\
+		   return (ctype*)new UniformDXPS(this, pVariablesRef[name], sizeof(type));\
+		else\
+		   return nullptr;\
+	}\
+	else{\
+        return (ctype*)new UniformDXVS(this, vVariablesRef[String("vs.") + name], sizeof(type));\
+	}\
 }
-CFloat* ShaderDX::getConstFloat(const char *name){
-	if ('v' == *name)
-		return (CFloat*)new UniformDXVS(this, vVariablesRef[name], sizeof(float));
-	if ('p' == *name)
-		return (CFloat*)new UniformDXPS(this, pVariablesRef[name], sizeof(float));
-	return NULL;
-}
-CVec2* ShaderDX::getConstVec2(const char *name){
-	if ('v' == *name)
-		return (CVec2*)new UniformDXVS(this, vVariablesRef[name], sizeof(Vec2));
-	if ('p' == *name)
-		return (CVec2*)new UniformDXVS(this, pVariablesRef[name], sizeof(Vec2));
-	return NULL;
-}
-CVec3* ShaderDX::getConstVec3(const char *name){
-	if ('v' == *name)
-		return (CVec3*)new UniformDXVS(this, vVariablesRef[name], sizeof(Vec3));
-	if ('p' == *name)
-		return (CVec3*)new UniformDXPS(this, pVariablesRef[name], sizeof(Vec3));
-	return NULL;
-}
-CVec4* ShaderDX::getConstVec4(const char *name){
-	if ('v' == *name)
-		return (CVec4*)new UniformDXVS(this, vVariablesRef[name], sizeof(Vec4));
-	if ('p' == *name)
-		return (CVec4*)new UniformDXPS(this, pVariablesRef[name], sizeof(Vec4));
-	return NULL;
-}
-CMat4* ShaderDX::getConstMat4(const char *name){
-	if ('v' == *name)
-		return (CMat4*)new UniformDXVS(this, vVariablesRef[name], sizeof(Mat4));
-	if ('p' == *name)
-		return (CMat4*)new UniformDXPS(this, pVariablesRef[name], sizeof(Mat4));
-	return NULL;
-}
-CIntArray* ShaderDX::getConstIntArray(const char *name){
-	if ('v' == *name)
-		return (CIntArray*)new UniformDXVS(this, vVariablesRef[name], sizeof(int));
-	if ('p' == *name)
-		return (CIntArray*)new UniformDXPS(this, pVariablesRef[name], sizeof(int));
-	return NULL;
-}
-CFloatArray* ShaderDX::getConstFloatArray(const char *name){
-	if ('v' == *name)
-		return (CFloatArray*)new UniformDXVS(this, vVariablesRef[name], sizeof(float));
-	if ('p' == *name)
-		return (CFloatArray*)new UniformDXPS(this, pVariablesRef[name], sizeof(float));
-	return NULL;
-}
-CVec2Array* ShaderDX::getConstVec2Array(const char *name){
-	if ('v' == *name)
-		return (CVec2Array*)new UniformDXVS(this, vVariablesRef[name], sizeof(Vec2));
-	if ('p' == *name)
-		return (CVec2Array*)new UniformDXVS(this, pVariablesRef[name], sizeof(Vec2));
-	return NULL;
-}
-CVec3Array* ShaderDX::getConstVec3Array(const char *name){
-	if ('v' == *name)
-		return (CVec3Array*)new UniformDXVS(this, vVariablesRef[name], sizeof(Vec3));
-	if ('p' == *name)
-		return (CVec3Array*)new UniformDXVS(this, pVariablesRef[name], sizeof(Vec3));
-	return NULL;
-}
-CVec4Array* ShaderDX::getConstVec4Array(const char *name){
-	if ('v' == *name)
-		return (CVec4Array*)new UniformDXVS(this, vVariablesRef[name], sizeof(Vec4));
-	if ('p' == *name)
-		return (CVec4Array*)new UniformDXVS(this, pVariablesRef[name], sizeof(Vec4));
-	return NULL;
-}
-CMat4Array* ShaderDX::getConstMat4Array(const char *name){
-	if ('v' == *name)
-		return (CMat4Array*)new UniformDXVS(this, vVariablesRef[name], sizeof(Mat4));
-	if ('p' == *name)
-		return (CMat4Array*)new UniformDXPS(this, pVariablesRef[name], sizeof(Mat4));
-	return NULL;
-}
+uniformMethod(getConstInt, int, CInt)
+uniformMethod(getConstFloat, float, CFloat)
+uniformMethod(getConstVec2, Vec2, CVec2)
+uniformMethod(getConstVec3, Vec3, CVec3)
+uniformMethod(getConstVec4, Vec4, CVec4)
+uniformMethod(getConstMat4, Mat4, CMat4)
+
+uniformMethod(getConstIntArray, int, CIntArray)
+uniformMethod(getConstFloatArray, float, CFloatArray)
+uniformMethod(getConstVec2Array, Vec2, CVec2Array)
+uniformMethod(getConstVec3Array, Vec3, CVec3Array)
+uniformMethod(getConstVec4Array, Vec4, CVec4Array)
+uniformMethod(getConstMat4Array, Mat4, CMat4Array)
+
 //imposta shader
 void ShaderDX::bind(){
 	render->d3dDevice->VSSetConstantBuffers(0, 1, &vConstantBuffer10);
