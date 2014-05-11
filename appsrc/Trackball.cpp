@@ -16,10 +16,10 @@ void Trackball::init(){
 	shader = r.createShader();
 	if (r.getRenderDriver() == OPENGL_DRIVER)
 		shader->loadShader(rpath + "/shader/trackball/trackball.vs.glsl",
-						   rpath + "/shader/trackball/trackball.fs.glsl", { "OpenGL_3_2 true" });
+						   rpath + "/shader/trackball/trackball.fs.glsl");
 	else if (r.getRenderDriver() == DIRECTX_DRIVER)
 		shader->loadShader(rpath + "/shader/trackball/trackball.vs.hlsl",
-						   rpath + "/shader/trackball/trackball.fs.hlsl", { "DirectX_10 true" });
+						   rpath + "/shader/trackball/trackball.fs.hlsl");
 
 	proj = shader->getConstMat4("projection")->shared();
 	view = shader->getConstMat4("view")->shared();

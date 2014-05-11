@@ -15,14 +15,14 @@ void Geometry::init(){
 	//init shader
 	shader = r.createShader();
 	if (r.getRenderDriver() == OPENGL_DRIVER){
-		shader->loadShader(rpath + "/shader/meshs/meshs.vs.glsl",
-						   rpath + "/shader/meshs/meshs.fs.glsl",{ "OpenGL_3_2 true" });
+		shader->loadShader(rpath + "/shader/geometry/geometry.vs.glsl",
+						   rpath + "/shader/geometry/geometry.fs.glsl");
 		lightDir     = shader->getConstVec3("light")->shared();
 		lightDiffuse = shader->getConstVec4("diffuse")->shared();
 	}
 	else if (r.getRenderDriver() == DIRECTX_DRIVER){
-		shader->loadShader(rpath + "/shader/meshs/meshs.vs.hlsl",
-						   rpath + "/shader/meshs/meshs.fs.hlsl",{ "DirectX_10 true" });
+		shader->loadShader(rpath + "/shader/geometry/geometry.vs.hlsl",
+						   rpath + "/shader/geometry/geometry.fs.hlsl");
 		lightDir     = shader->getConstVec3("ps.light")->shared();
 		lightDiffuse = shader->getConstVec4("ps.diffuse")->shared();
 	}

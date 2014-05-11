@@ -28,8 +28,8 @@
     <Filter Include="File di risorse\trackball">
       <UniqueIdentifier>{a0f5a1ba-ccf3-4d7e-9889-80664fb923bd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="File di risorse\meshs">
-      <UniqueIdentifier>{ce5d4d72-2660-4f0a-afd1-9471da373949}</UniqueIdentifier>
+    <Filter Include="File di risorse\geometry">
+      <UniqueIdentifier>{f4a83e10-0dbb-4ed3-8fdf-21bfce4b81d3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -131,9 +131,6 @@
     </ClInclude>
     <ClInclude Include="include\Object.h">
       <Filter>File di intestazione</Filter>
-    </ClInclude>
-    <ClInclude Include="appsrc\Trackball.h">
-      <Filter>appsrc</Filter>
     </ClInclude>
     <ClInclude Include="appsrc\Camera.h">
       <Filter>appsrc</Filter>
@@ -247,25 +244,25 @@
     <None Include="shader\trackball\trackball.vs.glsl">
       <Filter>File di risorse\trackball</Filter>
     </None>
-    <None Include="shader\meshs\meshs.fs.glsl">
-      <Filter>File di risorse\meshs</Filter>
+    <None Include="shader\geometry\geometry.fs.glsl">
+      <Filter>File di risorse\geometry</Filter>
     </None>
-    <None Include="shader\meshs\meshs.vs.glsl">
-      <Filter>File di risorse\meshs</Filter>
+    <None Include="shader\geometry\geometry.vs.glsl">
+      <Filter>File di risorse\geometry</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="shader\meshs\meshs.fs.hlsl">
-      <Filter>File di risorse\meshs</Filter>
-    </Text>
-    <Text Include="shader\meshs\meshs.vs.hlsl">
-      <Filter>File di risorse\meshs</Filter>
-    </Text>
     <Text Include="shader\trackball\trackball.fs.hlsl">
       <Filter>File di risorse\trackball</Filter>
     </Text>
     <Text Include="shader\trackball\trackball.vs.hlsl">
       <Filter>File di risorse\trackball</Filter>
+    </Text>
+    <Text Include="shader\geometry\geometry.vs.hlsl">
+      <Filter>File di risorse\geometry</Filter>
+    </Text>
+    <Text Include="shader\geometry\geometry.fs.hlsl">
+      <Filter>File di risorse\geometry</Filter>
     </Text>
   </ItemGroup>
 </Project>

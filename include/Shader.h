@@ -197,8 +197,10 @@ namespace Easy3D{
 
 		Shader(){};
 		virtual ~Shader(){};
-		virtual void loadShader(const Utility::Path& vs,const Utility::Path& fs,const std::vector<String>& defines)=0;
-		
+		virtual void loadShader(const Utility::Path& vs, const Utility::Path& fs){ loadShader(vs, fs, {}); }
+		virtual void loadShader(const Utility::Path& vs, const Utility::Path& fs, const std::vector<String>& defines) = 0;
+
+
 		//get consts
 		virtual CInt* getConstInt(const char *name) = 0;
 		virtual CFloat* getConstFloat(const char *name) = 0;
