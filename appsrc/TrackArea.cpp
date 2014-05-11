@@ -21,8 +21,14 @@ void TrackArea::onMouseDown(Vec2 mouse, Key::Mouse bt){
 	//rote to
 	to = camera->getPointFrom2DView(mouse).getNormalize();
 	//from to
-	Vec3 cross = from.cross(to) * turnIntensity;
+	Vec3 cross = from.cross(to);
 	//to quaternion
+	if (cross.length()> 0.5e-6){
+		Quaternion turn = Quaternion::fromAxisAngle(cross, asin(sqrt(cross.dot(cross))) * turnIntensity);
+		//update rotation
+		objToRot->setRotation(start.mul(turn));
+	}
+	/*
 	Quaternion turn;
 	if (cross.length()>1.0e-5){
 		turn.x = cross.x;
@@ -32,6 +38,7 @@ void TrackArea::onMouseDown(Vec2 mouse, Key::Mouse bt){
 	}
 	//
 	objToRot->setRotation(start.mul(turn));
+	*/
 }
 
 

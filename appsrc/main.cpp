@@ -98,6 +98,20 @@ public:
 		trackball.setRotation(geometry.getRotation());
 		trackball.draw(camera);
 
+
+		//camera right
+		getRender().setViewportState(Vec4(1280 * 0.5, 0, 1280 * 0.5, 720));
+		camera.setViewport(getRender().getViewportState());
+		camera.setPerspective(45.0f, 0.1f, 1000.0f);
+		//draw model
+		geometry.setScale(Vec3::ONE*zDelta);
+		geometry.draw(camera);
+		//draw trackball
+		trackball.setPosition(geometry.getPosition());
+		trackball.setScale(Vec3::ONE*1.5);
+		trackball.draw(camera);
+
+
 	}
 	void end(){
 
