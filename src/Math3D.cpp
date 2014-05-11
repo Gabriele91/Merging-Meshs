@@ -407,6 +407,20 @@ Vector3D Quaternion::getRotatePoint(Vector3D & v) const{
 }
 
 Matrix4x4 Quaternion::getMatrix() const{
+	Matrix4x4 m1(
+		w,	 z,  - y,    x,
+	   -z,	 w,    x,	 y,
+		y, - x,	   w,	 z,
+	   -x, - y,  - z,    w
+	);
+	Matrix4x4 m2(
+		 w,	    z, -y,  -x,
+		-z,	    w,	x,  -y,
+		 y,    -x,  w,  -z,
+		 x,     y,  z,   w
+	);
+	return m1.mul(m2);
+	/*
 	float x2 = x * x;
 	float y2 = y * y;
 	float z2 = z * z;
@@ -424,6 +438,7 @@ Matrix4x4 Quaternion::getMatrix() const{
                      2.0f * (xy + wz),        1.0f - 2.0f * (x2 + z2),        2.0f * (yz - wx), 0.0f,
                      2.0f * (xz - wy),               2.0f * (yz + wx), 1.0f - 2.0f * (x2 + y2), 0.0f,
                      0.0f,                           0.0f,                    0.0f, 1.0f);
+	*/
 }
 void Quaternion::setMatrix(const Mat4 &m){
 	const float diag = m[0] + m[5] + m[10] + 1;

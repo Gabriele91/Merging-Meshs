@@ -12,6 +12,7 @@
 #include "MathUtility.h"
 #include "Mesh.h"
 #include "Trackball.h"
+#include "TrackArea.h"
 #include "Camera.h"
 #include "Geometry.h"
 
@@ -32,13 +33,9 @@ public:
 	Geometry geometry;
 	Mesh model1;
 	Mesh model2;
+	TrackArea trackArea;
 	Trackball trackball;
-
-	//ogic
-	bool g1org2;
 	float zDelta;
-	float increment;
-	Quaternion rotation;
     
 
 	MyGame() :Game("Easy3D exemple", 1280, 720){}
@@ -55,17 +52,19 @@ public:
 		//load models
 		String rspath = Application::instance()->appResourcesDirectory();
 		model1.loadOFF(rspath + "/meshs/faccia000.off", Mesh::OFF_VERTEX_NORMALS);
-		model2.loadOFF(rspath + "/meshs/cone.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
+		model2.loadOFF(rspath + "/meshs/cube.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
 		//set mesh
 		geometry.setMesh(&model1);
-
+		//init track area
+		trackArea.setCamera(camera);
+		trackArea.attach(geometry);
+		trackArea.setTurnIntensity(5.0);
         //init camera
 		camera.setViewport(getRender().getViewportState());
 		camera.setPerspective(45.0f, 0.1f, 1000.0f);
 		camera.setPosition(Vec3(0, 0, 4.0));
-        rotation = Quaternion::fromEulero(Vec3(0, 0, 0));
-		zDelta = 1.0;
-		g1org2 = false;
+		//init zoom
+		zDelta = 1;
 	}
 	
 	//rotation = 
@@ -80,14 +79,7 @@ public:
 		if (getInput().getKeyDown(Key::D))
 			getRender().setCullFaceState(CullFace::DISABLE);
 
-		if (getInput().getKeyDown(Key::LEFT))
-			rotation = rotation.mul(Quaternion::fromEulero(Vec3(0.0, Math::PI*dt, 0)));
-		if (getInput().getKeyDown(Key::RIGHT))
-			rotation = rotation.mul(Quaternion::fromEulero(Vec3(0.0, -Math::PI*dt, 0)));
-		if (getInput().getKeyDown(Key::UP))
-			rotation = rotation.mul(Quaternion::fromEulero(Vec3( Math::PI*dt, 0.0, 0.0)));
-		if (getInput().getKeyDown(Key::DOWN))
-			rotation = rotation.mul(Quaternion::fromEulero(Vec3(-Math::PI*dt, 0.0, 0.0)));
+
 		//delta
 		zDelta -= getInput().getScroll()*0.1*dt;
 		//clear
@@ -97,35 +89,13 @@ public:
 		getRender().setViewportState(Vec4(0, 0, 1280 * 0.5, 720));
 		camera.setViewport(getRender().getViewportState());
 		camera.setPerspective(45.0f, 0.1f, 1000.0f);
-		//rotation
-		rotation = 
-		Quaternion::fromLookRotation(camera.getPointFrom2DView(getInput().getMouse()), Vec3(0,1,0)).getInverse();
 		//draw model
-		geometry.setRotation(rotation);
 		geometry.setScale(Vec3::ONE*zDelta);
 		geometry.draw(camera);
 		//draw trackball
 		trackball.setPosition(geometry.getPosition());
 		trackball.setScale(Vec3::ONE*1.5);
-		trackball.setRotation(rotation);
-		trackball.draw(camera);
-
-		
-		//camera right
-		getRender().setViewportState(Vec4(1280 * 0.5, 0, 1280 * 0.5, 720));
-		camera.setViewport(getRender().getViewportState());
-		camera.setPerspective(45.0f, 0.1f, 1000.0f);
-		//rotation
-		rotation =
-		Quaternion::fromLookRotation(camera.getPointFrom2DView(getInput().getMouse()), Vec3(0, 1, 0)).getInverse();
-		//draw model
-		geometry.setRotation(rotation);
-		geometry.setScale(Vec3::ONE*zDelta);
-		geometry.draw(camera);
-		//draw trackball
-		trackball.setPosition(geometry.getPosition());
-		trackball.setScale(Vec3::ONE*1.5);
-		trackball.setRotation(rotation);
+		trackball.setRotation(geometry.getRotation());
 		trackball.draw(camera);
 
 	}

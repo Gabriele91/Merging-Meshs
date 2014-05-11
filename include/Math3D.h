@@ -585,7 +585,7 @@ namespace Easy3D{
 	///////////////////////////////////////////////////////////////////////////
 	class Quaternion{
 	public:
-		float w,x,y,z;
+		float x,y,z,w;
 
 		Quaternion();
 		Quaternion(float x,float y,float z,float w);

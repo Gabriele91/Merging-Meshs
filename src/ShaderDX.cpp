@@ -69,10 +69,11 @@ DFORCEINLINE static void getContants(ID3D10Device *d3dDevice,
 
 	D3D10_SHADER_DESC desc;
 	DX_ASSERT_MSG(pReflection->GetDesc(&desc));
-
+	//init
 	ID3D10ShaderReflectionConstantBuffer* pConstantBuffer = NULL;
 	size_t valueOffset = 0;
-
+	size = 0;
+	//calc size
 	for (uint i = 0; i < desc.BoundResources; ++i)
 	{
 		pConstantBuffer = pReflection->GetConstantBufferByIndex(i);
@@ -168,7 +169,8 @@ void ShaderDX::loadShader(const Utility::Path& vs,
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	DX_ASSERT_MSG(render->d3dDevice->CreateVertexShader((DWORD*)vShaderBinary->GetBufferPointer(), vShaderBinary->GetBufferSize(), &vShader));
 	getContants(render->d3dDevice, "vs", vVariablesRef, vShaderBinary, &vConstantBuffer10, vSizeConstantBuffer);
-	if (vSizeConstantBuffer) vBufferCpu.resize(vSizeConstantBuffer);
+	if (vSizeConstantBuffer)
+		vBufferCpu.resize(vSizeConstantBuffer);
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	DWORD pShaderFlags = D3D10_SHADER_ENABLE_STRICTNESS;
@@ -185,7 +187,8 @@ void ShaderDX::loadShader(const Utility::Path& vs,
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	DX_ASSERT_MSG(render->d3dDevice->CreatePixelShader((DWORD*)pShaderBinary->GetBufferPointer(), pShaderBinary->GetBufferSize(), &pShader));
 	getContants(render->d3dDevice, "ps", pVariablesRef, pShaderBinary, &pConstantBuffer10, pSizeConstantBuffer);
-	if (pSizeConstantBuffer) pBufferCpu.resize(pSizeConstantBuffer);
+	if (pSizeConstantBuffer) 
+		pBufferCpu.resize(pSizeConstantBuffer);
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 }
@@ -217,10 +220,12 @@ public:
 		, bsize(bsize){}
 	
 	virtual void  set(const void* value, size_t s, size_t n){
-		memcpy((&shader->getCpuVBuffer()[offset]) + bsize*s, value, bsize*n);
+		DEBUG_ASSERT(shader->getCpuVBufferSize() >= (offset + bsize*s + bsize*n));
+		Math::memcpy((&shader->getCpuVBuffer()[offset]) + bsize*s, (Easy3D::byte*)value, bsize*n);
 	}
 	virtual void  set(const void* value) {
-		memcpy(&(shader->getCpuVBuffer()[offset]), value, bsize);
+		DEBUG_ASSERT(shader->getCpuVBufferSize() >= (offset + bsize));
+		Math::memcpy((&shader->getCpuVBuffer()[offset]), (Easy3D::byte*)value, bsize);
 	}
 	virtual void* get(){
 		return NULL;
@@ -246,10 +251,12 @@ public:
 		, bsize(bsize){}
 
 	virtual void  set(const void* value, size_t s, size_t n){
-		memcpy((&shader->getCpuPBuffer()[offset]) + bsize*s, value, bsize*n);
+		DEBUG_ASSERT(shader->getCpuPBufferSize() >= (offset + bsize*s + bsize*n));
+		Math::memcpy((&shader->getCpuPBuffer()[offset]) + bsize*s, (Easy3D::byte*)value, bsize*n);
 	}
 	virtual void  set(const void* value) {
-		memcpy(&(shader->getCpuPBuffer()[offset]), value, bsize);
+		DEBUG_ASSERT(shader->getCpuPBufferSize() >= (offset + bsize));
+		Math::memcpy(&(shader->getCpuPBuffer()[offset]), (Easy3D::byte*)value, bsize);
 	}
 	virtual void* get(){
 		return NULL;
@@ -261,33 +268,33 @@ public:
 	}
 };
 
-#define uniformMethod(name,type,ctype)\
+#define uniformMethod(name,type, bsize,ctype)\
 	ctype* ShaderDX::name(const char *name){\
 	if (name[0] && name[1] && '.' == name[2]){\
 	    if ('v' == *name)\
-	       return (ctype*)new UniformDXVS(this, vVariablesRef[name], sizeof(type));\
+			return (ctype*)new UniformDXVS(this, vVariablesRef[name], bsize);\
 		else if ('p' == *name)\
-		   return (ctype*)new UniformDXPS(this, pVariablesRef[name], sizeof(type));\
+			return (ctype*)new UniformDXPS(this, pVariablesRef[name], bsize);\
 		else\
 		   return nullptr;\
 	}\
 	else{\
-        return (ctype*)new UniformDXVS(this, vVariablesRef[String("vs.") + name], sizeof(type));\
+		return (ctype*)new UniformDXVS(this, vVariablesRef[String("vs.") + name], bsize);\
 	}\
 }
-uniformMethod(getConstInt, int, CInt)
-uniformMethod(getConstFloat, float, CFloat)
-uniformMethod(getConstVec2, Vec2, CVec2)
-uniformMethod(getConstVec3, Vec3, CVec3)
-uniformMethod(getConstVec4, Vec4, CVec4)
-uniformMethod(getConstMat4, Mat4, CMat4)
+uniformMethod(getConstInt,   int,     sizeof(int), CInt)
+uniformMethod(getConstFloat, float,   sizeof(float), CFloat)
+uniformMethod(getConstVec2, Vec2,     sizeof(float)* 2, CVec2)
+uniformMethod(getConstVec3, Vec3,     sizeof(float)* 3, CVec3)
+uniformMethod(getConstVec4, Vec4,     sizeof(float)* 4, CVec4)
+uniformMethod(getConstMat4, Mat4,     sizeof(float)* 16, CMat4)
 
-uniformMethod(getConstIntArray, int, CIntArray)
-uniformMethod(getConstFloatArray, float, CFloatArray)
-uniformMethod(getConstVec2Array, Vec2, CVec2Array)
-uniformMethod(getConstVec3Array, Vec3, CVec3Array)
-uniformMethod(getConstVec4Array, Vec4, CVec4Array)
-uniformMethod(getConstMat4Array, Mat4, CMat4Array)
+uniformMethod(getConstIntArray,     int, sizeof(int), CIntArray)
+uniformMethod(getConstFloatArray, float, sizeof(float), CFloatArray)
+uniformMethod(getConstVec2Array, Vec2,   sizeof(float)* 2, CVec2Array)
+uniformMethod(getConstVec3Array, Vec3,   sizeof(float)* 3, CVec3Array)
+uniformMethod(getConstVec4Array, Vec4,   sizeof(float)* 4, CVec4Array)
+uniformMethod(getConstMat4Array, Mat4,   sizeof(float)* 16, CMat4Array)
 
 //imposta shader
 void ShaderDX::bind(){

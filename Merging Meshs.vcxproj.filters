@@ -138,6 +138,9 @@
     <ClInclude Include="appsrc\Geometry.h">
       <Filter>appsrc</Filter>
     </ClInclude>
+    <ClInclude Include="appsrc\TrackArea.h">
+      <Filter>appsrc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Application.cpp">
@@ -234,6 +237,9 @@
       <Filter>appsrc</Filter>
     </ClCompile>
     <ClCompile Include="appsrc\Geometry.cpp">
+      <Filter>appsrc</Filter>
+    </ClCompile>
+    <ClCompile Include="appsrc\TrackArea.cpp">
       <Filter>appsrc</Filter>
     </ClCompile>
   </ItemGroup>

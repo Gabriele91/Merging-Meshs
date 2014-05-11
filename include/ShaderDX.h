@@ -42,6 +42,12 @@ namespace Easy3D{
 		uchar* getCpuPBuffer(){
 			return &pBufferCpu[0];
 		}
+		size_t getCpuVBufferSize(){
+			return vBufferCpu.size();
+		}
+		size_t getCpuPBufferSize(){
+			return pBufferCpu.size();
+		}
 
 	protected:
 		//imposta shader
@@ -57,18 +63,20 @@ namespace Easy3D{
 
 		ID3D10Blob* vShaderBinary{ nullptr };
 		ID3D10VertexShader *vShader{ nullptr };
-		DUNORDERED_MAP <String, size_t> vVariablesRef;
-		std::vector<uchar> vBufferCpu;
-		size_t vSizeConstantBuffer;
+		size_t vSizeConstantBuffer{ 0 };
 		ID3D10Buffer*  vConstantBuffer10{ nullptr };
 
 
 		ID3D10Blob* pShaderBinary{ nullptr };
 		ID3D10PixelShader *pShader{ nullptr };
-		DUNORDERED_MAP <String, size_t> pVariablesRef;
-		std::vector<uchar> pBufferCpu;
-		size_t pSizeConstantBuffer;
+		size_t pSizeConstantBuffer{ 0 };
 		ID3D10Buffer*  pConstantBuffer10{ nullptr };
+
+		//cpu info
+		DUNORDERED_MAP <String, size_t> vVariablesRef;
+		DUNORDERED_MAP <String, size_t> pVariablesRef;
+		std::vector<uchar> vBufferCpu;
+		std::vector<uchar> pBufferCpu;
 
 
 	};
