@@ -139,7 +139,7 @@ DFORCEINLINE static bool logError(unsigned int shader,int status) {
 //costruttore
 ShaderDX::ShaderDX(RenderDX* render):render(render){}
 //distruttore
-#define releaseDX(x) if(x){ x->Release(); x=NULL; } 
+#define releaseDX(x) if(x){ x->Release(); x=nullptr; } 
 ShaderDX::~ShaderDX(){
 	releaseDX(vShaderBinary)
 	releaseDX(vConstantBuffer10)

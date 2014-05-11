@@ -10,7 +10,7 @@
 #include <EString.h>
 #include <Dxerr.h>
 //#define releaseDX(x) if(x){ x->Release(); delete x; x=NULL; } 
-#define releaseDX(x) if(x){ x->Release(); x=NULL; } 
+#define releaseDX(x) if(x){ x->Release(); x=nullptr; } 
 #define DX_ASSERT_MSG(hr) dxAssertMsg(hr, #hr ,__FILE__,__LINE__)
 
 ///////////////////////
