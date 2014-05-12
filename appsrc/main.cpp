@@ -21,14 +21,6 @@ using namespace Easy3D;
 class MyGame : public Easy3D::Game {
 public:
 
-	Easy3D::Shader* shobj;
-	
-    CMat4::ptr ptrCProjection;
-    CMat4::ptr ptrCView;
-    CMat4::ptr ptrCModel;
-    CVec3::ptr ptrCLight;
-	CVec4::ptr ptrCDiffuse;
-	BaseInputLayout *bil;
 	Geometry geometry;
     Object pivot1;
     Object pivot2;
@@ -89,16 +81,9 @@ public:
 	
 	void run(float dt){
 
-		if (getInput().getKeyDown(Key::F))
-			getRender().setCullFaceState(CullFace::FRONT);
-		if (getInput().getKeyDown(Key::B))
-			getRender().setCullFaceState(CullFace::BACK);
-		if (getInput().getKeyDown(Key::D))
-			getRender().setCullFaceState(CullFace::DISABLE);
-
-
 		//clear
 		getRender().doClear();
+
 		//camera left
 		getRender().setViewportState(vieportLeft);
 		//draw model
@@ -111,14 +96,12 @@ public:
 		trackball.setRotation(geometry.getRotation());
 		trackball.draw(cameraLeft);
 
-
 		//camera right
 		getRender().setViewportState(vieportRight);
 		//draw model
         geometry.copyLocalTransform(pivot2);
 		geometry.setMesh(&model2);
 		geometry.draw(cameraRight);
-        //pivot2.erseChild(&geometry);
 		//draw trackball
 		trackball.setPosition(geometry.getPosition());
 		trackball.setScale(Vec3::ONE*1.5);
