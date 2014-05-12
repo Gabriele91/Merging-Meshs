@@ -85,7 +85,12 @@ namespace Easy3D {
 		virtual void deleteIL(BaseInputLayout*);
 		virtual void bindIL(BaseInputLayout*);
 		virtual void unbindIL(BaseInputLayout* il);
-        
+
+		//DEPTH
+		virtual float getDepth(const Vec2& pixel);
+		//RGBA
+		virtual Vec4  getColor(const Vec2& pixel);
+
         //TEXTURE
         //texture functions
 		virtual BaseTexture* sendTexture2D(size_t w, size_t h, void* byte, TextureType type);
@@ -117,6 +122,9 @@ namespace Easy3D {
 		GLuint		 vaoAttributes;
 		bool         contextInit;
 		ShaderDX*    currentShader{ nullptr };
+		/// Query buffers
+		ID3D10Texture2D* g_pQueryTextureColor1x1{ nullptr };
+		ID3D10Texture2D* g_pQueryTextureDepth1x1{ nullptr };
 		/// d3d device
 		ID3D10Device* d3dDevice{ nullptr };
 		/// d3d swap

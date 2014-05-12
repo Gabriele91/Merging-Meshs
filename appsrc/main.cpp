@@ -96,6 +96,7 @@ public:
 		trackball.setRotation(geometry.getRotation());
 		trackball.draw(cameraLeft);
 
+
 		//camera right
 		getRender().setViewportState(vieportRight);
 		//draw model
@@ -108,7 +109,15 @@ public:
         trackball.setRotation(geometry.getRotation());
 		trackball.draw(cameraRight);
 
+		/*
+		Debug::message() << "color: "
+			<< getRender().getColor(getInput().getMouse()).toString()
+			<< "\n";
 
+		Debug::message() << "depth: "
+			<< getRender().getDepth(getInput().getMouse())
+			<< "\n";
+		*/
 	}
 	void end(){
 
@@ -118,8 +127,8 @@ public:
 
 int main(){
 	Easy3D::Application::create("Easy3DExemple", 
-												//OPENGL_DRIVER
-												DIRECTX_DRIVER
+												OPENGL_DRIVER
+												//DIRECTX_DRIVER
 												);
 	Easy3D::Application::instance()->exec(new MyGame());
 	delete Easy3D::Application::instance()->getGame();

@@ -88,6 +88,8 @@ RenderDX::~RenderDX()
 		releaseDX(g_cullface_front)
 		releaseDX(g_cullface_disable)
 		releaseDX(g_pBlendState)
+		releaseDX(g_pQueryTextureColor1x1)
+		releaseDX(g_pQueryTextureDepth1x1)
 		releaseDX(d3dSwap)
 		releaseDX(d3dDevice)
 	}
@@ -208,7 +210,6 @@ void RenderDX::__renderInit(){
 	wfdesc.CullMode = D3D10_CULL_NONE;
 	DX_ASSERT_MSG(d3dDevice->CreateRasterizerState(&wfdesc, &g_cullface_disable));
 	//////////////////////////////////////////////////////////////////////////////////////////
-
 	// Create the depth stencil view
 	D3D10_DEPTH_STENCIL_VIEW_DESC descDSV;
 	descDSV.Format = descDepth.Format;
@@ -216,7 +217,36 @@ void RenderDX::__renderInit(){
 	descDSV.Texture2D.MipSlice = 0;
 	DX_ASSERT_MSG(d3dDevice->CreateDepthStencilView(g_pDepthStencil, &descDSV, &g_pDepthStencilView));
 	d3dDevice->OMSetRenderTargets(1, &g_pRenderTargetView, g_pDepthStencilView);
-	//////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////////
+	//Query textures - CPU Access buffer
+	//Color buffer
+	D3D10_TEXTURE2D_DESC StagedColorDesc = {
+		1,//UINT Width;
+		1,//UINT Height;
+		1,//UINT MipLevels;
+		1,//UINT ArraySize;
+		DXGI_FORMAT_R8G8B8A8_UNORM,	   //DXGI_FORMAT Format;DXGI_FORMAT_R8G8B8A8_UNORM
+		1, 0,                          //DXGI_SAMPLE_DESC SampleDesc;
+		D3D10_USAGE_STAGING,           //D3D10_USAGE Usage;
+		0,					           //UINT BindFlags;
+		D3D10_CPU_ACCESS_READ,         //UINT CPUAccessFlags;
+		0					           //UINT MiscFlags;
+	};
+	d3dDevice->CreateTexture2D(&StagedColorDesc, NULL, &g_pQueryTextureColor1x1);
+	//Depth buffer
+	D3D10_TEXTURE2D_DESC StagedDepthDesc = {
+		1,//UINT Width;
+		1,//UINT Height;
+		1,//UINT MipLevels;
+		1,//UINT ArraySize;
+		DXGI_FORMAT_D32_FLOAT,	   	   //DXGI_FORMAT Format;
+		1, 0,                          //DXGI_SAMPLE_DESC SampleDesc;
+		D3D10_USAGE_STAGING,           //D3D10_USAGE Usage;
+		0,					           //UINT BindFlags;
+		D3D10_CPU_ACCESS_READ,         //UINT CPUAccessFlags;
+		0					           //UINT MiscFlags;
+	};
+	d3dDevice->CreateTexture2D(&StagedDepthDesc, NULL, &g_pQueryTextureDepth1x1);
 	//blend state
 	dxCreateBlend(false, GL_ZERO, GL_ONE);
 	//////////////////////////////////////////////////////////////////////////////////////
@@ -575,6 +605,75 @@ void RenderDX::unbindIL(BaseInputLayout* il){
 void RenderDX::deleteIL(BaseInputLayout* il){
 	releaseDX(il->pVertexLayout)
     delete  il;
+}
+
+
+//DEPTH
+float RenderDX::getDepth(const Vec2& pixel){
+	//create box
+	D3D10_BOX srcBox;
+	srcBox.left = pixel.x;
+	srcBox.right = srcBox.left + 1;
+	srcBox.top = pixel.y;
+	srcBox.bottom = srcBox.top + 1;
+	srcBox.front = 0;
+	srcBox.back = 1;
+	//get image
+	d3dDevice->CopySubresourceRegion(g_pQueryTextureDepth1x1, 0, 0, 0, 0, g_pDepthStencil, 0, &srcBox);
+	//mapped
+	D3D10_MAPPED_TEXTURE2D  maptex2d;
+	g_pQueryTextureDepth1x1->Map(0, D3D10_MAP_READ, 0, &maptex2d);
+	//result
+	float buffer = *((float*)maptex2d.pData);
+	// copy data
+	g_pQueryTextureDepth1x1->Unmap(0);
+
+	return buffer;
+}
+
+#include <D3D10.h>
+#include <Dxerr.h>
+//RGBA
+Vec4  RenderDX::getColor(const Vec2& pixel){
+	
+	//create box
+	D3D10_BOX srcBox;
+	srcBox.left = pixel.x;
+	srcBox.right = srcBox.left + 1;
+	srcBox.top = pixel.y;
+	srcBox.bottom = srcBox.top + 1;
+	srcBox.front = 0;
+	srcBox.back = 1;
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	//back
+	ID3D10Texture2D* texture;
+	ID3D10Resource* res;
+	g_pRenderTargetView->GetResource(&res);
+	res->QueryInterface(__uuidof(ID3D10Texture2D), (LPVOID*)&texture);
+	//D3D10_TEXTURE2D_DESC dsc;
+	//texture->GetDesc(&dsc);
+	//get pixel
+	d3dDevice->CopySubresourceRegion(g_pQueryTextureColor1x1, 0, 0, 0, 0, texture, 0, &srcBox);
+	//release
+	res->Release();
+	/////////////////////////////////////////////////////////////////////////////////////////
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	//mapped
+	D3D10_MAPPED_TEXTURE2D  maptex2d;
+	g_pQueryTextureColor1x1->Map(0, D3D10_MAP_READ, 0, &maptex2d);
+	//result
+	uchar* color=(uchar*)maptex2d.pData;
+	Vec4 buffer(Color(color[0],
+					  color[1],
+					  color[2],
+					  color[3]).argbNormalize());
+	// copy data
+	g_pQueryTextureColor1x1->Unmap(0);
+	/////////////////////////////////////////////////////////////////////////////////////////
+
+	return buffer;
 }
 /*
  Textures
