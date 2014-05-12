@@ -45,6 +45,10 @@
 		E045E9F11903FA020033A7E2 /* ShaderGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E045E9F01903FA020033A7E2 /* ShaderGL.cpp */; };
 		E06FBC60191A74A600B2A4E2 /* Object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E06FBC5F191A74A600B2A4E2 /* Object.cpp */; };
 		E0B272A81916747400CABAC1 /* Mesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E0B272A71916747400CABAC1 /* Mesh.cpp */; };
+		E0CB398C1920B10000DDF9AF /* TrackArea.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E0CB39881920B10000DDF9AF /* TrackArea.cpp */; };
+		E0CB398D1920B10000DDF9AF /* Trackball.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E0CB398A1920B10000DDF9AF /* Trackball.cpp */; };
+		E0CB39911920B10F00DDF9AF /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E0CB398E1920B10F00DDF9AF /* Camera.cpp */; };
+		E0CB39921920B10F00DDF9AF /* Geometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E0CB39901920B10F00DDF9AF /* Geometry.cpp */; };
 		E0D17A8919000A9A00E4D6E1 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E0D17A8719000A9A00E4D6E1 /* main.cpp */; };
 		E0ECBB9D190D0EA90057DAAB /* MathUtility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E0ECBB9C190D0EA90057DAAB /* MathUtility.cpp */; };
 /* End PBXBuildFile section */
@@ -220,6 +224,14 @@
 		E06FBC5F191A74A600B2A4E2 /* Object.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Object.cpp; sourceTree = "<group>"; };
 		E0B272A619166AFE00CABAC1 /* Mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mesh.h; sourceTree = "<group>"; };
 		E0B272A71916747400CABAC1 /* Mesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Mesh.cpp; sourceTree = "<group>"; };
+		E0CB39871920B10000DDF9AF /* Geometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Geometry.h; sourceTree = "<group>"; };
+		E0CB39881920B10000DDF9AF /* TrackArea.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TrackArea.cpp; sourceTree = "<group>"; };
+		E0CB39891920B10000DDF9AF /* TrackArea.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TrackArea.h; sourceTree = "<group>"; };
+		E0CB398A1920B10000DDF9AF /* Trackball.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Trackball.cpp; sourceTree = "<group>"; };
+		E0CB398B1920B10000DDF9AF /* Trackball.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Trackball.h; sourceTree = "<group>"; };
+		E0CB398E1920B10F00DDF9AF /* Camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
+		E0CB398F1920B10F00DDF9AF /* Camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
+		E0CB39901920B10F00DDF9AF /* Geometry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Geometry.cpp; sourceTree = "<group>"; };
 		E0D17A851900097600E4D6E1 /* CocoaOpenGL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CocoaOpenGL.h; sourceTree = "<group>"; };
 		E0D17A8719000A9A00E4D6E1 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		E0D17A8819000A9A00E4D6E1 /* stdafx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
@@ -566,6 +578,14 @@
 		E0D17A8619000A9A00E4D6E1 /* appsrc */ = {
 			isa = PBXGroup;
 			children = (
+				E0CB398E1920B10F00DDF9AF /* Camera.cpp */,
+				E0CB398F1920B10F00DDF9AF /* Camera.h */,
+				E0CB39901920B10F00DDF9AF /* Geometry.cpp */,
+				E0CB39871920B10000DDF9AF /* Geometry.h */,
+				E0CB39881920B10000DDF9AF /* TrackArea.cpp */,
+				E0CB39891920B10000DDF9AF /* TrackArea.h */,
+				E0CB398A1920B10000DDF9AF /* Trackball.cpp */,
+				E0CB398B1920B10000DDF9AF /* Trackball.h */,
 				E0B272A71916747400CABAC1 /* Mesh.cpp */,
 				E0B272A619166AFE00CABAC1 /* Mesh.h */,
 				E0ECBB9C190D0EA90057DAAB /* MathUtility.cpp */,
@@ -675,10 +695,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				E045E9F11903FA020033A7E2 /* ShaderGL.cpp in Sources */,
+				E0CB398C1920B10000DDF9AF /* TrackArea.cpp in Sources */,
 				E045E9EE1903E55C0033A7E2 /* RenderGL.cpp in Sources */,
 				E06FBC60191A74A600B2A4E2 /* Object.cpp in Sources */,
 				E02A860818FFF01C00F05C0E /* Utility.cpp in Sources */,
 				E02A85F618FFF01C00F05C0E /* EStack.cpp in Sources */,
+				E0CB398D1920B10000DDF9AF /* Trackball.cpp in Sources */,
 				E02A85F318FFF01C00F05C0E /* Color.cpp in Sources */,
 				E02A85F418FFF01C00F05C0E /* Config.cpp in Sources */,
 				E02A860518FFF01C00F05C0E /* Screen.cpp in Sources */,
@@ -694,8 +716,10 @@
 				E02A85F518FFF01C00F05C0E /* Debug.cpp in Sources */,
 				E0B272A81916747400CABAC1 /* Mesh.cpp in Sources */,
 				E02A85FA18FFF01C00F05C0E /* Input.cpp in Sources */,
+				E0CB39911920B10F00DDF9AF /* Camera.cpp in Sources */,
 				E02A85F118FFF01C00F05C0E /* CocoaInput.mm in Sources */,
 				E02A85F818FFF01C00F05C0E /* ETime.cpp in Sources */,
+				E0CB39921920B10F00DDF9AF /* Geometry.cpp in Sources */,
 				E02A85EF18FFF01C00F05C0E /* Application.cpp in Sources */,
 				E02A860718FFF01C00F05C0E /* Timer.cpp in Sources */,
 			);
