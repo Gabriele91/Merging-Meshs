@@ -50,6 +50,12 @@ Geometry::~Geometry(){
 }
 void Geometry::setMesh(Mesh* mesh){
 	geometry = mesh;
+    //calc offset
+	auto bsize = geometry->getBox().getSize();
+	auto minsize = Math::min(bsize.x, bsize.y, bsize.z);
+	Vec3 factor = Vec3::ONE / minsize ;
+	//calc offset
+	relative.setScale(factor);
 }
 void Geometry::draw(Camera& camera){
 	//render
@@ -59,13 +65,8 @@ void Geometry::draw(Camera& camera){
 	auto cullstate = r.getCullFaceState();
 	auto blendstate = r.getBlendState();
 	//calc offset
-	auto bsize = geometry->getBox().getSize();
 	auto bcenter = geometry->getBox().getCenter();
-	auto minsize = Math::min(bsize.x, bsize.y, bsize.z);
-	Vec3 factor = Vec3::ONE / minsize ;
-	//calc offset
-	relative.setScale(factor);
-	relative.setPosition(-bcenter * factor * getScale());
+	relative.setPosition(-bcenter * relative.getScale() * getScale());
 	//draw
 	r.setCullFaceState(CullFace::DISABLE);
 	r.setBlendState({ BLEND::ONE, BLEND::ZERO });
