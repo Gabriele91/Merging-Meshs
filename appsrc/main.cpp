@@ -30,7 +30,8 @@ public:
 	CVec4::ptr ptrCDiffuse;
 	BaseInputLayout *bil;
 	Geometry geometry;
-	Geometry geometry2;
+    Object pivot1;
+    Object pivot2;
 	Mesh model1;
 	Mesh model2;
 	TrackArea trackArea;
@@ -54,21 +55,16 @@ public:
 		//init renders
 		trackball.init();
 		geometry.init();
-		geometry2.init();
 		//load models
 		String rspath = Application::instance()->appResourcesDirectory();
 		model1.loadOFF(rspath + "/meshs/faccia000.off", Mesh::OFF_VERTEX_NORMALS);
 		model2.loadOFF(rspath + "/meshs/cube.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
-		
-        //set mesh
-		geometry.setMesh(&model1);
-		geometry2.setMesh(&model2);
-        
+		      
         //left
         vieportLeft=getRender().getViewportState().viewport*Vec4(0,0,0.5,1.0);
 		//init track area
 		trackAreaLeft.setCamera(cameraLeft);
-		trackAreaLeft.attach(geometry);
+		trackAreaLeft.attach(pivot1);
 		trackAreaLeft.setTurnIntensity(5.0);
         trackAreaLeft.setZoomVelocity(0.1);
         //init camera
@@ -81,7 +77,7 @@ public:
         vieportRight=Vec4(vieportLeft.z,0,vieportLeft.z,vieportLeft.w);
 		//init track area
 		trackAreaRight.setCamera(cameraRight);
-		trackAreaRight.attach(geometry2);
+		trackAreaRight.attach(pivot2);
 		trackAreaRight.setTurnIntensity(5.0);
         trackAreaRight.setZoomVelocity(0.1);
         //init camera
@@ -91,9 +87,6 @@ public:
         
 	}
 	
-	//rotation = 
-	//Quaternion::fromLookRotation(camera.getPointFrom2DView(getInput().getMouse()), Vec3(0,1,0)).getInverse();
-
 	void run(float dt){
 
 		if (getInput().getKeyDown(Key::F))
@@ -109,6 +102,8 @@ public:
 		//camera left
 		getRender().setViewportState(vieportLeft);
 		//draw model
+        geometry.copyLocalTransform(pivot1);
+		geometry.setMesh(&model1);
 		geometry.draw(cameraLeft);
 		//draw trackball
 		trackball.setPosition(geometry.getPosition());
@@ -120,11 +115,14 @@ public:
 		//camera right
 		getRender().setViewportState(vieportRight);
 		//draw model
-		geometry2.draw(cameraRight);
+        geometry.copyLocalTransform(pivot2);
+		geometry.setMesh(&model2);
+		geometry.draw(cameraRight);
+        //pivot2.erseChild(&geometry);
 		//draw trackball
-		trackball.setPosition(geometry2.getPosition());
+		trackball.setPosition(geometry.getPosition());
 		trackball.setScale(Vec3::ONE*1.5);
-        trackball.setRotation(geometry2.getRotation());
+        trackball.setRotation(geometry.getRotation());
 		trackball.draw(cameraRight);
 
 

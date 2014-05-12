@@ -120,6 +120,11 @@ void Object::erseChild(Object *child){
 	}
 }
 //
+void Object::copyLocalTransform(const Object& local){
+    transform=local.transform;
+    change();
+}
+//
 std::list<Object*>::iterator Object::begin(){ return childs.begin(); }
 std::list<Object*>::iterator Object::end(){ return childs.end(); }
 std::list<Object*>::reverse_iterator Object::rbegin(){ return childs.rbegin(); }

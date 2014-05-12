@@ -38,6 +38,8 @@ namespace Easy3D{
 		Vector3D getPosition(bool global=false);
 		Quaternion getRotation(bool global=false);
 		ParentMode getParentMode() const;
+        //
+        void copyLocalTransform(const Object& local);
 		//math
 		void change();
 		bool isChange(){ return changeValue; }
