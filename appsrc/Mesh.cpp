@@ -94,8 +94,9 @@ void Mesh::offNormalize(){
     }
 }
 void Mesh::offComputeNormals(){
-	size_t nsize = sizeIndexs();
-	for (size_t i = 0; i != nsize; i += 3){
+	long nsize = (long)sizeIndexs();
+	#pragma omp parallel for num_threads(2)
+	for (long i = 0; i < nsize; i += 3){
 		auto v1 = offV(indexs[i+1]) - offV(indexs[i]);
 		auto v2 = offV(indexs[i+2]) - offV(indexs[i]);
 		auto norm = (v1.cross(v2)).getNormalize();
@@ -163,7 +164,7 @@ void Mesh::offSlowComputeNormals(){
 	// A as a face of Mesh
 	//#pragma loop(hint_parallel(4))
 	#pragma omp parallel for private(adj,av,n) num_threads(2)
-	for (long a = 0; a < (nsize); a += 3){
+	for (long a = 0; a < nsize; a += 3){
 		//for all vertex of A
 		for (size_t v = 0; v != 3; ++v){
 			//adjacency

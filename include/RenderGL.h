@@ -72,6 +72,11 @@ namespace Easy3D {
 		virtual void drawArrays(TypeDraw type, uint n);
 		virtual void drawElements(TypeDraw type, uint n);
         
+        //DEPTH
+        virtual float getDepth(const Vec2& pixel);
+        //RGBA
+        virtual Vec4  getColor(const Vec2& pixel);
+        
         /*
          Shaders
          */

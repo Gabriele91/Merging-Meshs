@@ -314,6 +314,19 @@ void RenderGL::unbindIL(BaseInputLayout* il){
 void RenderGL::deleteIL(BaseInputLayout* il){
     delete  il;
 }
+    
+//DEPTH
+float RenderGL::getDepth(const Vec2& pixel){
+    float depth;
+    glReadPixels(pixel.x, pixel.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+    return depth;
+}
+//RGBA
+Vec4  RenderGL::getColor(const Vec2& pixel){
+    Vec4 rgba;
+    glReadPixels(pixel.x, pixel.y, 1, 1, GL_RGBA, GL_FLOAT, &rgba);
+    return rgba;
+}
 /*
  Textures
  */

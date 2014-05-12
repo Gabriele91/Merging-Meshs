@@ -272,6 +272,11 @@ namespace Easy3D {
 		virtual void bindIL(BaseInputLayout*)=0;
 		virtual void unbindIL(BaseInputLayout* il)=0;
         
+        //DEPTH
+        virtual float getDepth(const Vec2& pixel)=0;
+        //RGBA
+        virtual Vec4  getColor(const Vec2& pixel)=0;
+        
         //TEXTURE
         
         //texture functions
