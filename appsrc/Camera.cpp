@@ -90,43 +90,41 @@ Vec2 Camera::getViewPointFrom3DSpace(const Vec3& point){
 }
 
 
-Vec3 Camera::getPointFromDepth(const Vec2& point){
+Vec3 Camera::unProjec(const Vec3& win){
+	//compute inverse
+	Mat4 inverse = (projection.mul(view)).getInverse();
+	//compute x
+	Vec4 tmp(win, 1.0);
+	tmp.x = (tmp.x - (viewport.x)) / (viewport.z);
+	tmp.y = (tmp.y - (viewport.y)) / (viewport.w);
+	tmp = tmp * 2.0 - 1.0;
+	Vec4 obj = inverse.mul(tmp);
+	//in the and
+	obj/=obj.w;
+	//
+	return obj;
+}
+
+Vec3 Camera::getPointFromDepth(const Vec2& win){
+
 	Render& r = *Application::instance()->getRender();
-#if 1
-	float distance;
-	if (r.getRenderDriver() == OPENGL_DRIVER)
-		distance = projection[14] / (r.getDepth(point) * -2.0 + 1.0 - projection[10]) *-1;
-	else if (r.getRenderDriver() == DIRECTX_DRIVER)
-		distance = projection[14] / (r.getDepth(point) + projection[10]);
-
 	//window space to clip space
-	Vec2 screen(viewport.z, viewport.w);
-	Vec2 offset(viewport.x, viewport.y);
-	Vec2 clip((2.0f * (point.x - offset.x)) / screen.x - 1.0f,	1.0f - (2.0f * (point.y - offset.y)) / screen.y);
-	//pos3D
-	auto ppos = projection.mul(Easy3D::Vector4D(clip, 1.0, 1.0));
-	//inv
-	Vec4 wpos = getGlobalMatrix().mul(Vec4(ppos.x, ppos.y, 1.0, 1.0));
+	//size screen
+	float screenH = Application::instance()->getScreen()->getHeight();
+	//inverse scree Y
+	Vec2 point(win.x, screenH - win.y);
+	//ray
+	Vec3 start = unProjec(Vec3(point, 0.0));
+	Vec3 end = unProjec(Vec3(point, 1.0));
+	//direction
+	Vec3 dir(start - end);
+	dir.normalize();
+	//zdistance
+	float distance = projection[14] / (r.getDepth(point) * -2.0 + 1.0 - projection[10]) *-1;
+	//endpoint
+	Vec3 endpos = getPosition() - dir*distance;
 
-	return wpos.xyz();
-#else
-	//window space to clip space
-	
-    Vec2 screen(viewport.z, viewport.w);
-	Vec2 offset(viewport.x, viewport.y);
-	Vec2 cpixel(screen*0.5 + offset);
-    
-    float distance;
-	if (r.getRenderDriver() == OPENGL_DRIVER)
-		distance = projection[14] / (r.getDepth(cpixel) * -2.0 + 1.0 - projection[10]) *-1;
-	else if (r.getRenderDriver() == DIRECTX_DRIVER)
-		distance = projection[14] / (r.getDepth(cpixel) + projection[10]);
-
-    //n.b. getGlobalMatrix()==getGlobalView().getInverse()
-	Vec3 zpos = getGlobalMatrix().mul(Vec4(0,0, -distance, 1.0)).xyz();
-
-    return Vec3(zpos);
-#endif
+	return endpos;
 }
 
 Vec3 Camera::getPointFrom2DClipSpace(const Vec2& point) {

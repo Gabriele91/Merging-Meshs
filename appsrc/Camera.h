@@ -17,6 +17,7 @@ namespace Easy3D{
 		float tNear, tFar;
 		//changed update matrix
 		virtual const Matrix4x4& getGlobalMatrix();
+		Vec3 unProjec(const Vec3& win);
 
 	public:
 
