@@ -119,8 +119,12 @@ Vec3 Camera::getPointFromDepth(const Vec2& win){
 	//direction
 	Vec3 dir(start - end);
 	dir.normalize();
-	//zdistance
-	float distance = projection[14] / (r.getDepth(point) * -2.0 + 1.0 - projection[10]) *-1;
+	//distance
+	float distance = 0;
+	if (r.getRenderDriver() == OPENGL_DRIVER)
+		distance = projection[14] / (r.getDepth(point) * -2.0 + 1.0 - projection[10]) *-1;
+	else if (r.getRenderDriver() == DIRECTX_DRIVER)
+		distance = projection[14] / (r.getDepth(win) + projection[10]);
 	//endpoint
 	Vec3 endpos = getPosition() - dir*distance;
 
