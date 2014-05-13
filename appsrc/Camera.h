@@ -13,6 +13,8 @@ namespace Easy3D{
 		Vec4 viewport;
 		Mat4 projection;
 		Mat4 view;
+		//save tmp info proj
+		float tNear, tFar;
 		//changed update matrix
 		virtual const Matrix4x4& getGlobalMatrix();
 
@@ -37,6 +39,7 @@ namespace Easy3D{
 		Vec2 getClipPointFrom3DSpace(const Vec3& point);
 		Vec2 getScreenPointFrom3DSpace(const Vec3& point);
 		Vec2 getViewPointFrom3DSpace(const Vec3& point);
+		Vec3 getPointFromDepth(const Vec2& point);
 		Vec3 getPointFrom2DClipSpace(const Vec2& point);
 		Vec3 getPointFrom2DScreen(const Vec2& point);
 		Vec3 getPointFrom2DView(const Vec2& point);

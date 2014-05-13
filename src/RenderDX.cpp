@@ -1,6 +1,8 @@
 #include <stdafx.h>
 #include <Render.h>
 #include <Shader.h>
+#include <D3D10.h>
+#include <Dxerr.h>
 #include <RenderDX.h>
 #include <ShaderDX.h>
 #include <Application.h>
@@ -631,8 +633,6 @@ float RenderDX::getDepth(const Vec2& pixel){
 	return buffer;
 }
 
-#include <D3D10.h>
-#include <Dxerr.h>
 //RGBA
 Vec4  RenderDX::getColor(const Vec2& pixel){
 	

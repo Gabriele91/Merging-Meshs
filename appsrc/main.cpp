@@ -95,8 +95,18 @@ public:
 		trackball.setScale(Vec3::ONE*1.5);
 		trackball.setRotation(geometry.getRotation());
 		trackball.draw(cameraLeft);
+        
+        //from mouse
+        if(getInput().getKeyDown(Key::L)){
+            Debug::message() << cameraLeft.getPointFromDepth(getInput().getMouse()).toString() << "\n";
 
-
+        }
+        Vec3 camspace = cameraLeft.getPointFromDepth(getInput().getMouse());
+		trackball.setPosition(camspace);
+		trackball.setScale(Vec3::ONE*.05);
+		trackball.setRotation(Quaternion::fromEulero(Vec3::ZERO));
+		trackball.draw(cameraLeft);
+        
 		//camera right
 		getRender().setViewportState(vieportRight);
 		//draw model
@@ -108,7 +118,16 @@ public:
 		trackball.setScale(Vec3::ONE*1.5);
         trackball.setRotation(geometry.getRotation());
 		trackball.draw(cameraRight);
-
+        
+        //from mouse
+        if(getInput().getKeyHit(Key::R)){
+            Debug::message() << cameraRight.getPointFromDepth(getInput().getMouse()).toString() << "\n";
+        }
+        Vec3 camspace2 = cameraRight.getPointFromDepth(getInput().getMouse());
+		trackball.setPosition(camspace2);
+		trackball.setScale(Vec3::ONE*.05);
+		trackball.setRotation(Quaternion::fromEulero(Vec3::ZERO));
+		trackball.draw(cameraRight);
 		/*
 		Debug::message() << "color: "
 			<< getRender().getColor(getInput().getMouse()).toString()
@@ -127,8 +146,8 @@ public:
 
 int main(){
 	Easy3D::Application::create("Easy3DExemple", 
-												OPENGL_DRIVER
-												//DIRECTX_DRIVER
+												//OPENGL_DRIVER
+												DIRECTX_DRIVER
 												);
 	Easy3D::Application::instance()->exec(new MyGame());
 	delete Easy3D::Application::instance()->getGame();
