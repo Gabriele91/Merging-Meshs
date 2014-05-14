@@ -51,46 +51,7 @@ const Matrix4x4& Camera::getViewMatrix() {
 	return view;
 }
 
-//get a projectate point
-Vec2 Camera::getClipPointFrom3DSpace(const Vec3& point){
-
-	Vec4 vpp(point, 1.0);
-	vpp = view.mul(vpp);
-	vpp = projection.mul(vpp);
-	if (vpp.w == 0) return Vec2::ZERO;
-
-	vpp.x /= vpp.w;
-	vpp.y /= vpp.w;
-	vpp.z /= vpp.w;
-
-	/* Map x, y and z to range 0-1 */
-	vpp.x = (vpp.x + 1.0f) * 0.5f;
-	vpp.y = (vpp.y + 1.0f) * 0.5f;
-	vpp.z = (vpp.z + 1.0f) * 0.5f;
-
-	return vpp.xy();
-}
-Vec2 Camera::getScreenPointFrom3DSpace(const Vec3& point){
-	//get from clip space
-	Vec2 vpp = getClipPointFrom3DSpace(point);
-	//clip to viewport
-	Vec2 screen(Application::instance()->getScreen()->getSize());
-	Vec2 pscreen = vpp*screen;
-	//flip y
-	return Vec2(pscreen.x, screen.y - pscreen.y);
-}
-Vec2 Camera::getViewPointFrom3DSpace(const Vec3& point){
-	//get from clip space
-	Vec2 vpp = getClipPointFrom3DSpace(point);
-	//clip to viewport
-	Vec2 screen(viewport.z,viewport.w);
-	Vec2 pscreen = vpp*screen + viewport.xy();
-	//flip y
-	return Vec2(pscreen.x, screen.y - pscreen.y);
-}
-
-
-Vec3 Camera::unProjec(const Vec3& win){
+Vec3 Camera::unproject(const Vec3& win) const{
 	//compute inverse
 	Mat4 inverse = (projection.mul(view)).getInverse();
 	//compute x
@@ -102,27 +63,17 @@ Vec3 Camera::unProjec(const Vec3& win){
 	//in the and
 	obj/=obj.w;
 	//
-	return obj;
+	return obj.xyz();
 }
-
-Vec3 Camera::getPointFromDepth(const Vec2& win){
-
+Vec3 Camera::picking(const Vec2& win){
+	//calc direction
 	Render& r = *Application::instance()->getRender();
-	//window space to clip space
-	//size screen
-	float screenH = Application::instance()->getScreen()->getHeight();
-	//inverse scree Y
-	Vec2 point(win.x, screenH - win.y);
-	//ray
-	Vec3 start = unProjec(Vec3(point, 0.0));
-	Vec3 end = unProjec(Vec3(point, 1.0));
-	//direction
-	Vec3 dir(start - end);
-	dir.normalize();
+	//calc direction
+	Vec3 dir=direction(win);
 	//distance
 	float distance = 0;
 	if (r.getRenderDriver() == OPENGL_DRIVER)
-		distance = projection[14] / (r.getDepth(point) * -2.0 + 1.0 - projection[10]) *-1;
+		distance = projection[14] / (r.getDepth(invScreenY(win)) * -2.0 + 1.0 - projection[10]) *-1;
 	else if (r.getRenderDriver() == DIRECTX_DRIVER)
 		distance = projection[14] / (r.getDepth(win) + projection[10]);
 	//endpoint
@@ -130,60 +81,36 @@ Vec3 Camera::getPointFromDepth(const Vec2& win){
 
 	return endpos;
 }
-
-Vec3 Camera::getPointFrom2DClipSpace(const Vec2& point) {
-	//clip to projection
-	Vec2 pProj = projection.getInverse().mul(Easy3D::Vector4D(point, 0.0, 1.0)).xy();
-	//peojection to world (n.b. getGlobalMatrix()==getGlobalView().getInverse())
-	Vec3 world = getGlobalMatrix().mul(Vec4(pProj, 0.0, 1.0)).xyz();
+Vec3 Camera::direction(const Vec2& win){
+	//calc direction
+	Render& r = *Application::instance()->getRender();
+	//inverse scree Y
+	Vec2 point(invScreenY(win));
+	//ray
+	Vec3 start = unproject(Vec3(point, 0.0));
+	Vec3 end = unproject(Vec3(point, 1.0));
+	//direction
+	Vec3 dir(start - end);
+	dir.normalize();
 	//return
-	return world;
+	return dir;
 }
-Vec3 Camera::getPointFrom2DScreen(const Vec2& point) {
-	//window space to clip space
-	Vec2 screen(Application::instance()->getScreen()->getSize());
-
-	Vec2 clipPoint((2.0f * point.x) / screen.x - 1.0f,
-		1.0f - (2.0f * point.y) / screen.y);
-
-	//calc point in 3D wolrd
-	return getPointFrom2DClipSpace(clipPoint);
+Vec2 Camera::invScreenX(const Vec2& screen) const{
+	//size screen
+	float screenW = Application::instance()->getScreen()->getWidth();
+	//inverse scree Y
+	return Vec2(screenW - screen.x,screen.y);
 }
-Vec3 Camera::getPointFrom2DView(const Vec2& point) {
-	//window space to clip space
-	Vec2 screen(viewport.z, viewport.w);
-	Vec2 offset(viewport.x, viewport.y);
-
-	Vec2 clipPoint((2.0f * (point.x - offset.x)) / screen.x - 1.0f,
-				    1.0f - (2.0f * (point.y - offset.y)) / screen.y);
-
-	//calc point in 3D wolrd
-	return getPointFrom2DClipSpace(clipPoint);
+Vec2 Camera::invScreenY(const Vec2& screen) const{
+	//size screen
+	float screenH = Application::instance()->getScreen()->getHeight();
+	//inverse scree Y
+	return Vec2(screen.x, screenH - screen.y);
 }
 
-Vec3 Camera::getNormalPointFrom2DClipSpace(const Vec2& point){
-	//clip to projection
-	Vec2 pProj = projection.getInverse().mul(Easy3D::Vector4D(point, 0.0, 1.0)).xy();
-	//peojection to world (n.b. getGlobalMatrix()==getGlobalView().getInverse())
-	Vec3 world = getGlobalMatrix().mul(Vec4(pProj, -1.0, 0.0)).xyz();
-	//return
-	return world;
-}
-Vec3 Camera::getNormalPointFrom2DScreen(const Vec2& point){
-	//window space to clip space
-	Vec2 screen(Application::instance()->getScreen()->getSize());
-	Vec2 clipPoint((2.0f * point.x) / screen.x - 1.0f,
-		1.0f - (2.0f * point.y) / screen.y);
-	//calc point in 3D wolrd
-	return getNormalPointFrom2DClipSpace(clipPoint);
-}
-Vec3 Camera::getNormalPointFrom2DView(const Vec2& point){
-	//window space to clip space
-	Vec2 screen(viewport.z, viewport.w);
-	Vec2 offset(viewport.x, viewport.y);
-
-	Vec2 clipPoint((2.0f * (point.x - offset.x)) / screen.x - 1.0f,
-					1.0f - (2.0f * (point.y - offset.y)) / screen.y);
-	//calc point in 3D wolrd
-	return getNormalPointFrom2DClipSpace(clipPoint);
+Vec2 Camera::toClip(const Vec2& point) const{
+	Vec2 tmp;
+	tmp.x = (point.x - (viewport.x)) / (viewport.z);
+	tmp.y = (point.y - (viewport.y)) / (viewport.w);
+	return tmp;
 }

@@ -26,7 +26,6 @@ public:
     Object pivot2;
 	Mesh model1;
 	Mesh model2;
-	TrackArea trackArea;
 	Trackball trackball;
 	Camera cameraLeft;
 	Camera cameraRight;
@@ -57,7 +56,7 @@ public:
 		//init track area
 		trackAreaLeft.setCamera(cameraLeft);
 		trackAreaLeft.attach(pivot1);
-		trackAreaLeft.setTurnIntensity(5.0);
+		trackAreaLeft.setRadius(2.0);
         trackAreaLeft.setZoomVelocity(0.1);
         //init camera
 		cameraLeft.setViewport(vieportLeft);
@@ -70,7 +69,7 @@ public:
 		//init track area
 		trackAreaRight.setCamera(cameraRight);
 		trackAreaRight.attach(pivot2);
-		trackAreaRight.setTurnIntensity(5.0);
+		trackAreaRight.setRadius(2.0);
         trackAreaRight.setZoomVelocity(0.1);
         //init camera
 		cameraRight.setViewport(vieportRight);
@@ -92,16 +91,16 @@ public:
 		geometry.draw(cameraLeft);
 		//draw trackball
 		trackball.setPosition(geometry.getPosition());
-		trackball.setScale(Vec3::ONE*1.5);
+		trackball.setScale(trackAreaLeft.getRadius()*Vec3::ONE*.75);
 		trackball.setRotation(geometry.getRotation());
 		trackball.draw(cameraLeft);
         
         //from mouse
         if(getInput().getKeyDown(Key::L)){
-            Debug::message() << cameraLeft.getPointFromDepth(getInput().getMouse()).toString() << "\n";
+            Debug::message() << cameraLeft.picking(getInput().getMouse()).toString() << "\n";
 
         }
-        Vec3 camspace = cameraLeft.getPointFromDepth(getInput().getMouse());
+		Vec3 camspace = cameraLeft.picking(getInput().getMouse());
 		trackball.setPosition(camspace);
 		trackball.setScale(Vec3::ONE*.05);
 		trackball.setRotation(Quaternion::fromEulero(Vec3::ZERO));
@@ -115,15 +114,15 @@ public:
 		geometry.draw(cameraRight);
 		//draw trackball
 		trackball.setPosition(geometry.getPosition());
-		trackball.setScale(Vec3::ONE*1.5);
+		trackball.setScale(trackAreaRight.getRadius()*Vec3::ONE*.75);
         trackball.setRotation(geometry.getRotation());
 		trackball.draw(cameraRight);
         
         //from mouse
         if(getInput().getKeyHit(Key::R)){
-            Debug::message() << cameraRight.getPointFromDepth(getInput().getMouse()).toString() << "\n";
+			Debug::message() << cameraRight.picking(getInput().getMouse()).toString() << "\n";
         }
-        Vec3 camspace2 = cameraRight.getPointFromDepth(getInput().getMouse());
+		Vec3 camspace2 = cameraRight.picking(getInput().getMouse());
 		trackball.setPosition(camspace2);
 		trackball.setScale(Vec3::ONE*.05);
 		trackball.setRotation(Quaternion::fromEulero(Vec3::ZERO));

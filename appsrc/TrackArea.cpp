@@ -25,31 +25,45 @@ bool TrackArea::inViewport(const Vec2& point){
     
 }
 
+
+Vec3 TrackArea::smap(const Vec2& mouse){
+	//center
+	// 0 to 1
+	auto pcenter = camera->toClip(camera->invScreenY(mouse));
+	//-1 to 1
+	pcenter = pcenter * 2.0 - 1.0;
+	//square length
+	float length = pcenter.dot(pcenter);
+	//If the point is mapped outside of the sphere... (length > radius squared)
+	if (length > (radius*radius)){
+		float norm;
+		//Compute a normalizing factor (radius / sqrt(length))
+		norm = radius / std::sqrt(length);
+		//Return the "normalized" vector, a point on the sphere
+		return Vec3(pcenter*norm,0.0);
+	}
+	else {   //Else it's on the inside
+		//Return a vector to a point mapped inside the sphere sqrt(radius squared - length)
+		return Vec3(pcenter, std::sqrt((radius*radius) - length));
+	}
+}
+
 void TrackArea::onMousePress(Vec2 mouse, Key::Mouse bt){
 	if (!objToRot) return;
     if (!inViewport(mouse)) return;
-    
     //start rotation
-    start = objToRot->getRotation();
-    //start to pic
-    from = camera->getPointFrom2DView(mouse).getNormalize();
-
+	start = objToRot->getRotation();
+	//rote from
+	from = smap(mouse);
 }
 void TrackArea::onMouseDown(Vec2 mouse, Key::Mouse bt){
 	if (!objToRot) return;
     if (!inViewport(mouse)) return;
-
 	//rote to
-	to = camera->getPointFrom2DView(mouse).getNormalize();
+	to = smap(mouse);
 	//from to
 	Vec3 cross = from.cross(to);
-	//to quaternion
-	if (cross.length()> 0.5e-6){
-		Quaternion turn = Quaternion::fromAxisAngle(cross, asin(sqrt(cross.dot(cross))) * turnIntensity);
-		//update rotation
-		objToRot->setRotation(start.mul(turn));
-	}
-	/*
+	//quad
 	Quaternion turn;
 	if (cross.length()>1.0e-5){
 		turn.x = cross.x;
@@ -59,7 +73,6 @@ void TrackArea::onMouseDown(Vec2 mouse, Key::Mouse bt){
 	}
 	//
 	objToRot->setRotation(start.mul(turn));
-	*/
 }
 
 
@@ -78,10 +91,13 @@ void TrackArea::setCamera(Camera& obj){
 void TrackArea::attach(Object& obj){
 	objToRot = &obj;
 }
-void TrackArea::setTurnIntensity(float trnIt){
-	turnIntensity = trnIt;
-}
 
+void TrackArea::setRadius(float r){
+	radius = r;
+}
+float TrackArea::getRadius(){
+	return radius;
+}
 void  TrackArea::setZoomVelocity(float zvelocity){
     velocity=zvelocity;
 }

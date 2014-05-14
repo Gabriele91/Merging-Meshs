@@ -17,7 +17,6 @@ namespace Easy3D{
 		float tNear, tFar;
 		//changed update matrix
 		virtual const Matrix4x4& getGlobalMatrix();
-		Vec3 unProjec(const Vec3& win);
 
 	public:
 
@@ -37,16 +36,12 @@ namespace Easy3D{
 			return viewport;
 		}
 		//utility
-		Vec2 getClipPointFrom3DSpace(const Vec3& point);
-		Vec2 getScreenPointFrom3DSpace(const Vec3& point);
-		Vec2 getViewPointFrom3DSpace(const Vec3& point);
-		Vec3 getPointFromDepth(const Vec2& point);
-		Vec3 getPointFrom2DClipSpace(const Vec2& point);
-		Vec3 getPointFrom2DScreen(const Vec2& point);
-		Vec3 getPointFrom2DView(const Vec2& point);
-		Vec3 getNormalPointFrom2DClipSpace(const Vec2& point);
-		Vec3 getNormalPointFrom2DScreen(const Vec2& point);
-		Vec3 getNormalPointFrom2DView(const Vec2& point);
+		Vec3 unproject(const Vec3& win) const;
+		Vec2 invScreenX(const Vec2& screen) const;
+		Vec2 invScreenY(const Vec2& screen) const;
+		Vec3 picking(const Vec2& point);
+		Vec3 direction(const Vec2& point);
+		Vec2 toClip(const Vec2& point) const;
 	};
 
 
