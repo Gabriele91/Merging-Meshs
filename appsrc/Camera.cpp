@@ -69,7 +69,8 @@ Vec3 Camera::picking(const Vec2& win){
 	//calc direction
 	Render& r = *Application::instance()->getRender();
 	//calc direction
-	Vec3 dir=direction(win);
+	Vec3 origin,dir;
+	ray(win,origin,dir);
 	//distance
 	float distance = 0;
 	if (r.getRenderDriver() == OPENGL_DRIVER)
@@ -77,9 +78,23 @@ Vec3 Camera::picking(const Vec2& win){
 	else if (r.getRenderDriver() == DIRECTX_DRIVER)
 		distance = projection[14] / (r.getDepth(win) + projection[10]);
 	//endpoint
-	Vec3 endpos = getPosition() - dir*distance;
-
+	Vec3 endpos = origin + dir*distance;
 	return endpos;
+}
+void Camera::ray(const Vec2& win, Vec3& origin, Vec3& dir){
+	//calc direction
+	Render& r = *Application::instance()->getRender();
+	//inverse scree Y
+	Vec2 point(invScreenY(win));
+	//ray
+	Vec3 start = unproject(Vec3(point, 0.0));
+	Vec3 end = unproject(Vec3(point, 1.0));
+	//direction
+	Vec3 ldir(end-start);
+	ldir.normalize();
+	//return
+	origin = getPosition(true);
+	dir = ldir;
 }
 Vec3 Camera::direction(const Vec2& win){
 	//calc direction
@@ -90,7 +105,7 @@ Vec3 Camera::direction(const Vec2& win){
 	Vec3 start = unproject(Vec3(point, 0.0));
 	Vec3 end = unproject(Vec3(point, 1.0));
 	//direction
-	Vec3 dir(start - end);
+	Vec3 dir(end - start);
 	dir.normalize();
 	//return
 	return dir;

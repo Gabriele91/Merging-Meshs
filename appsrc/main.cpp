@@ -56,7 +56,7 @@ public:
 		//init track area
 		trackAreaLeft.setCamera(cameraLeft);
 		trackAreaLeft.attach(pivot1);
-		trackAreaLeft.setRadius(2.0);
+		trackAreaLeft.sphere.radius = 1.5;
         trackAreaLeft.setZoomVelocity(0.1);
         //init camera
 		cameraLeft.setViewport(vieportLeft);
@@ -69,7 +69,7 @@ public:
 		//init track area
 		trackAreaRight.setCamera(cameraRight);
 		trackAreaRight.attach(pivot2);
-		trackAreaRight.setRadius(2.0);
+		trackAreaRight.sphere.radius = 1.5;
         trackAreaRight.setZoomVelocity(0.1);
         //init camera
 		cameraRight.setViewport(vieportRight);
@@ -90,15 +90,15 @@ public:
 		geometry.setMesh(&model1);
 		geometry.draw(cameraLeft);
 		//draw trackball
-		trackball.setPosition(geometry.getPosition());
-		trackball.setScale(trackAreaLeft.getRadius()*Vec3::ONE*.75);
+		trackball.setPosition(trackAreaLeft.sphere.point);
+		trackball.setScale(trackAreaLeft.sphere.radius*Vec3::ONE);
 		trackball.setRotation(geometry.getRotation());
 		trackball.draw(cameraLeft);
         
         //from mouse
-        if(getInput().getKeyDown(Key::L)){
+        if(getInput().getKeyHit(Key::L)){
+			pivot1.setPosition (-cameraLeft.picking(getInput().getMouse()));
             Debug::message() << cameraLeft.picking(getInput().getMouse()).toString() << "\n";
-
         }
 		Vec3 camspace = cameraLeft.picking(getInput().getMouse());
 		trackball.setPosition(camspace);
@@ -109,12 +109,12 @@ public:
 		//camera right
 		getRender().setViewportState(vieportRight);
 		//draw model
-        geometry.copyLocalTransform(pivot2);
+		geometry.copyLocalTransform(pivot2);
 		geometry.setMesh(&model2);
 		geometry.draw(cameraRight);
 		//draw trackball
-		trackball.setPosition(geometry.getPosition());
-		trackball.setScale(trackAreaRight.getRadius()*Vec3::ONE*.75);
+		trackball.setPosition(trackAreaRight.sphere.point);
+		trackball.setScale(trackAreaRight.sphere.radius*Vec3::ONE);
         trackball.setRotation(geometry.getRotation());
 		trackball.draw(cameraRight);
         

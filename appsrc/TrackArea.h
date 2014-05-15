@@ -11,16 +11,8 @@ namespace Easy3D{
 
 	class TrackArea : public Input::MouseHandler {
 
-		Object *objToRot{ nullptr };
-		Camera *camera{ nullptr };
-		float radius{ 1.0 };
-        float scaleZoom{ 1.0 };
-        float velocity{ 1.0 };
-		Quaternion start;
-		Vec3 from;
-		Vec3 to;
-
-		Vec3 smap(const Vec2& mouse);
+		void calcRay(const Vec2& mouse);
+		void rayCast();
         bool inViewport(const Vec2& point);
 		virtual void onMousePress(Vec2 mouse, Key::Mouse bt);
 		virtual void onMouseDown(Vec2 mouse, Key::Mouse bt);
@@ -28,13 +20,42 @@ namespace Easy3D{
 
 	public:
 
+		struct Sphere{
+			Vec3  point;
+			float radius{ 1.0 };
+		};
+
+		struct Ray{
+			Vec3 origin;
+			Vec3 dir;
+		};
+
+		struct Segment{
+			Vec3 vnear;
+			Vec3 vfar;
+		};
+
+
 		TrackArea();
 		virtual ~TrackArea();
 		void setCamera(Camera& obj);
 		void attach(Object& obj);
-		void setRadius(float radius);
-		float getRadius();
+		Sphere sphere;	//set and get	
 		void setZoomVelocity(float zvelocity);
+	
+	protected:
+
+		Object *objToRot{ nullptr };
+		Camera *camera{ nullptr };
+		//zoom
+		float scaleZoom{ 1.0 };
+		float velocity{ 1.0 };
+		//trackball
+		Quaternion start;
+		Vec3 from;
+		Vec3 to;
+		Ray ray;
+		Segment segment;
 
 	};
 };

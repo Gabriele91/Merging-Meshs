@@ -41,6 +41,7 @@ namespace Easy3D{
 		Vec2 invScreenY(const Vec2& screen) const;
 		Vec3 picking(const Vec2& point);
 		Vec3 direction(const Vec2& point);
+		void ray(const Vec2& point, Vec3& origin, Vec3& dir);
 		Vec2 toClip(const Vec2& point) const;
 	};
 
