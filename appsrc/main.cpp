@@ -22,8 +22,8 @@ class MyGame : public Easy3D::Game {
 public:
 
 	Geometry geometry;
-    Object pivot1;
-    Object pivot2;
+	Object m1rot,m1p1;
+	Object m2p1;
 	Mesh model1;
 	Mesh model2;
 	Trackball trackball;
@@ -48,27 +48,28 @@ public:
 		geometry.init();
 		//load models
 		String rspath = Application::instance()->appResourcesDirectory();
-		model1.loadOFF(rspath + "/meshs/faccia000.off", Mesh::OFF_VERTEX_NORMALS);
+		//model1.loadOFF(rspath + "/meshs/faccia000.off", Mesh::OFF_VERTEX_NORMALS);
 		model2.loadOFF(rspath + "/meshs/cube.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
 		      
         //left
         vieportLeft=getRender().getViewportState().viewport*Vec4(0,0,0.5,1.0);
 		//init track area
 		trackAreaLeft.setCamera(cameraLeft);
-		trackAreaLeft.attach(pivot1);
+		trackAreaLeft.attach(m1rot);
 		trackAreaLeft.sphere.radius = 1.5;
         trackAreaLeft.setZoomVelocity(0.1);
         //init camera
 		cameraLeft.setViewport(vieportLeft);
 		cameraLeft.setPerspective(45.0f, 0.1f, 1000.0f);
 		cameraLeft.setPosition(Vec3(0, 0, 4.0));
-        
+        //offset child
+		m1rot.addChild(&m1p1,false);
         
         //right
         vieportRight=Vec4(vieportLeft.z,0,vieportLeft.z,vieportLeft.w);
 		//init track area
 		trackAreaRight.setCamera(cameraRight);
-		trackAreaRight.attach(pivot2);
+		trackAreaRight.attach(m2p1);
 		trackAreaRight.sphere.radius = 1.5;
         trackAreaRight.setZoomVelocity(0.1);
         //init camera
@@ -85,56 +86,51 @@ public:
 
 		//camera left
 		getRender().setViewportState(vieportLeft);
+		m1p1.addChild(&geometry);
 		//draw model
-        geometry.copyLocalTransform(pivot1);
-		geometry.setMesh(&model1);
+		geometry.setMesh(&model2);
 		geometry.draw(cameraLeft);
 		//draw trackball
 		trackball.setPosition(trackAreaLeft.sphere.point);
 		trackball.setScale(trackAreaLeft.sphere.radius*Vec3::ONE);
-		trackball.setRotation(geometry.getRotation());
+		trackball.setRotation(m1rot.getRotation());
 		trackball.draw(cameraLeft);
-        
-        //from mouse
-        if(getInput().getKeyHit(Key::L)){
-			pivot1.setPosition (-cameraLeft.picking(getInput().getMouse()));
-            Debug::message() << cameraLeft.picking(getInput().getMouse()).toString() << "\n";
-        }
+
+		//pos pikking
 		Vec3 camspace = cameraLeft.picking(getInput().getMouse());
+        //from mouse
+		if (getInput().getMouseHit(Key::BUTTON_MIDDLE))
+			m1p1.setPosition({0,1,0}, true);
 		trackball.setPosition(camspace);
 		trackball.setScale(Vec3::ONE*.05);
 		trackball.setRotation(Quaternion::fromEulero(Vec3::ZERO));
 		trackball.draw(cameraLeft);
-        
+		//dt geometry
+		m1p1.erseChild(&geometry);
+
+		/*
 		//camera right
 		getRender().setViewportState(vieportRight);
+		m2p1.addChild(&geometry);
 		//draw model
-		geometry.copyLocalTransform(pivot2);
 		geometry.setMesh(&model2);
 		geometry.draw(cameraRight);
 		//draw trackball
 		trackball.setPosition(trackAreaRight.sphere.point);
 		trackball.setScale(trackAreaRight.sphere.radius*Vec3::ONE);
-        trackball.setRotation(geometry.getRotation());
+        trackball.setRotation(m2p1.getRotation());
 		trackball.draw(cameraRight);
-        
-        //from mouse
-        if(getInput().getKeyHit(Key::R)){
-			Debug::message() << cameraRight.picking(getInput().getMouse()).toString() << "\n";
-        }
+		//pikking
 		Vec3 camspace2 = cameraRight.picking(getInput().getMouse());
+        //from mouse
+		if (getInput().getMouseHit(Key::BUTTON_RIGHT))
+			m2p1.setPosition(m2p1.getPosition() - camspace2);
 		trackball.setPosition(camspace2);
 		trackball.setScale(Vec3::ONE*.05);
 		trackball.setRotation(Quaternion::fromEulero(Vec3::ZERO));
 		trackball.draw(cameraRight);
-		/*
-		Debug::message() << "color: "
-			<< getRender().getColor(getInput().getMouse()).toString()
-			<< "\n";
-
-		Debug::message() << "depth: "
-			<< getRender().getDepth(getInput().getMouse())
-			<< "\n";
+		//dt geometry
+		m2p1.erseChild(&geometry);
 		*/
 	}
 	void end(){
@@ -145,8 +141,8 @@ public:
 
 int main(){
 	Easy3D::Application::create("Easy3DExemple", 
-												//OPENGL_DRIVER
-												DIRECTX_DRIVER
+												OPENGL_DRIVER
+												//DIRECTX_DRIVER
 												);
 	Easy3D::Application::instance()->exec(new MyGame());
 	delete Easy3D::Application::instance()->getGame();

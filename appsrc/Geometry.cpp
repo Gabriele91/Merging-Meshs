@@ -66,7 +66,7 @@ void Geometry::draw(Camera& camera){
 	auto blendstate = r.getBlendState();
 	//calc offset
 	auto bcenter = geometry->getBox().getCenter();
-	relative.setPosition(-bcenter * relative.getScale() * getScale());
+	relative.setPosition(-bcenter * relative.getScale());
 	//draw
 	r.setCullFaceState(CullFace::DISABLE);
 	r.setBlendState({ BLEND::ONE, BLEND::ZERO });

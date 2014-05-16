@@ -60,11 +60,12 @@ void TrackArea::onMouseDown(Vec2 mouse, Key::Mouse bt){
 	calcRay(mouse);
 	rayCast();
 	to = segment.vnear;
+#if 0
 	//from to
-	Vec3 cross = from.cross(to).getNormalize();
+	Vec3 cross = from.cross(to);
 	//quad
 	Quaternion turn;
-	if (cross.length()> 1.0e-6){
+	if (cross.getNormalize().length()> 1.0e-6){
 		//rote
 		float alpha = (from-to).length()/sphere.radius;
 		//quaternion turn
@@ -72,6 +73,20 @@ void TrackArea::onMouseDown(Vec2 mouse, Key::Mouse bt){
 		//update rotation
 		objToRot->setRotation(start.mul(turn));
 	}
+#else
+	//from to
+	Vec3 cross = to.cross(from);
+	//quad
+	Quaternion turn;
+	if (cross.getNormalize().length()> 1.0e-6){
+		//rote
+		float alpha = -(to-from).length() / sphere.radius;
+		//quaternion turn
+		Quaternion turn = Quaternion::fromAxisAngle(cross, alpha).getInverse();
+		//update rotation
+		objToRot->setRotation(turn.mul(start));
+	}
+#endif
 }
 
 

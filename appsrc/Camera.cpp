@@ -51,9 +51,9 @@ const Matrix4x4& Camera::getViewMatrix() {
 	return view;
 }
 
-Vec3 Camera::unproject(const Vec3& win) const{
+Vec3 Camera::unproject(const Vec3& win) {
 	//compute inverse
-	Mat4 inverse = (projection.mul(view)).getInverse();
+	Mat4 inverse = (projection.mul(getViewMatrix())).getInverse();
 	//compute x
 	Vec4 tmp(win, 1.0);
 	tmp.x = (tmp.x - (viewport.x)) / (viewport.z);

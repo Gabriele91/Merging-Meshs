@@ -405,22 +405,24 @@ Vector3D Quaternion::getRotatePoint(Vector3D & v) const{
     
 	return out;
 }
-
-Matrix4x4 Quaternion::getMatrix() const{
+/*
+Matrix4x4 Quaternion::getMatrix(){
+	
 	Matrix4x4 m1(
-		w,	 z,  - y,    x,
-	   -z,	 w,    x,	 y,
-		y, - x,	   w,	 z,
-	   -x, - y,  - z,    w
+	w,	 z,  - y,    x,
+	-z,	 w,    x,	 y,
+	y, - x,	   w,	 z,
+	-x, - y,  - z,    w
 	);
 	Matrix4x4 m2(
-		 w,	    z, -y,  -x,
-		-z,	    w,	x,  -y,
-		 y,    -x,  w,  -z,
-		 x,     y,  z,   w
+	w,	    z, -y,  -x,
+	-z,	    w,	x,  -y,
+	y,    -x,  w,  -z,
+	x,     y,  z,   w
 	);
 	return m1.mul(m2);
-	/*
+	
+	normalise();
 	float x2 = x * x;
 	float y2 = y * y;
 	float z2 = z * z;
@@ -430,15 +432,47 @@ Matrix4x4 Quaternion::getMatrix() const{
 	float wx = w * x;
 	float wy = w * y;
 	float wz = w * z;
-    
+
 	// This calculation would be a lot more complicated for non-unit length quaternions
 	// Note: The constructor of Matrix4x4 expects the Matrix in column-major format like expected by
 	//   OpenGL
-	return Matrix4x4( 1.0f - 2.0f * (y2 + z2),        2.0f * (xy - wz),        2.0f * (xz + wy), 0.0f,
-                     2.0f * (xy + wz),        1.0f - 2.0f * (x2 + z2),        2.0f * (yz - wx), 0.0f,
-                     2.0f * (xz - wy),               2.0f * (yz + wx), 1.0f - 2.0f * (x2 + y2), 0.0f,
-                     0.0f,                           0.0f,                    0.0f, 1.0f);
-	*/
+	return Matrix4x4(1.0f - 2.0f * (y2 + z2), 2.0f * (xy - wz), 2.0f * (xz + wy), 0.0f,
+		2.0f * (xy + wz), 1.0f - 2.0f * (x2 + z2), 2.0f * (yz - wx), 0.0f,
+		2.0f * (xz - wy), 2.0f * (yz + wx), 1.0f - 2.0f * (x2 + y2), 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f);
+}
+*/
+Matrix4x4 Quaternion::getMatrix() const{
+#if 0
+	Matrix4x4 m1(
+		w, z, -y, x,
+		-z, w, x, y,
+		y, -x, w, z,
+		-x, -y, -z, w
+		);
+	Matrix4x4 m2(
+		w, z, -y, -x,
+		-z, w, x, -y,
+		y, -x, w, -z,
+		x, y, z, w
+		);
+	return m1.mul(m2);
+#else
+	float qw = w;
+	float qx = x;
+	float qy = y;
+	float qz = z;
+	//normalize
+	float n = 1.0f / sqrt(qx*qx + qy*qy + qz*qz + qw*qw);
+	qx *= n;
+	qy *= n;
+	qz *= n;
+	qw *= n;
+	return Mat4(1.0f - 2.0f*qy*qy - 2.0f*qz*qz, 2.0f*qx*qy - 2.0f*qz*qw,        2.0f*qx*qz + 2.0f*qy*qw,        0.0f,
+				2.0f*qx*qy + 2.0f*qz*qw,        1.0f - 2.0f*qx*qx - 2.0f*qz*qz, 2.0f*qy*qz - 2.0f*qx*qw,        0.0f,
+				2.0f*qx*qz - 2.0f*qy*qw,        2.0f*qy*qz + 2.0f*qx*qw,        1.0f - 2.0f*qx*qx - 2.0f*qy*qy, 0.0f,
+				0.0f,                           0.0f,                           0.0f,                           1.0f);
+#endif
 }
 void Quaternion::setMatrix(const Mat4 &m){
 	const float diag = m[0] + m[5] + m[10] + 1;
@@ -1069,14 +1103,16 @@ void Matrix4x4::setScale(const Vector3D &v3){
 						entries[10]=v3.z;
 }
 void Matrix4x4::addScale(const Vector3D &v3){
-	entries[0]*=v3.x;	entries[1]*=v3.y;	entries[2]*=v3.z;
-	entries[4]*=v3.x;	entries[5]*=v3.y;	entries[6]*=v3.z;
-	entries[8]*=v3.x;	entries[9]*=v3.y;	entries[10]*=v3.z;
+	entries[0]  *= v3.x;    entries[1] *= v3.y;	   entries[2]  *= v3.z;
+	entries[4]  *= v3.x;	entries[5] *= v3.y;    entries[6]  *= v3.z;
+	entries[8]  *= v3.x;	entries[9] *= v3.y;	   entries[10] *= v3.z;
+	entries[12] *= v3.x;	entries[13] *= v3.y;   entries[14] *= v3.z;
 }
 void Matrix4x4::addScale(const Vector2D &v2){
-	entries[0]*=v2.x;	entries[1]*=v2.y;
-	entries[4]*=v2.x;	entries[5]*=v2.y;
-	entries[8]*=v2.x;	entries[9]*=v2.y;
+	entries[0] *= v2.x;		entries[1] *= v2.y;
+	entries[4] *= v2.x;		entries[5] *= v2.y;
+	entries[8] *= v2.x;		entries[9] *= v2.y;
+	entries[12] *= v2.x;	entries[13] *= v2.y;
 }
 void Matrix4x4::setScale(const Vector3D *v3){
         identity();
@@ -1085,14 +1121,16 @@ void Matrix4x4::setScale(const Vector3D *v3){
                                                 entries[10]=v3->z;
     }
 void Matrix4x4::addScale(const Vector3D *v3){
-	entries[0]*=v3->x;	entries[1]*=v3->y;	entries[2]*=v3->z;
-	entries[4]*=v3->x;	entries[5]*=v3->y;	entries[6]*=v3->z;
-	entries[8]*=v3->x;	entries[9]*=v3->y;	entries[10]*=v3->z;
+	entries[0] *= v3->x;	entries[1] *= v3->y;	entries[2] *= v3->z;
+	entries[4] *= v3->x;	entries[5] *= v3->y;	entries[6] *= v3->z;
+	entries[8] *= v3->x;	entries[9] *= v3->y;	entries[10] *= v3->z;
+	entries[12] *= v3->x;	entries[13] *= v3->y;	entries[14] *= v3->z;
 }
 void Matrix4x4::addScale(const Vector2D *v2){
-	entries[0]*=v2->x;	entries[1]*=v2->y;
-	entries[4]*=v2->x;	entries[5]*=v2->y;
-	entries[8]*=v2->x;	entries[9]*=v2->y;
+	entries[0] *= v2->x;	entries[1] *= v2->y;
+	entries[4] *= v2->x;	entries[5] *= v2->y;
+	entries[8] *= v2->x;	entries[9] *= v2->y;
+	entries[12]	*=v2->x;	entries[13]*=v2->y;
 }
 void Matrix4x4::setScale(const Vector2D &v2){
 	identity();

@@ -36,7 +36,7 @@ namespace Easy3D{
 			return viewport;
 		}
 		//utility
-		Vec3 unproject(const Vec3& win) const;
+		Vec3 unproject(const Vec3& win);
 		Vec2 invScreenX(const Vec2& screen) const;
 		Vec2 invScreenY(const Vec2& screen) const;
 		Vec3 picking(const Vec2& point);

@@ -23,26 +23,27 @@ void Object::setScale(const Vector3D &scale,bool global){
 		transform.scale=scale;
 	else{
 		//transform.scale=scale*(transform.scale/getGlobalMatrix().getScale3D());
-		transform.scale/=getGlobalMatrix().getScale3D();
-		transform.scale*=scale;
+		transform.scale= scale/getGlobalParentScale();
 	}
 	change();
 }
 void Object::setPosition(const Vector3D &position,bool global){
-	if(!global||!parent)
-		transform.position=position;
-	else
+	if (!global || !parent)
+		transform.position = position;
+	else{
 		//transform.position=position+(transform.position-getGlobalMatrix().getTranslation3D());
-		transform.position-=getGlobalMatrix().getTranslation3D()-position;
+		Vec3 npos = -getGlobalMatrix().getInverse().mul(Vec4(position, 1.0)).xyz();
+		transform.position = npos;
+		//transform.position-=getGlobalMatrix().getTranslation3D()-position;
+	}
 
 	change();
 }
 void Object::setRotation(const Quaternion& rotation,bool global){
 	if(!global||!parent)
 		transform.rotation=rotation;
-	else{
-		transform.rotation=rotation.getInverse().mul(Quaternion::fromMatrix(getGlobalMatrix()));
-	}
+	else
+		transform.rotation = rotation.mul(parent->getRotation(true).getInverse());
 	change();
 }
 
@@ -79,9 +80,8 @@ Vector3D Object::getPosition(bool global){
 Quaternion Object::getRotation(bool global){
 	if(!global||!parent)
 		return transform.rotation;
-	else{
+	else
 		return Quaternion::fromMatrix(getGlobalMatrix());
-	}
 }
 Object::ParentMode Object::getParentMode() const{
 	return parentMode;
@@ -106,8 +106,8 @@ void Object::addChild(Object *child,ParentMode type,bool hard){
 
 	child->parent=this;
 	child->parentMode=type;
-	child->deleteHard=hard;
-    child->change();
+	child->deleteHard = hard;
+	child->change();
 	this->childs.push_back(child);
 
 }
@@ -135,52 +135,20 @@ const Matrix4x4& Object::getGlobalMatrix(){
 	if(changeValue==true){
 		//
 		globalMat.identity();
-        Mat4 tmpScale;
 		//
-		if(parent){
-			//
-			const Vec3& globalScale=getGlobalParentScale();
-			//translation and rotation
-			if(parentMode & (ENABLE_PARENT)){
-                
-				//global posiction and rotation
-				Matrix4x4 mtmp=parent->getGlobalMatrix();
-                tmpScale.setScale(Vec3(1.0/globalScale.x,  1.0/globalScale.y, 1.0/globalScale.z));
-                mtmp=mtmp.mul(tmpScale);
-                
-				//////////////////////////////////////////////
-				//position local
-				globalMat[12]=transform.position.x;
-				globalMat[13]=transform.position.y;
-				globalMat[14]=transform.position.z;
-				//rotarion local
-				globalMat=globalMat.mul(transform.rotation.getMatrix());
-				//////////////////////////////////////////////
-				//local*global
-				globalMat=mtmp.mul(globalMat);
-				//////////////////////////////////////////////
-			}
-            //scale
-			if(parentMode & ENABLE_SCALE)
-                tmpScale.setScale(getGlobalParentScale()*transform.scale);
-			else
-                tmpScale.setScale(transform.scale);
-            
-			globalMat=globalMat.mul(tmpScale);
-
+		if (parent && (parentMode & (ENABLE_PARENT))){
+			//get parent matrix
+			Mat4 m4p = parent->getGlobalMatrix();
+			//delete scale 
+			if (!(parentMode & ENABLE_SCALE))
+				m4p.addScale(1.0 / getGlobalParentScale());
+			//update matrix
+			globalMat = m4p.mul(transform.getMatrix());
 		}
 		else{
-			//position
-			globalMat.entries[12]=transform.position.x;
-			globalMat.entries[13]=transform.position.y;
-			globalMat.entries[14]=transform.position.z;
-			//rotarion
-			globalMat=globalMat.mul(transform.rotation.getMatrix());
-			//scale
-            tmpScale.setScale(transform.scale);
-			globalMat=globalMat.mul(tmpScale);
+			globalMat = transform.getMatrix();
 		}
-		//
+		//update status
 		changeValue=false;
 	 }
 
@@ -188,19 +156,31 @@ return globalMat;
     
 }
 
-
-Mat4 Object::__getGlobalView(){
-    
-    return getGlobalMatrix().getInverse();
-}
-
 Vector3D  Object::getGlobalParentScale(){
-           //no steck over flu....
-           Object *p=NULL;
-		   Vector3D out(Vec3::ONE);
-           for(p=this->parent; p; p=p->parent ){
-                out*=p->transform.scale;
-           }
-           return out;
+    //no steck over flu....
+    Object *p=NULL;
+	Vector3D out(Vec3::ONE);
+    for(p=this->parent; p; p=p->parent ){
+		if (p->parentMode & ENABLE_SCALE)
+			out*=p->transform.scale;
+		else
+			out = p->transform.scale;
+    }
+    return out;
 }
 
+
+inline Mat4 Object::Transform3D::getMatrix(){
+	//Mat4 t,r,s;
+	//t.setTranslation(position);
+	//r.setQuaternion(rotation.getInverse());
+	//s.setScale(scale);
+	//return t.mul(r.mul(s));
+	Mat4 trs;
+	trs.setQuaternion(rotation);
+	trs.addScale(scale);
+	trs[12] = position.x;
+	trs[13] = position.y;
+	trs[14] = position.z;
+	return trs;
+}
