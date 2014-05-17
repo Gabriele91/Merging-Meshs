@@ -25,18 +25,13 @@ public:
 	TrackballMaterial trackballmat;
 	GeometryMaterial  geometrymat;
 	//model 1
-	Mesh model1;
-	Object pivot1;
-	Geometry geometry1;
+	Mesh modelLeft;
+	TrackArea trackAreaLeft;
 	//model 2
-	Mesh model2;
-	Object pivot2;
-	Geometry geometry2;
+	Mesh modelRight;
+	TrackArea trackAreaRight;
 	//others
 	Trackball trackball;
-	Camera cameraLeft;
-    Vec4   vieportLeft;
-	TrackArea trackAreaLeft;
     
 
 	MyGame() :Game("Easy3D exemple", 1280, 720){}
@@ -45,7 +40,8 @@ public:
 		//resource
 		String rspath = Application::instance()->appResourcesDirectory();
 		//init renders
-		getRender().setViewportState(Vec4(0, 0, 1280, 720));
+		Vec4 viewport(0, 0, 1280, 720);
+		getRender().setViewportState(viewport);
 		getRender().setZBufferState(true);
 		getRender().setBlendState(BlendState(BLEND::ONE, BLEND::ZERO));
 		getRender().setCullFaceState(CullFace::DISABLE);
@@ -57,54 +53,42 @@ public:
 		////////////////
 		//LEFT
 		//init first
-		model1.loadOFF(rspath + "/meshs/faccia000.off", Mesh::OFF_VERTEX_NORMALS);
-		geometry1.init(&geometrymat);
-		geometry1.setMesh(&model1);
-		pivot1.addChild(&geometry1, false);	
-		//init track area
-		trackAreaLeft.setCamera(cameraLeft);
-		trackAreaLeft.attach(pivot1);
+		modelLeft.loadOFF(rspath + "/meshs/faccia000.off", Mesh::OFF_VERTEX_NORMALS);
+		//init track 
+		trackAreaLeft.init(&geometrymat);
+		trackAreaLeft.setMesh(modelLeft);
 		trackAreaLeft.sphere.radius = 1.5;
 		trackAreaLeft.setZoomVelocity(0.1);
-		//left viewport
-		vieportLeft = getRender().getViewportState().viewport*Vec4(0, 0, 0.5, 1.0);
-		//init camera
-		cameraLeft.setViewport(vieportLeft);
-		cameraLeft.setPerspective(45.0f, 0.1f, 1000.0f);
-		cameraLeft.setPosition(Vec3(0, 0, 4.0));
+		trackAreaLeft.setZDistance(4);
+		trackAreaLeft.setViewport(
+			Vec4(0, 0,
+				 viewport.z*0.5, viewport.w)
+			);
 		////////////////
 		//RIGHT
-		//init second
-		model2.loadOFF(rspath + "/meshs/cube.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
-		geometry2.init(&geometrymat);
-		geometry2.setMesh(&model2);
-		pivot2.addChild(&geometry2, false);
-
+		//init first
+		modelRight.loadOFF(rspath + "/meshs/cube.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
+		//init track 
+		trackAreaRight.init(&geometrymat);
+		trackAreaRight.setMesh(modelRight);
+		trackAreaRight.sphere.radius = 1.5;
+		trackAreaRight.setZoomVelocity(0.1);
+		trackAreaRight.setZDistance(4);
+		trackAreaRight.setViewport(
+			Vec4(viewport.z*0.5, 0, 
+				 viewport.z*0.5, viewport.w)
+			);
+		////////////////
 	}
 	
 	void run(float dt){
 
 		//clear
 		getRender().doClear();
-		//camera left
-		getRender().setViewportState(vieportLeft);
-		//draw model
-		geometry1.draw(cameraLeft);
-		//from mouse
-		if (getInput().getMouseHit(Key::BUTTON_MIDDLE))
-			geometry1.setMove(-cameraLeft.picking(getInput().getMouse()), true);
-		if (getInput().getKeyDown(Key::R))
-			geometry1.setPosition(Vec3::ZERO);
-		//draw picking
-		trackball.setPosition(cameraLeft.picking(getInput().getMouse()));
-		trackball.setScale(Vec3::ONE*.05);
-		trackball.setRotation(Quaternion::fromEulero(Vec3::ZERO));
-		trackball.draw(cameraLeft);
-		//draw trackball
-		trackball.setPosition(trackAreaLeft.sphere.point);
-		trackball.setScale(trackAreaLeft.sphere.radius*Vec3::ONE);
-		trackball.setRotation(pivot1.getRotation(true));
-		trackball.draw(cameraLeft);
+		//draw left
+		trackAreaLeft.draw();
+		//draw right
+		trackAreaRight.draw();
 
         
 	}

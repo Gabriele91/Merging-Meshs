@@ -6,6 +6,8 @@
 #include <Render.h>
 #include <Input.h>
 #include "Camera.h"
+#include "Mesh.h"
+#include "Geometry.h"
 
 namespace Easy3D{
 
@@ -35,21 +37,30 @@ namespace Easy3D{
 			Vec3 vfar;
 		};
 
-
+		//init
 		TrackArea();
+		void init(GeometryMaterial* material);
 		virtual ~TrackArea();
-		void setCamera(Camera& obj);
-		void attach(Object& obj);
-		Sphere sphere;	//set and get	
+		//draw mesh
+		void draw();
+		//set & get
+		void setMesh(Mesh& obj);
+		void setViewport(const ViewportState& viewport);
 		void setZoomVelocity(float zvelocity);
+		void setZDistance(float zdistance);
+		Sphere sphere;	//set and get	
+
 	
 	protected:
 
-		Object *objToRot{ nullptr };
-		Camera *camera{ nullptr };
+		Object   protation;
+		Geometry geometry;
+		Camera	 camera;
 		//zoom
 		float scaleZoom{ 1.0 };
 		float velocity{ 1.0 };
+		//piking query
+		Vec3 picking;
 		//trackball
 		Quaternion start;
 		Vec3 from;
