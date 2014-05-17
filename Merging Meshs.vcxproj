@@ -93,9 +93,13 @@
   <ItemGroup>
     <ClInclude Include="appsrc\Camera.h" />
     <ClInclude Include="appsrc\Geometry.h" />
+    <ClInclude Include="appsrc\GeometryMaterial.h" />
+    <ClInclude Include="appsrc\Material.h" />
     <ClInclude Include="appsrc\MathUtility.h" />
     <ClInclude Include="appsrc\Mesh.h" />
     <ClInclude Include="appsrc\TrackArea.h" />
+    <ClInclude Include="appsrc\Trackball.h" />
+    <ClInclude Include="appsrc\TrackballMaterial.h" />
     <ClInclude Include="include\Application.h" />
     <ClInclude Include="include\Blend.h" />
     <ClInclude Include="include\Color.h" />
@@ -131,11 +135,13 @@
   <ItemGroup>
     <ClCompile Include="appsrc\Camera.cpp" />
     <ClCompile Include="appsrc\Geometry.cpp" />
+    <ClCompile Include="appsrc\GeometryMaterial.cpp" />
     <ClCompile Include="appsrc\main.cpp" />
     <ClCompile Include="appsrc\MathUtility.cpp" />
     <ClCompile Include="appsrc\Mesh.cpp" />
     <ClCompile Include="appsrc\TrackArea.cpp" />
     <ClCompile Include="appsrc\Trackball.cpp" />
+    <ClCompile Include="appsrc\TrackballMaterial.cpp" />
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\Color.cpp" />
     <ClCompile Include="src\Config.cpp" />

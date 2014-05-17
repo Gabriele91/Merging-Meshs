@@ -407,6 +407,7 @@ Vector3D Quaternion::getRotatePoint(Vector3D & v) const{
 }
 
 Matrix4x4 Quaternion::getMatrix() const{
+	
 	Matrix4x4 m1(
 		w,	 z,  - y,    x,
 	   -z,	 w,    x,	 y,
@@ -420,16 +421,19 @@ Matrix4x4 Quaternion::getMatrix() const{
 		 x,     y,  z,   w
 	);
 	return m1.mul(m2);
+	
 	/*
-	float x2 = x * x;
-	float y2 = y * y;
-	float z2 = z * z;
-	float xy = x * y;
-	float xz = x * z;
-	float yz = y * z;
-	float wx = w * x;
-	float wy = w * y;
-	float wz = w * z;
+	Quaternion q(*this);  
+	q.normalise();
+	float x2 = q.x * q.x;
+	float y2 = q.y * q.y;
+	float z2 = q.z * q.z;
+	float xy = q.x * q.y;
+	float xz = q.x * q.z;
+	float yz = q.y * q.z;
+	float wx = q.w * q.x;
+	float wy = q.w * q.y;
+	float wz = q.w * q.z;
     
 	// This calculation would be a lot more complicated for non-unit length quaternions
 	// Note: The constructor of Matrix4x4 expects the Matrix in column-major format like expected by
@@ -437,8 +441,7 @@ Matrix4x4 Quaternion::getMatrix() const{
 	return Matrix4x4( 1.0f - 2.0f * (y2 + z2),        2.0f * (xy - wz),        2.0f * (xz + wy), 0.0f,
                      2.0f * (xy + wz),        1.0f - 2.0f * (x2 + z2),        2.0f * (yz - wx), 0.0f,
                      2.0f * (xz - wy),               2.0f * (yz + wx), 1.0f - 2.0f * (x2 + y2), 0.0f,
-                     0.0f,                           0.0f,                    0.0f, 1.0f);
-	*/
+                     0.0f,                           0.0f,                    0.0f, 1.0f);*/
 }
 void Quaternion::setMatrix(const Mat4 &m){
 	const float diag = m[0] + m[5] + m[10] + 1;

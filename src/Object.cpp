@@ -10,6 +10,7 @@ Object::Object()
 				changeValue(false),
 				deleteHard(false){}
 Object::~Object(){
+	change();
 	for(auto obj : *this){
 		obj->parent=NULL;
 		if(obj->deleteHard)
@@ -23,8 +24,8 @@ void Object::setScale(const Vector3D &scale,bool global){
 		transform.scale=scale;
 	else{
 		//transform.scale=scale*(transform.scale/getGlobalMatrix().getScale3D());
-		transform.scale/=getGlobalMatrix().getScale3D();
-		transform.scale*=scale;
+		transform.scale /= getGlobalMatrix().getScale3D();
+		transform.scale *= scale;
 	}
 	change();
 }
@@ -32,31 +33,34 @@ void Object::setPosition(const Vector3D &position,bool global){
 	if(!global||!parent)
 		transform.position=position;
 	else
-		//transform.position=position+(transform.position-getGlobalMatrix().getTranslation3D());
-		transform.position-=getGlobalMatrix().getTranslation3D()-position;
-
+		transform.position = position - parent->getGlobalMatrix().getTranslation3D();
 	change();
 }
 void Object::setRotation(const Quaternion& rotation,bool global){
 	if(!global||!parent)
 		transform.rotation=rotation;
-	else{
-		transform.rotation=rotation.getInverse().mul(Quaternion::fromMatrix(getGlobalMatrix()));
-	}
+	else
+		transform.rotation = rotation.getInverse().mul(Quaternion::fromMatrix(parent->getGlobalMatrix()));
 	change();
 }
 
 void Object::setTranslation(const Vector3D &translation){
-	transform.position+=translation;
+	transform.position += translation;
 	change();
 }
-void Object::setMove(const Vector3D &move){
-	Vec3 mov;
-	const Mat4& tmp=transform.rotation.getMatrix();
-	mov.x =   tmp(0,0)*move.x + tmp(1,0)*move.y + tmp(2,0)*move.z + tmp(3,0);
-	mov.y =   tmp(0,1)*move.x + tmp(1,1)*move.y + tmp(2,1)*move.z + tmp(3,1);
-	mov.z =   tmp(0,2)*move.x + tmp(1,2)*move.y + tmp(2,2)*move.z + tmp(3,2);
-	transform.position+=mov;
+void Object::setMove(const Vector3D &move, bool global){
+	if (!global || !parent){
+		const Mat4& tmp = transform.rotation.getMatrix();
+		transform.position += tmp.mul(Vec4(move, 0.0)).xyz();
+		//Vec3 mov;
+		//mov.x = tmp(0, 0)*move.x + tmp(1, 0)*move.y + tmp(2, 0)*move.z + tmp(3, 0);
+		//mov.y = tmp(0, 1)*move.x + tmp(1, 1)*move.y + tmp(2, 1)*move.z + tmp(3, 1);
+		//mov.z = tmp(0, 2)*move.x + tmp(1, 2)*move.y + tmp(2, 2)*move.z + tmp(3, 2);
+	}
+	else{
+		const Mat4& tmp = parent->getGlobalMatrix().getInverse();
+		transform.position += tmp.mul(Vec4(move, 0.0)).xyz();
+	}
 	change();
 }
 void Object::setTurn(const Quaternion& rotation){
@@ -131,6 +135,31 @@ std::list<Object*>::reverse_iterator Object::rbegin(){ return childs.rbegin(); }
 std::list<Object*>::reverse_iterator Object::rend(){ return childs.rend(); }
 //
 const Matrix4x4& Object::getGlobalMatrix(){
+
+	if (changeValue == true){
+		//
+		//globalMat.identity();
+		//
+		if (parent && (parentMode & (ENABLE_PARENT))){
+			//get parent matrix
+			Mat4 m4p = parent->getGlobalMatrix();
+			//delete scale 
+			if (!(parentMode & ENABLE_SCALE))
+				m4p.addScale(1.0 / getGlobalParentScale());
+			//update matrix
+			globalMat = m4p.mul(transform.getMatrix());
+		}
+		else{
+			globalMat = transform.getMatrix();
+		}
+		//update status
+		changeValue = false;
+	}
+	return globalMat;
+
+}
+#if 0
+const Matrix4x4& Object::getGlobalMatrix(){
     
 	if(changeValue==true){
 		//
@@ -169,17 +198,9 @@ const Matrix4x4& Object::getGlobalMatrix(){
 			globalMat=globalMat.mul(tmpScale);
 
 		}
-		else{
-			//position
-			globalMat.entries[12]=transform.position.x;
-			globalMat.entries[13]=transform.position.y;
-			globalMat.entries[14]=transform.position.z;
-			//rotarion
-			globalMat=globalMat.mul(transform.rotation.getMatrix());
-			//scale
-            tmpScale.setScale(transform.scale);
-			globalMat=globalMat.mul(tmpScale);
-		}
+		else
+			globalMat = transform.getMatrix();
+
 		//
 		changeValue=false;
 	 }
@@ -187,7 +208,7 @@ const Matrix4x4& Object::getGlobalMatrix(){
 return globalMat;
     
 }
-
+#endif
 
 Mat4 Object::__getGlobalView(){
     
@@ -199,8 +220,25 @@ Vector3D  Object::getGlobalParentScale(){
            Object *p=NULL;
 		   Vector3D out(Vec3::ONE);
            for(p=this->parent; p; p=p->parent ){
-                out*=p->transform.scale;
+			   if (parentMode & ENABLE_SCALE)
+				   out *= p->transform.scale;
+			   else
+				   out = p->transform.scale;
            }
            return out;
 }
 
+
+Mat4 Object::Transform3D::getMatrix(){
+	Mat4 trs;
+	//position
+	trs.entries[12] = position.x;
+	trs.entries[13] = position.y;
+	trs.entries[14] = position.z;
+	//rotarion
+	trs = trs.mul(rotation.getMatrix());
+	//scale
+	trs.addScale(scale);
+
+	return trs;
+}

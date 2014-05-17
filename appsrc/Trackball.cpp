@@ -6,31 +6,9 @@
 
 using namespace Easy3D;
 
-Trackball::Trackball(){}
-
-void Trackball::init(){
-	String rpath = Application::instance()->appResourcesDirectory();
-	Render& r = *Application::instance()->getRender();
-
-	//init shader
-	shader = r.createShader();
-	if (r.getRenderDriver() == OPENGL_DRIVER)
-		shader->loadShader(rpath + "/shader/trackball/trackball.vs.glsl",
-						   rpath + "/shader/trackball/trackball.fs.glsl");
-	else if (r.getRenderDriver() == DIRECTX_DRIVER)
-		shader->loadShader(rpath + "/shader/trackball/trackball.vs.hlsl",
-						   rpath + "/shader/trackball/trackball.fs.hlsl");
-
-	proj = shader->getConstMat4("projection")->shared();
-	view = shader->getConstMat4("view")->shared();
-	model = shader->getConstMat4("model")->shared();
-
-	AttributeList aList = {
-		{ "inPosition", ATT_FLOAT3 },
-		{ "inColor", ATT_FLOAT4 }
-	};
-	il = r.createIL(shader, aList);
-
+void Trackball::init(TrackballMaterial *tm){
+	//save material
+	material = tm;
 	//init mesh
 	trackball3D.format(Mesh::POSITION3D | Mesh::COLOR, (361*2)*3+1);
 	float rad = 0;
@@ -69,35 +47,17 @@ void Trackball::init(){
 	trackball3D.bind();
 }
 Trackball::~Trackball(){
-	Render* r = Application::instance()->getRender();
-	if (il)
-		r->deleteIL(il);
-	if (shader)
-		r->deleteShader(shader);
 }
 
 void Trackball::draw(Camera& camera){
-	Render& r = *Application::instance()->getRender();
-
-	//save context
-	auto cullstate = r.getCullFaceState();
-	auto blendstate = r.getBlendState();
-
 	//draw
-	r.setCullFaceState(CullFace::DISABLE);
-    r.setBlendState({ BLEND::ONE, BLEND::ZERO });
-	r.bindShader(shader);
+	material->bind();
+	material->setProj(camera.getProjectionMatrix());
+	material->setView(camera.getViewMatrix());
+	material->setModel(getGlobalMatrix());
 
-	proj->setValue(camera.getProjectionMatrix());
-	view->setValue(camera.getViewMatrix());
-	model->setValue(getGlobalMatrix());
+	material->draw(trackball3D);
 
-	trackball3D.draw(il);
-
-	r.unbindShader();
-
-	//reset context
-	r.setBlendState(blendstate);
-	r.setCullFaceState(cullstate);
+	material->unbind();
 }
 

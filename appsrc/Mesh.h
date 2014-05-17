@@ -56,7 +56,7 @@ namespace Easy3D{
         void mode(TypeDraw m);
        
         //draw element
-        void draw(BaseInputLayout* il);
+        void draw(BaseInputLayout* il) const;
         
         //get box
 		const AABox& getBox(){ return  mBox; };
@@ -82,7 +82,7 @@ namespace Easy3D{
         uint sBIndex;
         BaseIndextBufferObject* bIndex{ NULL };
 		//set buffers
-		void set();
+		void set() const;
         //calc size
         static size_t attSize(uchar type);
 		void calcVertexSize(uchar type);

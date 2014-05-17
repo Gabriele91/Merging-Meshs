@@ -10,6 +10,7 @@
 #include <Shader.h>
 #include "Mesh.h"
 #include "Camera.h"
+#include "TrackballMaterial.h"
 
 namespace Easy3D{
 
@@ -17,17 +18,12 @@ namespace Easy3D{
 					 public Input::MouseHandler
 	{
 		
-		Shader*	shader{ nullptr };
-		BaseInputLayout* il{ nullptr };
-		CMat4::ptr model{ nullptr };
-		CMat4::ptr view{ nullptr };
-		CMat4::ptr proj{ nullptr };
+		TrackballMaterial *material{ nullptr };
 		Mesh trackball3D;
 
 	public:
 
-		Trackball();
-		void init();
+		void init(TrackballMaterial *material);
 		virtual ~Trackball();
 		void draw(Camera& camera);
 	};

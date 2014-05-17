@@ -427,12 +427,12 @@ bool Mesh::bind(bool force){
 void Mesh::mode(TypeDraw m){
 	dMode = m;
 }
-void Mesh::set(){
+void Mesh::set() const{
 	Render& r = *Application::instance()->getRender();
 	r.bindVBO(bVertex);
 	if (bIndex) r.bindIBO(bIndex);
 }
-void Mesh::draw(BaseInputLayout* il){
+void Mesh::draw(BaseInputLayout* il) const{
 	Render& r = *Application::instance()->getRender();
 	set();
 	r.bindIL(il);

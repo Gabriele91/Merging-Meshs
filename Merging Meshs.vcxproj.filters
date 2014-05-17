@@ -31,6 +31,9 @@
     <Filter Include="File di risorse\geometry">
       <UniqueIdentifier>{f4a83e10-0dbb-4ed3-8fdf-21bfce4b81d3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="appsrc\Materials">
+      <UniqueIdentifier>{7ae8ddcf-a3fc-4836-b46e-22b7ae40a777}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Application.h">
@@ -141,6 +144,18 @@
     <ClInclude Include="appsrc\TrackArea.h">
       <Filter>appsrc</Filter>
     </ClInclude>
+    <ClInclude Include="appsrc\Trackball.h">
+      <Filter>appsrc</Filter>
+    </ClInclude>
+    <ClInclude Include="appsrc\Material.h">
+      <Filter>appsrc\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="appsrc\TrackballMaterial.h">
+      <Filter>appsrc\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="appsrc\GeometryMaterial.h">
+      <Filter>appsrc\Materials</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Application.cpp">
@@ -241,6 +256,12 @@
     </ClCompile>
     <ClCompile Include="appsrc\TrackArea.cpp">
       <Filter>appsrc</Filter>
+    </ClCompile>
+    <ClCompile Include="appsrc\TrackballMaterial.cpp">
+      <Filter>appsrc\Materials</Filter>
+    </ClCompile>
+    <ClCompile Include="appsrc\GeometryMaterial.cpp">
+      <Filter>appsrc\Materials</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

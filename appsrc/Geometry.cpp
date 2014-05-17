@@ -7,47 +7,15 @@
 #include "Camera.h"
 
 using namespace Easy3D;
-void Geometry::init(){
+void Geometry::init(GeometryMaterial* gm){
 	///////////////////////////
-	String rpath = Application::instance()->appResourcesDirectory();
-	Render& r = *Application::instance()->getRender();
-	///////////////////////////
-	//init shader
-	shader = r.createShader();
-	if (r.getRenderDriver() == OPENGL_DRIVER){
-		shader->loadShader(rpath + "/shader/geometry/geometry.vs.glsl",
-						   rpath + "/shader/geometry/geometry.fs.glsl");
-		lightDir     = shader->getConstVec3("light")->shared();
-		lightDiffuse = shader->getConstVec4("diffuse")->shared();
-	}
-	else if (r.getRenderDriver() == DIRECTX_DRIVER){
-		shader->loadShader(rpath + "/shader/geometry/geometry.vs.hlsl",
-						   rpath + "/shader/geometry/geometry.fs.hlsl");
-		lightDir     = shader->getConstVec3("ps.light")->shared();
-		lightDiffuse = shader->getConstVec4("ps.diffuse")->shared();
-	}
-
-	proj   = shader->getConstMat4("projection")->shared();
-	view   = shader->getConstMat4("view")->shared();
-	model  = shader->getConstMat4("model")->shared();
-
-	AttributeList atl({
-		{ "inPosition", ATT_FLOAT3 },
-		{ "inNormal", ATT_FLOAT3 }
-	});
-	il = r.createIL(shader, atl);
+	material=gm;
 	///////////////////////////
 	//add relative pivot
 	addChild(&relative, false);	
 	///////////////////////////
 }
-Geometry::~Geometry(){
-	Render* r = Application::instance()->getRender();
-	if (il)
-		r->deleteIL(il);
-	if (shader)
-		r->deleteShader(shader);
-}
+Geometry::~Geometry(){}
 void Geometry::setMesh(Mesh* mesh){
 	geometry = mesh;
     //calc offset
@@ -59,29 +27,20 @@ void Geometry::setMesh(Mesh* mesh){
 }
 void Geometry::draw(Camera& camera){
 	//render
-	Render& r = *Application::instance()->getRender();
 	DEBUG_ASSERT(geometry);
-	//save context
-	auto cullstate = r.getCullFaceState();
-	auto blendstate = r.getBlendState();
 	//calc offset
 	auto bcenter = geometry->getBox().getCenter();
-	relative.setPosition(-bcenter * relative.getScale() * getScale());
+	relative.setPosition(-bcenter * relative.getScale());
 	//draw
-	r.setCullFaceState(CullFace::DISABLE);
-	r.setBlendState({ BLEND::ONE, BLEND::ZERO });
-	r.bindShader(shader);
+	material->bind();
 
-	proj->setValue(camera.getProjectionMatrix());
-	view->setValue(camera.getViewMatrix());
-	model->setValue(relative.getGlobalMatrix());
-	lightDir->setValue(lDir);
-	lightDiffuse->setValue(lDiffuse);
+	material->setProj(camera.getProjectionMatrix());
+	material->setView(camera.getViewMatrix());
+	material->setModel(relative.getGlobalMatrix());
+	material->setLightDir(lDir);
+	material->setLightDiffuse(lDiffuse);
 
-	geometry->draw(il);
+	material->draw(*geometry);
 
-	r.unbindShader();
-	//reset context
-	r.setBlendState(blendstate);
-	r.setCullFaceState(cullstate);
+	material->unbind();
 }

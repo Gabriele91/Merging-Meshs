@@ -11,9 +11,9 @@
 
 #include "MathUtility.h"
 #include "Mesh.h"
+#include "Camera.h"
 #include "Trackball.h"
 #include "TrackArea.h"
-#include "Camera.h"
 #include "Geometry.h"
 
 using namespace Easy3D;
@@ -21,121 +21,92 @@ using namespace Easy3D;
 class MyGame : public Easy3D::Game {
 public:
 
-	Geometry geometry;
-    Object pivot1;
-    Object pivot2;
+	//materials
+	TrackballMaterial trackballmat;
+	GeometryMaterial  geometrymat;
+	//model 1
 	Mesh model1;
+	Object pivot1;
+	Geometry geometry1;
+	//model 2
 	Mesh model2;
+	Object pivot2;
+	Geometry geometry2;
+	//others
 	Trackball trackball;
 	Camera cameraLeft;
-	Camera cameraRight;
     Vec4   vieportLeft;
-    Vec4   vieportRight;
 	TrackArea trackAreaLeft;
-	TrackArea trackAreaRight;
     
 
 	MyGame() :Game("Easy3D exemple", 1280, 720){}
 
 	void start(){
-
+		//resource
+		String rspath = Application::instance()->appResourcesDirectory();
+		//init renders
 		getRender().setViewportState(Vec4(0, 0, 1280, 720));
 		getRender().setZBufferState(true);
 		getRender().setBlendState(BlendState(BLEND::ONE, BLEND::ZERO));
 		getRender().setCullFaceState(CullFace::DISABLE);
-		//init renders
-		trackball.init();
-		geometry.init();
-		//load models
-		String rspath = Application::instance()->appResourcesDirectory();
+		//materials
+		trackballmat.init();
+		geometrymat.init();
+		//init trackball
+		trackball.init(&trackballmat);
+		////////////////
+		//LEFT
+		//init first
 		model1.loadOFF(rspath + "/meshs/faccia000.off", Mesh::OFF_VERTEX_NORMALS);
-		model2.loadOFF(rspath + "/meshs/cube.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
-		      
-        //left
-        vieportLeft=getRender().getViewportState().viewport*Vec4(0,0,0.5,1.0);
+		geometry1.init(&geometrymat);
+		geometry1.setMesh(&model1);
+		pivot1.addChild(&geometry1, false);	
 		//init track area
 		trackAreaLeft.setCamera(cameraLeft);
 		trackAreaLeft.attach(pivot1);
 		trackAreaLeft.sphere.radius = 1.5;
-        trackAreaLeft.setZoomVelocity(0.1);
-        //init camera
+		trackAreaLeft.setZoomVelocity(0.1);
+		//left viewport
+		vieportLeft = getRender().getViewportState().viewport*Vec4(0, 0, 0.5, 1.0);
+		//init camera
 		cameraLeft.setViewport(vieportLeft);
 		cameraLeft.setPerspective(45.0f, 0.1f, 1000.0f);
 		cameraLeft.setPosition(Vec3(0, 0, 4.0));
-        
-        
-        //right
-        vieportRight=Vec4(vieportLeft.z,0,vieportLeft.z,vieportLeft.w);
-		//init track area
-		trackAreaRight.setCamera(cameraRight);
-		trackAreaRight.attach(pivot2);
-		trackAreaRight.sphere.radius = 1.5;
-        trackAreaRight.setZoomVelocity(0.1);
-        //init camera
-		cameraRight.setViewport(vieportRight);
-		cameraRight.setPerspective(45.0f, 0.1f, 1000.0f);
-		cameraRight.setPosition(Vec3(0, 0, 4.0));
-        
+		////////////////
+		//RIGHT
+		//init second
+		model2.loadOFF(rspath + "/meshs/cube.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
+		geometry2.init(&geometrymat);
+		geometry2.setMesh(&model2);
+		pivot2.addChild(&geometry2, false);
+
 	}
 	
 	void run(float dt){
 
 		//clear
 		getRender().doClear();
-
 		//camera left
 		getRender().setViewportState(vieportLeft);
 		//draw model
-        geometry.copyLocalTransform(pivot1);
-		geometry.setMesh(&model1);
-		geometry.draw(cameraLeft);
+		geometry1.draw(cameraLeft);
+		//from mouse
+		if (getInput().getMouseHit(Key::BUTTON_MIDDLE))
+			geometry1.setMove(-cameraLeft.picking(getInput().getMouse()), true);
+		if (getInput().getKeyDown(Key::R))
+			geometry1.setPosition(Vec3::ZERO);
+		//draw picking
+		trackball.setPosition(cameraLeft.picking(getInput().getMouse()));
+		trackball.setScale(Vec3::ONE*.05);
+		trackball.setRotation(Quaternion::fromEulero(Vec3::ZERO));
+		trackball.draw(cameraLeft);
 		//draw trackball
 		trackball.setPosition(trackAreaLeft.sphere.point);
 		trackball.setScale(trackAreaLeft.sphere.radius*Vec3::ONE);
-		trackball.setRotation(geometry.getRotation());
+		trackball.setRotation(pivot1.getRotation(true));
 		trackball.draw(cameraLeft);
-        
-        //from mouse
-        if(getInput().getKeyHit(Key::L)){
-			pivot1.setPosition (-cameraLeft.picking(getInput().getMouse()));
-            Debug::message() << cameraLeft.picking(getInput().getMouse()).toString() << "\n";
-        }
-		Vec3 camspace = cameraLeft.picking(getInput().getMouse());
-		trackball.setPosition(camspace);
-		trackball.setScale(Vec3::ONE*.05);
-		trackball.setRotation(Quaternion::fromEulero(Vec3::ZERO));
-		trackball.draw(cameraLeft);
-        
-		//camera right
-		getRender().setViewportState(vieportRight);
-		//draw model
-		geometry.copyLocalTransform(pivot2);
-		geometry.setMesh(&model2);
-		geometry.draw(cameraRight);
-		//draw trackball
-		trackball.setPosition(trackAreaRight.sphere.point);
-		trackball.setScale(trackAreaRight.sphere.radius*Vec3::ONE);
-        trackball.setRotation(geometry.getRotation());
-		trackball.draw(cameraRight);
-        
-        //from mouse
-        if(getInput().getKeyHit(Key::R)){
-			Debug::message() << cameraRight.picking(getInput().getMouse()).toString() << "\n";
-        }
-		Vec3 camspace2 = cameraRight.picking(getInput().getMouse());
-		trackball.setPosition(camspace2);
-		trackball.setScale(Vec3::ONE*.05);
-		trackball.setRotation(Quaternion::fromEulero(Vec3::ZERO));
-		trackball.draw(cameraRight);
-		/*
-		Debug::message() << "color: "
-			<< getRender().getColor(getInput().getMouse()).toString()
-			<< "\n";
 
-		Debug::message() << "depth: "
-			<< getRender().getDepth(getInput().getMouse())
-			<< "\n";
-		*/
+        
 	}
 	void end(){
 

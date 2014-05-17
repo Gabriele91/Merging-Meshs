@@ -23,10 +23,10 @@ namespace Easy3D{
 		//methods
 		void setScale(const Vector3D &scale,bool global=false);
 		void setPosition(const Vector3D &position,bool global=false);
-		void setRotation(const Quaternion& rotation,bool global=false);
+		void setRotation(const Quaternion& rotation, bool global = false);
+		void setMove(const Vector3D &move, bool global = false);
 		//inc
 		void setTranslation(const Vector3D &translation);
-		void setMove(const Vector3D &move);
 		void setTurn(const Quaternion& rotation);
 		//childs
 		void addChild(Object *child, bool hard = true);
@@ -68,6 +68,8 @@ namespace Easy3D{
 			//cast
 			operator float*() { return &position.x; }
 			operator const float*() const { return &position.x; }
+			//calc matrix
+			Mat4 getMatrix();
 		};
 		//local
 		Transform3D transform;
