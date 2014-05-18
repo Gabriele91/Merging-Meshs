@@ -292,8 +292,8 @@ namespace Easy3D {
 		virtual void deleteTexture2D(BaseTexture*)=0;
 		virtual void deleteRenderTexture(BaseRenderTexture*)=0;
         
-		virtual void enableRenderToTexture(BaseRenderTexture*)=0;
-		virtual void disableRanderToTexture(BaseRenderTexture*)=0;
+		virtual void enableRenderToTexture(BaseRenderTexture*) = 0;
+		virtual void disableRanderToTexture(BaseRenderTexture*) = 0;
 
 	};
 

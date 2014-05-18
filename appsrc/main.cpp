@@ -22,8 +22,8 @@ class MyGame : public Easy3D::Game {
 public:
 
 	//materials
-	TrackballMaterial trackballmat;
-	GeometryMaterial  geometrymat;
+	TrackballMaterial matTrackball;
+	GeometryMaterial  matGeometry;
 	//model 1
 	Mesh modelLeft;
 	TrackArea trackAreaLeft;
@@ -32,9 +32,10 @@ public:
 	TrackArea trackAreaRight;
 	//others
 	Trackball trackball;
+
     
 
-	MyGame() :Game("Easy3D exemple", 1280, 720){}
+	MyGame() :Game("Easy3D exemple", 1280, 720,32,60){}
 
 	void start(){
 		//resource
@@ -46,16 +47,16 @@ public:
 		getRender().setBlendState(BlendState(BLEND::ONE, BLEND::ZERO));
 		getRender().setCullFaceState(CullFace::DISABLE);
 		//materials
-		trackballmat.init();
-		geometrymat.init();
+		matTrackball.init();
+		matGeometry.init();
 		//init trackball
-		trackball.init(&trackballmat);
+		trackball.init(&matTrackball);
 		////////////////
 		//LEFT
 		//init first
 		modelLeft.loadOFF(rspath + "/meshs/faccia000.off", Mesh::OFF_VERTEX_NORMALS);
 		//init track 
-		trackAreaLeft.init(&geometrymat);
+		trackAreaLeft.init(&matGeometry);
 		trackAreaLeft.setMesh(modelLeft);
 		trackAreaLeft.sphere.radius = 1.5;
 		trackAreaLeft.setZoomVelocity(0.1);
@@ -69,7 +70,7 @@ public:
 		//init first
 		modelRight.loadOFF(rspath + "/meshs/cube.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
 		//init track 
-		trackAreaRight.init(&geometrymat);
+		trackAreaRight.init(&matGeometry);
 		trackAreaRight.setMesh(modelRight);
 		trackAreaRight.sphere.radius = 1.5;
 		trackAreaRight.setZoomVelocity(0.1);
@@ -79,6 +80,7 @@ public:
 				 viewport.z*0.5, viewport.w)
 			);
 		////////////////
+
 	}
 	
 	void run(float dt){
@@ -90,6 +92,7 @@ public:
 		//draw right
 		trackAreaRight.draw();
 
+
         
 	}
 	void end(){
@@ -100,8 +103,8 @@ public:
 
 int main(){
 	Easy3D::Application::create("Easy3DExemple", 
-												//OPENGL_DRIVER
-												DIRECTX_DRIVER
+												OPENGL_DRIVER
+												//DIRECTX_DRIVER
 												);
 	Easy3D::Application::instance()->exec(new MyGame());
 	delete Easy3D::Application::instance()->getGame();

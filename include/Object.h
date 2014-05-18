@@ -51,11 +51,7 @@ namespace Easy3D{
 		std::list<Object*>::reverse_iterator rend();
 		//data
 		void *data;
-
-    protected:
-        
-        Mat4 __getGlobalView();
-        
+		        
 	private:
         
 		struct Transform3D{
@@ -70,6 +66,7 @@ namespace Easy3D{
 			operator const float*() const { return &position.x; }
 			//calc matrix
 			Mat4 getMatrix();
+			Mat4 getMatrixRT();
 		};
 		//local
 		Transform3D transform;

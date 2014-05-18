@@ -27,18 +27,19 @@ PFNGLDRAWRANGEELEMENTSEXTPROC glDrawRangeElements=NULL;
 PFNGLBLENDEQUATIONPROC glBlendEquation=NULL;
 //vsync
 PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT=NULL;
-//FBO
-PFNGLGENFRAMEBUFFERSEXTPROC glGenFramebuffersEXT =NULL;
-PFNGLDELETEFRAMEBUFFERSEXTPROC glDeleteFramebuffersEXT=NULL;
-PFNGLBINDFRAMEBUFFEREXTPROC glBindFramebufferEXT =NULL;
-PFNGLFRAMEBUFFERTEXTURE2DEXTPROC glFramebufferTexture2DEXT =NULL;
-PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC glCheckFramebufferStatusEXT =NULL;
-//RBO
-PFNGLGENRENDERBUFFERSEXTPROC glGenRenderbuffersEXT =NULL;
-PFNGLDELETERENDERBUFFERSEXTPROC glDeleteRenderbuffersEXT =NULL;
-PFNGLBINDRENDERBUFFEREXTPROC glBindRenderbufferEXT =NULL;
-PFNGLRENDERBUFFERSTORAGEEXTPROC glRenderbufferStorageEXT =NULL;
-PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC glFramebufferRenderbufferEXT =NULL;
+//FBO NO EXT
+PFNGLGENFRAMEBUFFERSPROC glGenFramebuffers = NULL;
+PFNGLDELETEFRAMEBUFFERSPROC glDeleteFramebuffers = NULL;
+PFNGLBINDFRAMEBUFFERPROC glBindFramebuffer = NULL;
+PFNGLFRAMEBUFFERTEXTUREPROC glFramebufferTexture = NULL;
+PFNGLCHECKFRAMEBUFFERSTATUSPROC glCheckFramebufferStatus = NULL;
+PFNGLDRAWBUFFERSPROC glDrawBuffers = NULL;
+//RBO NO EXT
+PFNGLGENRENDERBUFFERSPROC glGenRenderbuffers = NULL;
+PFNGLDELETERENDERBUFFERSPROC glDeleteRenderbuffers = NULL;
+PFNGLBINDRENDERBUFFERPROC glBindRenderbuffer = NULL;
+PFNGLRENDERBUFFERSTORAGEPROC glRenderbufferStorage = NULL;
+ PFNGLFRAMEBUFFERRENDERBUFFERPROC glFramebufferRenderbuffer = NULL;
 //shader
 PFNGLENABLEVERTEXATTRIBARRAYPROC	glEnableVertexAttribArray=NULL;
 PFNGLDISABLEVERTEXATTRIBARRAYPROC	glDisableVertexAttribArray=NULL;
@@ -119,19 +120,20 @@ void Easy3D::initOpenGL3(){
     if ( wglSwapIntervalEXT ) 
 			wglSwapIntervalEXT(0); //nVidia
     //FBO
-    glGenFramebuffersEXT		= (PFNGLGENFRAMEBUFFERSEXTPROC)		  wglGetProcAddress("glGenFramebuffersEXT"); DEBUG_ASSERT(glGenFramebuffersEXT);
-    glDeleteFramebuffersEXT    = (PFNGLDELETEFRAMEBUFFERSEXTPROC)    wglGetProcAddress("glDeleteFramebuffersEXT"); DEBUG_ASSERT(glDeleteFramebuffersEXT);
-    glBindFramebufferEXT		= (PFNGLBINDFRAMEBUFFEREXTPROC)		  wglGetProcAddress("glBindFramebufferEXT"); DEBUG_ASSERT(glBindFramebufferEXT);
-    glFramebufferTexture2DEXT	= (PFNGLFRAMEBUFFERTEXTURE2DEXTPROC)  wglGetProcAddress("glFramebufferTexture2DEXT"); DEBUG_ASSERT(glFramebufferTexture2DEXT);
-    glCheckFramebufferStatusEXT	= (PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC)wglGetProcAddress("glCheckFramebufferStatusEXT"); DEBUG_ASSERT(glCheckFramebufferStatusEXT);
+    glGenFramebuffers		 = (PFNGLGENFRAMEBUFFERSPROC)		  wglGetProcAddress("glGenFramebuffers");     DEBUG_ASSERT(glGenFramebuffers);
+    glDeleteFramebuffers     = (PFNGLDELETEFRAMEBUFFERSPROC)    wglGetProcAddress("glDeleteFramebuffers");     DEBUG_ASSERT(glDeleteFramebuffers);
+    glBindFramebuffer		 = (PFNGLBINDFRAMEBUFFERPROC)		  wglGetProcAddress("glBindFramebuffer");     DEBUG_ASSERT(glBindFramebuffer);
+	glFramebufferTexture     = (PFNGLFRAMEBUFFERTEXTUREPROC)wglGetProcAddress("glFramebufferTexture");       DEBUG_ASSERT(glFramebufferTexture);
+	glCheckFramebufferStatus = (PFNGLCHECKFRAMEBUFFERSTATUSPROC)wglGetProcAddress("glCheckFramebufferStatus"); DEBUG_ASSERT(glCheckFramebufferStatus);
+	glDrawBuffers            = (PFNGLDRAWBUFFERSPROC)wglGetProcAddress("glDrawBuffers"); DEBUG_ASSERT(glDrawBuffers);
     //RBO
-    glGenRenderbuffersEXT		= (PFNGLGENRENDERBUFFERSEXTPROC)		  wglGetProcAddress("glGenRenderbuffersEXT"); DEBUG_ASSERT(glGenRenderbuffersEXT);
-    glDeleteRenderbuffersEXT    = (PFNGLDELETERENDERBUFFERSEXTPROC)    wglGetProcAddress("glDeleteRenderbuffersEXT"); DEBUG_ASSERT(glDeleteRenderbuffersEXT);
-    glBindRenderbufferEXT		= (PFNGLBINDRENDERBUFFEREXTPROC)		  wglGetProcAddress("glBindRenderbufferEXT"); DEBUG_ASSERT(glBindRenderbufferEXT);
-    glRenderbufferStorageEXT	= (PFNGLRENDERBUFFERSTORAGEEXTPROC)  wglGetProcAddress("glRenderbufferStorageEXT"); DEBUG_ASSERT(glRenderbufferStorageEXT);
-    glFramebufferRenderbufferEXT= (PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC)wglGetProcAddress("glFramebufferRenderbufferEXT"); DEBUG_ASSERT(glFramebufferRenderbufferEXT);
-    //shader
-
+    glGenRenderbuffers		= (PFNGLGENRENDERBUFFERSPROC)		  wglGetProcAddress("glGenRenderbuffersEXT");       DEBUG_ASSERT(glGenRenderbuffers);
+    glDeleteRenderbuffers   = (PFNGLDELETERENDERBUFFERSPROC)    wglGetProcAddress("glDeleteRenderbuffersEXT");      DEBUG_ASSERT(glDeleteRenderbuffers);
+    glBindRenderbuffer		= (PFNGLBINDRENDERBUFFERPROC)		  wglGetProcAddress("glBindRenderbufferEXT");       DEBUG_ASSERT(glBindRenderbuffer);
+    glRenderbufferStorage	= (PFNGLRENDERBUFFERSTORAGEPROC)  wglGetProcAddress("glRenderbufferStorageEXT");        DEBUG_ASSERT(glRenderbufferStorage);
+    glFramebufferRenderbuffer= (PFNGLFRAMEBUFFERRENDERBUFFERPROC)wglGetProcAddress("glFramebufferRenderbufferEXT"); DEBUG_ASSERT(glFramebufferRenderbuffer);
+    
+	//shader
 	glEnableVertexAttribArray = (PFNGLENABLEVERTEXATTRIBARRAYPROC)wglGetProcAddress("glEnableVertexAttribArray"); DEBUG_ASSERT(glEnableVertexAttribArray);
 	glDisableVertexAttribArray = (PFNGLDISABLEVERTEXATTRIBARRAYPROC)wglGetProcAddress("glDisableVertexAttribArray"); DEBUG_ASSERT(glDisableVertexAttribArray);
 	glGetAttribLocation = (PFNGLGETATTRIBLOCATIONPROC)wglGetProcAddress("glGetAttribLocation"); DEBUG_ASSERT(glGetAttribLocation);

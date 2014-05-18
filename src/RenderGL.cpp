@@ -330,18 +330,205 @@ Vec4  RenderGL::getColor(const Vec2& pixel){
 /*
  Textures
  */
+class BaseTexture{
+public:
+
+	uint   width{ 0 };
+	uint   height{ 0 };
+	GLuint tbo{ 0 };
+
+	BaseTexture(size_t w, size_t h) :width(w), height(h){}
+	virtual ~BaseTexture(){
+		if (tbo)
+			glDeleteTextures(1, &tbo);
+	}
+	void createTBO(){
+		glGenTextures(1, &tbo);
+	}
+	void enableTBO(){
+		glBindTexture(GL_TEXTURE_2D, tbo);
+	}
+	void disableTBO(){
+		glBindTexture(GL_TEXTURE_2D, (GLuint)0);
+	}
+};
+
 BaseTexture* RenderGL::sendTexture2D(size_t w, size_t h, void* byte, TextureType type){ return NULL; }
-BaseRenderTexture* RenderGL::createRenderTexture(size_t w,size_t h,size_t zbuffer,RenderTextureType type){ return NULL; }
+
+class BaseRenderTexture : public BaseTexture {
+public:
+
+	GLuint fbo{ 0 };
+	GLuint rbo{ 0 };
+
+	BaseRenderTexture(size_t w, size_t h) :BaseTexture(w, h){}
+	virtual ~BaseRenderTexture(){
+		if (fbo)
+			glDeleteFramebuffers(1, &tbo);
+		if (rbo)
+			glDeleteRenderbuffers(1, &tbo);
+	}
+	//fbo
+	void createFBO(){
+		//vbo
+		glGenFramebuffers(1, &fbo);
+	}
+	void enableFBO(){
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	}
+	void disableFBO(){
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+	//rbo
+	void createRBO(){
+		//vbo
+		glGenRenderbuffers(1, &rbo);
+	}
+	void enableRBO(){
+		glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+	}
+	void disableRBO(){
+		glBindRenderbuffer(GL_RENDERBUFFER, 0);
+	}
+	//attach
+	void attachTBOCOLOR(){
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, tbo, 0);
+	}
+	void attachTBODEPTH(){
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, tbo, 0);
+	}
+	void attachRBO(){
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, 
+								  GL_DEPTH_ATTACHMENT,
+								  GL_RENDERBUFFER, rbo);
+	}
+	void outputCOLOR(){
+		GLenum DrawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
+		glDrawBuffers(1, DrawBuffers);
+	}
+	void outputVOID(){
+		glDrawBuffer(GL_NONE);
+	}
+};
+
+
+BaseRenderTexture* RenderGL::createRenderTexture(size_t w,
+												 size_t h,
+												 size_t zbuffer,
+												 RenderTextureType type){ 
+	//create a rander context
+	BaseRenderTexture* rtexture = new BaseRenderTexture(w,h);
+	GLenum format = 0;
+	//create a FBO
+	rtexture->createFBO();
+	//start to setting the parameters
+	rtexture->enableFBO();
+	//select type
+	switch (type){
+	case RD_RGBA:
+	case RD_RGB:
+
+		//////////////////////////
+		//Only render texture
+		//create a texture (COLOR)
+		rtexture->createTBO();
+		//enable texture id
+		rtexture->enableTBO();
+		//create texture buffer 
+		format = type==RD_RGBA ? GL_RGBA : GL_RGB;
+		glTexImage2D(GL_TEXTURE_2D, 
+					0, 
+					format,
+					rtexture->width,
+					rtexture->height,
+					0, 
+					format, 
+					GL_UNSIGNED_BYTE,
+					0);
+		//set filters
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		//attach texture to fbo (COLOR MODE)
+		rtexture->attachTBOCOLOR();
+		/////////////////////
+		//create rbo  (DEPTH)
+		rtexture->createRBO();
+		//enable rbo id
+		rtexture->enableRBO();
+		//create render buffer 
+		glRenderbufferStorage(GL_RENDERBUFFER,
+							  GL_DEPTH_COMPONENT,
+							  rtexture->width,
+							  rtexture->height);
+		//attach render buffer to fbo
+		rtexture->attachRBO();
+		//rander ouput (COLOR) (aka texture)
+		rtexture->outputCOLOR();
+
+	break;
+
+	case RD_SHADOW: 
+		//////////////////////////
+		//Only render texture
+		//create a texture (DEPTH)
+		rtexture->createTBO();
+		//enable texture id
+		rtexture->enableTBO();
+		//type depth
+		format = (zbuffer >= 32 ? 
+		           GL_DEPTH_COMPONENT32 : 
+				  (zbuffer >= 24 ? GL_DEPTH_COMPONENT24 : GL_DEPTH_COMPONENT16) 
+				 );
+		//create texture buffer 
+		glTexImage2D(GL_TEXTURE_2D, 0, 
+					 format,
+					 rtexture->width,
+					 rtexture->height, 
+					 0,
+					 GL_DEPTH_COMPONENT, 
+					 GL_FLOAT, 0);
+		//set filters 
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		//attach texture to fbo (DEPTH MODE)
+		rtexture->attachTBODEPTH();
+		//rander ouput NONE
+		rtexture->outputVOID();
+	break;
+	default:
+		break;
+	}
+	//end settings
+	rtexture->disableFBO();
+	rtexture->disableTBO();
+	rtexture->disableRBO();
+	return rtexture;
+}
 
 void RenderGL::enableTexture2D(BaseTexture*){}
-void RenderGL::enableRenderTexture(BaseTexture*){}
+void RenderGL::enableRenderTexture(BaseTexture* rdtex){
+	glActiveTexture(GL_TEXTURE0);
+	rdtex->enableTBO();
+}
 
 void RenderGL::disableTexture2D(BaseTexture*){}
-void RenderGL::disableRenderTexture(BaseTexture*){}
+void RenderGL::disableRenderTexture(BaseTexture* rdtex){
+	rdtex->disableTBO();
+}
 
 void RenderGL::deleteTexture2D(BaseTexture*){}
-void RenderGL::deleteRenderTexture(BaseRenderTexture*){}
+void RenderGL::deleteRenderTexture(BaseRenderTexture* rdtex){
+	delete rdtex;
+}
 
-void RenderGL::enableRenderToTexture(BaseRenderTexture*){}
-void RenderGL::disableRanderToTexture(BaseRenderTexture*){}
+void RenderGL::enableRenderToTexture(BaseRenderTexture* rdtex){
+	rdtex->enableFBO();
+}
+void RenderGL::disableRanderToTexture(BaseRenderTexture* rdtex){
+	rdtex->disableFBO();
+}
+
+
 };
