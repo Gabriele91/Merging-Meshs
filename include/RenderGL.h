@@ -96,17 +96,23 @@ namespace Easy3D {
 		virtual BaseRenderTexture* createRenderTexture(size_t w, size_t h, size_t zbuffer, RenderTextureType type);
         
 		virtual void enableTexture2D(BaseTexture*);
-		virtual void enableRenderTexture(BaseTexture*);
+		virtual void enableRenderTexture(BaseRenderTexture*);
         
 		virtual void disableTexture2D(BaseTexture*);
-		virtual void disableRenderTexture(BaseTexture*);
+		virtual void disableRenderTexture(BaseRenderTexture*);
         
 		virtual void deleteTexture2D(BaseTexture*);
 		virtual void deleteRenderTexture(BaseRenderTexture*);
         
 		virtual void enableRenderToTexture(BaseRenderTexture*);
-		virtual void disableRanderToTexture(BaseRenderTexture*);
-	
+		virtual void disableRenderToTexture(BaseRenderTexture*);
+
+		//utility function
+		GLuint getTBO(BaseTexture*);
+		GLuint getFBO(BaseRenderTexture*);
+		GLuint getTBO(BaseRenderTexture*);
+		GLuint getRBO(BaseRenderTexture*);
+
 	protected:
 		/* CONTEXT */
 		ViewportState viewportState;

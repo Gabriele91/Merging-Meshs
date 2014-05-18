@@ -127,11 +127,11 @@ void Easy3D::initOpenGL3(){
 	glCheckFramebufferStatus = (PFNGLCHECKFRAMEBUFFERSTATUSPROC)wglGetProcAddress("glCheckFramebufferStatus"); DEBUG_ASSERT(glCheckFramebufferStatus);
 	glDrawBuffers            = (PFNGLDRAWBUFFERSPROC)wglGetProcAddress("glDrawBuffers"); DEBUG_ASSERT(glDrawBuffers);
     //RBO
-    glGenRenderbuffers		= (PFNGLGENRENDERBUFFERSPROC)		  wglGetProcAddress("glGenRenderbuffersEXT");       DEBUG_ASSERT(glGenRenderbuffers);
-    glDeleteRenderbuffers   = (PFNGLDELETERENDERBUFFERSPROC)    wglGetProcAddress("glDeleteRenderbuffersEXT");      DEBUG_ASSERT(glDeleteRenderbuffers);
-    glBindRenderbuffer		= (PFNGLBINDRENDERBUFFERPROC)		  wglGetProcAddress("glBindRenderbufferEXT");       DEBUG_ASSERT(glBindRenderbuffer);
-    glRenderbufferStorage	= (PFNGLRENDERBUFFERSTORAGEPROC)  wglGetProcAddress("glRenderbufferStorageEXT");        DEBUG_ASSERT(glRenderbufferStorage);
-    glFramebufferRenderbuffer= (PFNGLFRAMEBUFFERRENDERBUFFERPROC)wglGetProcAddress("glFramebufferRenderbufferEXT"); DEBUG_ASSERT(glFramebufferRenderbuffer);
+    glGenRenderbuffers		= (PFNGLGENRENDERBUFFERSPROC)		  wglGetProcAddress("glGenRenderbuffers");       DEBUG_ASSERT(glGenRenderbuffers);
+    glDeleteRenderbuffers   = (PFNGLDELETERENDERBUFFERSPROC)    wglGetProcAddress("glDeleteRenderbuffers");      DEBUG_ASSERT(glDeleteRenderbuffers);
+    glBindRenderbuffer		= (PFNGLBINDRENDERBUFFERPROC)		  wglGetProcAddress("glBindRenderbuffer");       DEBUG_ASSERT(glBindRenderbuffer);
+    glRenderbufferStorage	= (PFNGLRENDERBUFFERSTORAGEPROC)  wglGetProcAddress("glRenderbufferStorage");        DEBUG_ASSERT(glRenderbufferStorage);
+    glFramebufferRenderbuffer= (PFNGLFRAMEBUFFERRENDERBUFFERPROC)wglGetProcAddress("glFramebufferRenderbuffer"); DEBUG_ASSERT(glFramebufferRenderbuffer);
     
 	//shader
 	glEnableVertexAttribArray = (PFNGLENABLEVERTEXATTRIBARRAYPROC)wglGetProcAddress("glEnableVertexAttribArray"); DEBUG_ASSERT(glEnableVertexAttribArray);

@@ -1,11 +1,15 @@
 #include <stdafx.h>
 #include <ShaderGL.h>
+#include <RenderGL.h>
 #include <Application.h>
 #include <Debug.h>
 ////////////////////////
 using namespace Easy3D;
 ////////////////////////
 
+DFORCEINLINE RenderGL& getRender(){
+	return *(RenderGL*)Application::instance()->getRender();
+}
 DFORCEINLINE static String textFileRead(const Utility::Path &path) {
 	String out;
 	/////////////////////////////////////////////////////////////////////
@@ -191,6 +195,41 @@ public:
 
 
 
+class UniformGLTexture : public Uniform<UniformGLTexture> {
+	GLuint id;
+public:
+	UniformGLTexture(GLuint id) : id(id){}
+	virtual void  set(const void* value, size_t s, size_t n){}
+	virtual void  set(const void* value) {
+		auto texture = (BaseTexture*)(value);
+		glUniform1i(getRender().getTBO(texture), id);
+	}
+	virtual void* get(){ return NULL; }
+	virtual const void* get() const { return NULL; }
+	virtual ~UniformGLTexture(){}
+};
+
+class UniformGLRenderTexture : public Uniform<UniformGLTexture> {
+	GLuint id;
+public:
+	UniformGLRenderTexture(GLuint id) : id(id){}
+	virtual void  set(const void* value, size_t s, size_t n){}
+	virtual void  set(const void* value) {
+		auto texture = (BaseRenderTexture*)(value);
+		glUniform1i(id,0);
+	}
+	virtual void* get(){ return NULL; }
+	virtual const void* get() const { return NULL; }
+	virtual ~UniformGLRenderTexture(){}
+};
+
+
+CTexture* ShaderGL::getConstTexture(const char *name){
+	return (CTexture*)new UniformGLTexture(getUniformID(name));
+}
+CRenderTexture* ShaderGL::getConstRenderTexture(const char *name){
+	return (CRenderTexture*)new UniformGLRenderTexture(getUniformID(name));
+}
 CInt* ShaderGL::getConstInt(const char *name){
 	return (CInt*)new UniformGLInt(getUniformID(name));
 }

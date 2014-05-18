@@ -45,6 +45,7 @@ namespace Easy3D{
 		void draw();
 		//set & get
 		void setMesh(Mesh& obj);
+		void changeMaterial(GeometryMaterial* material);
 		void setViewport(const ViewportState& viewport);
 		void setZoomVelocity(float zvelocity);
 		void setZDistance(float zdistance);

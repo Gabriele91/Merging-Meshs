@@ -11,6 +11,7 @@
 namespace Easy3D {
 
 	class GeometryMaterial : public Material {
+	protected:
 		//shader input
 		Shader*	shader{ nullptr };
 		BaseInputLayout* il{ nullptr };
@@ -49,6 +50,22 @@ namespace Easy3D {
 		DFORCEINLINE void setLightDiffuse(const Vec4& c){
 			lightDiffuse->setValue(c);
 		}
+	};
+
+
+	class ShadowGeometryMaterial : public GeometryMaterial {
+
+		//shadow texture
+		CRenderTexture::ptr shadowMap{ nullptr };
+		BaseRenderTexture* renderTexture{ nullptr };
+
+	public:
+		virtual int  id();
+		virtual void init();
+		virtual void bind();
+		virtual void unbind();
+		virtual void setRenderTexture(BaseRenderTexture*);
+	
 	};
 };
 

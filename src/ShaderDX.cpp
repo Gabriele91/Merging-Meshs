@@ -268,6 +268,14 @@ public:
 	}
 };
 
+
+CTexture* ShaderDX::getConstTexture(const char *name){
+	return (CTexture*)NULL;
+}
+CRenderTexture* ShaderDX::getConstRenderTexture(const char *name){
+	return (CRenderTexture*)NULL;
+}
+
 #define uniformMethod(name,type, bsize,ctype)\
 	ctype* ShaderDX::name(const char *name){\
 	if (name[0] && name[1] && '.' == name[2]){\

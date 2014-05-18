@@ -83,6 +83,9 @@ void TrackArea::draw(){
 void TrackArea::setMesh(Mesh& obj){
 	geometry.setMesh(&obj);
 }
+void TrackArea::changeMaterial(GeometryMaterial* material){
+	geometry.changeMaterial(material);
+}
 void TrackArea::setViewport(const ViewportState& viewport){
 	//camera
 	camera.setViewport(viewport);

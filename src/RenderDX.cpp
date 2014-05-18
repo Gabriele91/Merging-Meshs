@@ -682,16 +682,16 @@ BaseTexture* RenderDX::sendTexture2D(size_t w, size_t h, void* byte, TextureType
 BaseRenderTexture* RenderDX::createRenderTexture(size_t w, size_t h, size_t zbuffer, RenderTextureType type){ return NULL; }
 
 void RenderDX::enableTexture2D(BaseTexture*){}
-void RenderDX::enableRenderTexture(BaseTexture*){}
+void RenderDX::enableRenderTexture(BaseRenderTexture*){}
 
 void RenderDX::disableTexture2D(BaseTexture*){}
-void RenderDX::disableRenderTexture(BaseTexture*){}
+void RenderDX::disableRenderTexture(BaseRenderTexture*){}
 
 void RenderDX::deleteTexture2D(BaseTexture*){}
 void RenderDX::deleteRenderTexture(BaseRenderTexture*){}
 
 void RenderDX::enableRenderToTexture(BaseRenderTexture*){}
-void RenderDX::disableRanderToTexture(BaseRenderTexture*){}
+void RenderDX::disableRenderToTexture(BaseRenderTexture*){}
 
 
 void RenderDX::swap(){

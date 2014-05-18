@@ -18,12 +18,14 @@
 
 using namespace Easy3D;
 
-class MyGame : public Easy3D::Game {
+class MyGame : public Game {
 public:
 
 	//materials
 	TrackballMaterial matTrackball;
 	GeometryMaterial  matGeometry;
+	ShadowGeometryMaterial  matShadowGeometry;
+	BaseRenderTexture*	shadowmap;
 	//model 1
 	Mesh modelLeft;
 	TrackArea trackAreaLeft;
@@ -49,11 +51,12 @@ public:
 		//materials
 		matTrackball.init();
 		matGeometry.init();
+		matShadowGeometry.init();
 		//init trackball
 		trackball.init(&matTrackball);
 		////////////////
 		//LEFT
-		//init first
+		//init first tet3dcc2/faccia000
 		modelLeft.loadOFF(rspath + "/meshs/faccia000.off", Mesh::OFF_VERTEX_NORMALS);
 		//init track 
 		trackAreaLeft.init(&matGeometry);
@@ -63,7 +66,7 @@ public:
 		trackAreaLeft.setZDistance(4);
 		trackAreaLeft.setViewport(
 			Vec4(0, 0,
-				 viewport.z*0.5, viewport.w)
+				 viewport.z, viewport.w)
 			);
 		////////////////
 		//RIGHT
@@ -79,18 +82,40 @@ public:
 			Vec4(viewport.z*0.5, 0, 
 				 viewport.z*0.5, viewport.w)
 			);
-		////////////////
-
+		//////////////////////////////////////////////////////////////////////
+		// create shadow map
+		shadowmap = getRender().createRenderTexture(viewport.z, viewport.w, 32, RD_SHADOW);
+		matShadowGeometry.setRenderTexture(shadowmap);
+		//////////////////////////////////////////////////////////////////////
 	}
 	
 	void run(float dt){
 
 		//clear
 		getRender().doClear();
+
+		//draw shadow map
+		getRender().enableRenderToTexture(shadowmap);
+		//clear shadow map
+		getRender().doClear();
 		//draw left
+		//getRender().setCullFaceState(CullFace::FRONT);
+		trackAreaLeft.setZDistance(4);
+		trackAreaLeft.changeMaterial(&matGeometry);
 		trackAreaLeft.draw();
+		//draw shadow map
+		getRender().disableRenderToTexture(shadowmap);
+
+		//draw scene
+		//draw left
+		//getRender().setCullFaceState(CullFace::BACK);
+		trackAreaLeft.setZDistance(4);
+		trackAreaLeft.changeMaterial(&matShadowGeometry);
+		trackAreaLeft.draw();
+		//draw shadow map
+		
 		//draw right
-		trackAreaRight.draw();
+		//trackAreaRight.draw();
 
 
         

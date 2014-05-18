@@ -23,6 +23,8 @@ namespace Easy3D{
 		virtual void loadShader(const Utility::Path& vs,const Utility::Path& fs,const std::vector<String>& defines);
 
 		//get consts
+		virtual CTexture* getConstTexture(const char *name);
+		virtual CRenderTexture* getConstRenderTexture(const char *name);
 		virtual CInt* getConstInt(const char *name);
 		virtual CFloat* getConstFloat(const char *name);
 		virtual CVec2* getConstVec2(const char *name);

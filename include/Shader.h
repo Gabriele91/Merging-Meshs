@@ -21,6 +21,39 @@ namespace Easy3D{
 		virtual const void* get() const = 0;
 	};
 
+	class CTexture : public Uniform<CTexture> {
+	public:
+		CTexture(BaseTexture* tex){
+			Uniform::set(tex);
+		}
+		operator BaseTexture*() const{
+			return (BaseTexture*)(this->get());
+		}
+		void setValue(BaseTexture* tex){
+			set(tex);
+		}
+		BaseTexture* operator = (BaseTexture* tex){
+			set(tex);
+			return tex;
+		}
+	};
+	class CRenderTexture : public Uniform<CRenderTexture> {
+	public:
+		CRenderTexture(BaseRenderTexture* tex){
+			Uniform::set(tex);
+		}
+		operator BaseRenderTexture*() const{
+			return (BaseRenderTexture*)(this->get());
+		}
+		void setValue(BaseRenderTexture* tex){
+			set(tex);
+		}
+		BaseRenderTexture* operator = (BaseRenderTexture* tex){
+			set(tex);
+			return tex;
+		}
+	};
+
 	class CInt : public Uniform<CInt> {
 	public:
 		CInt(int i){
@@ -202,6 +235,8 @@ namespace Easy3D{
 
 
 		//get consts
+		virtual CTexture* getConstTexture(const char *name) = 0;
+		virtual CRenderTexture* getConstRenderTexture(const char *name) = 0;
 		virtual CInt* getConstInt(const char *name) = 0;
 		virtual CFloat* getConstFloat(const char *name) = 0;
 		virtual CVec2* getConstVec2(const char *name) = 0;

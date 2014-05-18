@@ -7,15 +7,18 @@
 #include "Camera.h"
 
 using namespace Easy3D;
+Geometry::~Geometry(){}
 void Geometry::init(GeometryMaterial* gm){
 	///////////////////////////
-	material=gm;
+	changeMaterial(gm);
 	///////////////////////////
 	//add relative pivot
 	addChild(&relative, false);	
 	///////////////////////////
 }
-Geometry::~Geometry(){}
+void Geometry::changeMaterial(GeometryMaterial* gm){
+	material = gm;
+}
 void Geometry::setMesh(Mesh* mesh){
 	geometry = mesh;
     //calc offset

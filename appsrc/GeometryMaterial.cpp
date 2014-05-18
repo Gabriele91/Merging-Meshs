@@ -48,7 +48,7 @@ void GeometryMaterial::bind(){
 	ctxBlend  =r.getBlendState();
 	//bind
 	r.bindShader(shader);
-	r.setCullFaceState(CullFace::DISABLE);
+	//r.setCullFaceState(CullFace::DISABLE);
 	r.setBlendState({ BLEND::ONE, BLEND::ZERO });
 }
 void GeometryMaterial::draw(const Mesh& m) {
@@ -68,4 +68,65 @@ GeometryMaterial::~GeometryMaterial(){
 		r->deleteIL(il);
 	if (shader)
 		r->deleteShader(shader);
+}
+
+//SHADOW MATERIAL
+int  ShadowGeometryMaterial::id(){
+	return 2;
+}
+void ShadowGeometryMaterial::init(){
+	//get render
+	Render& r = *Application::instance()->getRender();
+	String  rpath = Application::instance()->appResourcesDirectory();
+	//init shader
+	shader = r.createShader();
+	if (r.getRenderDriver() == OPENGL_DRIVER){
+		shader->loadShader(rpath + "/shader/geometry/geometry.vs.glsl",
+						   rpath + "/shader/geometry/geometry.fs.glsl",
+						  {"EnableShadow 1"});
+		lightDir = shader->getConstVec3("light")->shared();
+		lightDiffuse = shader->getConstVec4("diffuse")->shared();
+		shadowMap = shader->getConstRenderTexture("shadowMap")->shared();
+	}
+	else if (r.getRenderDriver() == DIRECTX_DRIVER){
+		shader->loadShader(rpath + "/shader/geometry/geometry.vs.hlsl",
+						   rpath + "/shader/geometry/geometry.fs.hlsl",
+						   { "EnableShadow 1" });
+		lightDir = shader->getConstVec3("ps.light")->shared();
+		lightDiffuse = shader->getConstVec4("ps.diffuse")->shared();
+		shadowMap = shader->getConstRenderTexture("ps.shadowMap")->shared();
+	}
+
+	proj = shader->getConstMat4("projection")->shared();
+	view = shader->getConstMat4("view")->shared();
+	model = shader->getConstMat4("model")->shared();
+
+	AttributeList atl({
+		{ "inPosition", ATT_FLOAT3 },
+		{ "inNormal", ATT_FLOAT3 }
+	});
+	il = r.createIL(shader, atl);
+}
+void ShadowGeometryMaterial::bind(){
+	//get render
+	Render& r = *Application::instance()->getRender();
+	//bind shader
+	GeometryMaterial::bind();
+	//enable texture
+	r.enableRenderTexture(renderTexture);
+	//bind texture id
+	shadowMap->setValue(renderTexture);
+}
+
+void ShadowGeometryMaterial::unbind(){
+	//get render
+	Render& r = *Application::instance()->getRender();
+	//bind shader
+	GeometryMaterial::unbind();
+	//disable texture
+	r.disableRenderTexture(renderTexture);
+}
+
+void ShadowGeometryMaterial::setRenderTexture(BaseRenderTexture* rt){
+	renderTexture = rt;
 }
