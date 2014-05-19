@@ -372,18 +372,18 @@ namespace Easy3D{
 		}\
 	}
 	uniformMethod(getConstInt, int, sizeof(int), CInt)
-		uniformMethod(getConstFloat, float, sizeof(float), CFloat)
-		uniformMethod(getConstVec2, Vec2, sizeof(float) * 2, CVec2)
-		uniformMethod(getConstVec3, Vec3, sizeof(float) * 3, CVec3)
-		uniformMethod(getConstVec4, Vec4, sizeof(float) * 4, CVec4)
-		uniformMethod(getConstMat4, Mat4, sizeof(float) * 16, CMat4)
+	uniformMethod(getConstFloat, float, sizeof(float), CFloat)
+	uniformMethod(getConstVec2, Vec2, sizeof(float) * 2, CVec2)
+	uniformMethod(getConstVec3, Vec3, sizeof(float) * 3, CVec3)
+	uniformMethod(getConstVec4, Vec4, sizeof(float) * 4, CVec4)
+	uniformMethod(getConstMat4, Mat4, sizeof(float) * 16, CMat4)
 
-		uniformMethod(getConstIntArray, int, sizeof(int), CIntArray)
-		uniformMethod(getConstFloatArray, float, sizeof(float), CFloatArray)
-		uniformMethod(getConstVec2Array, Vec2, sizeof(float) * 2, CVec2Array)
-		uniformMethod(getConstVec3Array, Vec3, sizeof(float) * 3, CVec3Array)
-		uniformMethod(getConstVec4Array, Vec4, sizeof(float) * 4, CVec4Array)
-		uniformMethod(getConstMat4Array, Mat4, sizeof(float) * 16, CMat4Array)
+	uniformMethod(getConstIntArray, int, sizeof(int), CIntArray)
+	uniformMethod(getConstFloatArray, float, sizeof(float), CFloatArray)
+	uniformMethod(getConstVec2Array, Vec2, sizeof(float) * 2, CVec2Array)
+	uniformMethod(getConstVec3Array, Vec3, sizeof(float) * 3, CVec3Array)
+	uniformMethod(getConstVec4Array, Vec4, sizeof(float) * 4, CVec4Array)
+	uniformMethod(getConstMat4Array, Mat4, sizeof(float) * 16, CMat4Array)
 
 
 

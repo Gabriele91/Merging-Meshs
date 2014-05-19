@@ -2,10 +2,12 @@
 #define GEOMETRYMATERIAL_H
 
 #include <Config.h>
+#include <Object.h>
 #include <Render.h>
 #include <Shader.h>
 #include <Math3D.h>
 #include "Material.h"
+#include "Camera.h"
 
 
 namespace Easy3D {
@@ -24,6 +26,11 @@ namespace Easy3D {
 		//draw context
 		CullFaceState  ctxCFaces;
 		BlendState     ctxBlend;
+		//uniform input
+		Camera* camera;
+		Object* object;
+		Vec3 ldir;
+		Vec4 ldiffuse;
 
 	public:
 
@@ -34,20 +41,18 @@ namespace Easy3D {
 		virtual void bind();
 		virtual void unbind();
 
-		DFORCEINLINE void setModel(const Mat4& m){
-			model->setValue(m);
+		DFORCEINLINE void setObject(Object* obj){
+			object = obj;
 		}
-		DFORCEINLINE void setView(const Mat4& v){
-			view->setValue(v);
+		DFORCEINLINE void setCamera(Camera* cam){
+			camera = cam;
 		}
-		DFORCEINLINE void setProj(const Mat4& p){
-			proj->setValue(p);
+
+		DFORCEINLINE void setLightDir(const Vec3& dir){
+			ldir = dir;
 		}
-		DFORCEINLINE void setLightDir(const Vec3& d){
-			lightDir->setValue(d);
-		}
-		DFORCEINLINE void setLightDiffuse(const Vec4& c){
-			lightDiffuse->setValue(c);
+		DFORCEINLINE void setLightDiffuse(const Vec4& color){
+			ldiffuse = color;
 		}
 	};
 };

@@ -52,6 +52,13 @@ void GeometryMaterial::bind(){
 	r.setBlendState({ BLEND::ONE, BLEND::ZERO });
 }
 void GeometryMaterial::draw(const Mesh& m) {
+	
+	proj->setValue(camera->getProjectionMatrix());
+	view->setValue(camera->getViewMatrix());
+	model->setValue(object->getGlobalMatrix());
+	lightDir->setValue(ldir);
+	lightDiffuse->setValue(ldiffuse);
+
 	m.draw(il);
 }
 void GeometryMaterial::unbind(){

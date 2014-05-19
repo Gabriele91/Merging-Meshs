@@ -91,8 +91,6 @@ public:
 		trackAreaLeft.draw();
 		//draw right
 		trackAreaRight.draw();
-
-
         
 	}
 	void end(){

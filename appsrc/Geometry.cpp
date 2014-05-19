@@ -34,9 +34,8 @@ void Geometry::draw(Camera& camera){
 	//draw
 	material->bind();
 
-	material->setProj(camera.getProjectionMatrix());
-	material->setView(camera.getViewMatrix());
-	material->setModel(relative.getGlobalMatrix());
+	material->setCamera(&camera);
+	material->setObject(&relative);
 	material->setLightDir(lDir);
 	material->setLightDiffuse(lDiffuse);
 
