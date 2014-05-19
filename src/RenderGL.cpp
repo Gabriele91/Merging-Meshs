@@ -492,6 +492,8 @@ BaseRenderTexture* RenderGL::createRenderTexture(size_t w,
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
 		//attach texture to fbo (DEPTH MODE)
 		rtexture->attachTBODEPTH();
 		//rander ouput NONE
@@ -507,26 +509,31 @@ BaseRenderTexture* RenderGL::createRenderTexture(size_t w,
 	return rtexture;
 }
 
-void RenderGL::enableTexture2D(BaseTexture*){}
-void RenderGL::enableRenderTexture(BaseTexture* rdtex){
+void RenderGL::enableTexture(BaseTexture* tex,uint n){
+	glActiveTexture(GL_TEXTURE0+n);
+	tex->enableTBO();
+}
+void RenderGL::enableTexture(BaseRenderTexture* rdtex,uint n){
 	glActiveTexture(GL_TEXTURE0);
 	rdtex->enableTBO();
 }
 
-void RenderGL::disableTexture2D(BaseTexture*){}
-void RenderGL::disableRenderTexture(BaseTexture* rdtex){
-	rdtex->disableTBO();
+void RenderGL::disableTexture(uint n){
+	glActiveTexture(GL_TEXTURE0+n);
+	glBindTexture(GL_TEXTURE_2D, (GLuint)0);
 }
 
-void RenderGL::deleteTexture2D(BaseTexture*){}
-void RenderGL::deleteRenderTexture(BaseRenderTexture* rdtex){
+void RenderGL::deleteTexture(BaseTexture* tex){
+	delete tex;
+}
+void RenderGL::deleteTexture(BaseRenderTexture* rdtex){
 	delete rdtex;
 }
 
-void RenderGL::enableRenderToTexture(BaseRenderTexture* rdtex){
+void RenderGL::beginRenderToTexture(BaseRenderTexture* rdtex){
 	rdtex->enableFBO();
 }
-void RenderGL::disableRanderToTexture(BaseRenderTexture* rdtex){
+void RenderGL::endRenderToTexture(BaseRenderTexture* rdtex){
 	rdtex->disableFBO();
 }
 

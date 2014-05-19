@@ -3,10 +3,10 @@
 #include <Shader.h>
 #include <D3D10.h>
 #include <Dxerr.h>
+#include <Screen.h>
 #include <RenderDX.h>
 #include <ShaderDX.h>
 #include <Application.h>
-#include <Screen.h>
 #include <WindowsScreen.h>
 #include <Debug.h>
 #include <EString.h>
@@ -681,17 +681,11 @@ Vec4  RenderDX::getColor(const Vec2& pixel){
 BaseTexture* RenderDX::sendTexture2D(size_t w, size_t h, void* byte, TextureType type){ return NULL; }
 BaseRenderTexture* RenderDX::createRenderTexture(size_t w, size_t h, size_t zbuffer, RenderTextureType type){ return NULL; }
 
-void RenderDX::enableTexture2D(BaseTexture*){}
-void RenderDX::enableRenderTexture(BaseTexture*){}
+void RenderDX::deleteTexture(BaseTexture*){}
+void RenderDX::deleteTexture(BaseRenderTexture*){}
 
-void RenderDX::disableTexture2D(BaseTexture*){}
-void RenderDX::disableRenderTexture(BaseTexture*){}
-
-void RenderDX::deleteTexture2D(BaseTexture*){}
-void RenderDX::deleteRenderTexture(BaseRenderTexture*){}
-
-void RenderDX::enableRenderToTexture(BaseRenderTexture*){}
-void RenderDX::disableRanderToTexture(BaseRenderTexture*){}
+void RenderDX::beginRenderToTexture(BaseRenderTexture*){}
+void RenderDX::endRenderToTexture(BaseRenderTexture*){}
 
 
 void RenderDX::swap(){
