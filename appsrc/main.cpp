@@ -67,8 +67,8 @@ public:
 			);
 		////////////////
 		//RIGHT
-		//init first
-		modelRight.loadOFF(rspath + "/meshs/cube.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
+		//init first ship/tet3dcc2
+		modelRight.loadOFF(rspath + "/meshs/tet3dcc2.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
 		//init track 
 		trackAreaRight.init(&matGeometry);
 		trackAreaRight.setMesh(modelRight);
@@ -101,8 +101,8 @@ public:
 
 int main(){
 	Easy3D::Application::create("Easy3DExemple", 
-												//OPENGL_DRIVER
-												DIRECTX_DRIVER
+												OPENGL_DRIVER
+												//DIRECTX_DRIVER
 												);
 	Easy3D::Application::instance()->exec(new MyGame());
 	delete Easy3D::Application::instance()->getGame();

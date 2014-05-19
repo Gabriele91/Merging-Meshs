@@ -38,26 +38,33 @@ namespace Easy3D{
 			}
 
 			void setValue(BaseTexture* tex){
-				Uniform::set(tex, 0, 0);
+				this->set(tex, (size_t)0, (size_t)0);
 			}
 			void setValue(BaseRenderTexture* tex){
-				Uniform::set(tex, 0, 1);
+				this->set(tex, (size_t)0, (size_t)1);
 			}
 
 			BaseTexture* operator = (BaseTexture* tex){
-				set(tex);
+				setValue(tex);
 				return tex;
 			}
 			BaseRenderTexture* operator = (BaseRenderTexture* tex){
-				set(tex);
+				setValue(tex);
 				return tex;
+			}
+
+			operator const BaseTexture*() const{
+				return (BaseTexture*)(this->get());
+			}
+			operator const BaseRenderTexture*() const{
+				return (BaseRenderTexture*)(this->get());
 			}
 	};
 
 	class CInt : public Uniform<CInt> {
 	public:
 		CInt(int i){
-			Uniform::set(&i);
+			set(&i);
 		}
 		operator int() const{
 			return *((int*)(this->get()));

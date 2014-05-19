@@ -512,7 +512,7 @@ void RenderGL::enableTexture(BaseTexture* tex,uint n){
 	tex->enableTBO();
 }
 void RenderGL::enableTexture(BaseRenderTexture* rdtex,uint n){
-	glActiveTexture(GL_TEXTURE0);
+	glActiveTexture(GL_TEXTURE0+n);
 	rdtex->enableTBO();
 }
 
