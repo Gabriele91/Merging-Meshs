@@ -1,4 +1,5 @@
 #include <stdafx.h>
+#include <Debug.h>
 #include <Render.h>
 #include <Shader.h>
 #include <D3D10.h>
@@ -8,7 +9,6 @@
 #include <ShaderDX.h>
 #include <Application.h>
 #include <WindowsScreen.h>
-#include <Debug.h>
 #include <EString.h>
 #include <Dxerr.h>
 //#define releaseDX(x) if(x){ x->Release(); delete x; x=NULL; } 
@@ -678,14 +678,183 @@ Vec4  RenderDX::getColor(const Vec2& pixel){
 /*
  Textures
  */
-BaseTexture* RenderDX::sendTexture2D(size_t w, size_t h, void* byte, TextureType type){ return NULL; }
-BaseRenderTexture* RenderDX::createRenderTexture(size_t w, size_t h, size_t zbuffer, RenderTextureType type){ return NULL; }
+class BaseTexture{
 
-void RenderDX::deleteTexture(BaseTexture*){}
-void RenderDX::deleteTexture(BaseRenderTexture*){}
+public:
 
-void RenderDX::beginRenderToTexture(BaseRenderTexture*){}
-void RenderDX::endRenderToTexture(BaseRenderTexture*){}
+	ID3D10Texture2D* texture2D{ nullptr };
+	ID3D10ShaderResourceView* resourceView{ nullptr };
+
+};
+
+BaseTexture* RenderDX::sendTexture2D(size_t w, size_t h, void* byte, TextureType type){
+	
+	DXGI_FORMAT dxTextureType = DXGI_FORMAT_R8G8B8A8_UNORM;
+	size_t bsize=0;
+
+	switch (type){
+		case TX_RGBA8: dxTextureType = DXGI_FORMAT_R8G8B8A8_UNORM; bsize = 4; break;
+		case TX_RG8: dxTextureType = DXGI_FORMAT_R8G8_UNORM; bsize = 2; break;
+		case TX_R8: dxTextureType = DXGI_FORMAT_R8_UNORM; bsize = 1; break;
+		case TX_RG16: dxTextureType = DXGI_FORMAT_R16G16_UNORM; bsize = 4; break;
+		case TX_R16: dxTextureType = DXGI_FORMAT_R16_UNORM; bsize = 2; break;
+		default:      break;
+	}
+
+	//Depth buffer
+	D3D10_TEXTURE2D_DESC textureDesc = {
+		w,//UINT Width;
+		h,//UINT Height;
+		1,//UINT MipLevels;
+		1,//UINT ArraySize;
+		dxTextureType,	   			   //DXGI_FORMAT Format;
+		1, 0,                          //DXGI_SAMPLE_DESC SampleDesc;
+		D3D10_USAGE_STAGING,           //D3D10_USAGE Usage;
+	    D3D10_BIND_SHADER_RESOURCE ,   //UINT BindFlags;
+		0,							   //UINT CPUAccessFlags;
+		0					           //UINT MiscFlags;
+	};
+	//texture ptr
+	BaseTexture* texture = new BaseTexture();
+	//send memory
+	D3D10_SUBRESOURCE_DATA sSubData;
+	sSubData.pSysMem = byte;
+	sSubData.SysMemPitch = (UINT)(w * bsize);
+	sSubData.SysMemSlicePitch = (UINT)(w * h * bsize);
+	d3dDevice->CreateTexture2D(&textureDesc, &sSubData, &texture->texture2D);
+	//create resource view
+	D3D10_SHADER_RESOURCE_VIEW_DESC srvDesc;	
+	srvDesc.Format = textureDesc.Format;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.MipLevels = 1;
+
+	d3dDevice->CreateShaderResourceView(texture->texture2D, &srvDesc, &texture->resourceView);
+	//ptr to the texture
+	return texture;
+
+}
+
+class BaseRenderTexture : public BaseTexture{
+
+public:
+
+	ID3D10RenderTargetView* renderTargetView{ nullptr };
+	ID3D10DepthStencilView* depthStencilView{ nullptr };
+
+};
+
+BaseRenderTexture* RenderDX::createRenderTexture(size_t w, 
+	                                             size_t h, 
+												 size_t zbuffer, 
+												 RenderTextureType type){
+
+	DXGI_FORMAT dxTextureType = DXGI_FORMAT_R8G8B8A8_UNORM;
+	uint bindFlags = D3D10_BIND_SHADER_RESOURCE;
+
+	 
+	switch (type){
+	case RD_RGBA:   
+		dxTextureType = DXGI_FORMAT_R8G8B8A8_UNORM;
+		bindFlags |= D3D10_BIND_RENDER_TARGET;
+	break;
+	case RD_SHADOW:
+		dxTextureType = DXGI_FORMAT_D32_FLOAT;
+		bindFlags |= D3D10_BIND_DEPTH_STENCIL;
+	break;
+	default:      break;
+	}
+
+	//texture ptr
+	BaseRenderTexture* texture = new BaseRenderTexture();
+
+	//create texture
+	D3D10_TEXTURE2D_DESC textureDesc = {
+		w,//UINT Width;
+		h,//UINT Height;
+		1,//UINT MipLevels;
+		1,//UINT ArraySize;
+		dxTextureType,	   			   //DXGI_FORMAT Format;
+		1, 0,                          //DXGI_SAMPLE_DESC SampleDesc;
+		D3D10_USAGE_STAGING,           //D3D10_USAGE Usage;
+		D3D10_BIND_RENDER_TARGET | 
+		bindFlags,					   //UINT BindFlags;
+		0,							   //UINT CPUAccessFlags;
+		0					           //UINT MiscFlags;
+	};
+	d3dDevice->CreateTexture2D(&textureDesc, NULL, &texture->texture2D);
+
+	//create resource view
+	D3D10_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	srvDesc.Format = textureDesc.Format;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.MipLevels = 1;
+	d3dDevice->CreateShaderResourceView(texture->texture2D, &srvDesc, &texture->resourceView);
+
+	// Create the render target view.
+	switch (type){
+	case RD_RGBA:
+		D3D10_RENDER_TARGET_VIEW_DESC tvmDesc;
+		tvmDesc.Format = textureDesc.Format;
+		tvmDesc.ViewDimension = D3D10_RTV_DIMENSION_TEXTURE2D;
+		tvmDesc.Texture2D.MipSlice = 0;
+		d3dDevice->CreateRenderTargetView(texture->texture2D, &tvmDesc, &texture->renderTargetView);
+		break;
+	case RD_SHADOW:
+		D3D10_DEPTH_STENCIL_VIEW_DESC dsvDesc;
+		dsvDesc.Format = textureDesc.Format;
+		dsvDesc.ViewDimension = D3D10_DSV_DIMENSION_TEXTURE2D;
+		dsvDesc.Texture2D.MipSlice = 0;
+		d3dDevice->CreateDepthStencilView(texture->texture2D, &dsvDesc, &texture->depthStencilView);
+		break;
+	default:      break;
+	}
+	//ptr to the texture
+	return texture;
+
+}
+
+void RenderDX::uniformVSTexture(uint n, BaseTexture* texture){
+	d3dDevice->VSSetShaderResources(0, n, &texture->resourceView);
+}
+void RenderDX::uniformPSTexture(uint n, BaseTexture* texture){
+	d3dDevice->PSSetShaderResources(0, n, &texture->resourceView);
+}
+
+void RenderDX::uniformVSTexture(uint n, BaseRenderTexture* texture){
+	d3dDevice->VSSetShaderResources(0, n, &texture->resourceView);
+}
+void RenderDX::uniformPSTexture(uint n, BaseRenderTexture* texture){
+	d3dDevice->PSSetShaderResources(0, n, &texture->resourceView);
+}
+
+
+void RenderDX::deleteTexture(BaseTexture* texture){
+	releaseDX(texture->resourceView)
+	releaseDX(texture->texture2D)
+	delete texture;
+}
+void RenderDX::deleteTexture(BaseRenderTexture* texture){
+	releaseDX(texture->renderTargetView)
+	releaseDX(texture->resourceView)
+	releaseDX(texture->texture2D)
+	delete texture;
+}
+
+void RenderDX::beginRenderToTexture(BaseRenderTexture* texture){
+	//set texture
+	if (texture->renderTargetView)
+		//color
+		d3dDevice->OMSetRenderTargets(1, &texture->renderTargetView, g_pDepthStencilView);
+	else
+		//zbuffer
+		d3dDevice->OMSetRenderTargets(0, 0, texture->depthStencilView);
+}
+void RenderDX::endRenderToTexture(BaseRenderTexture*){
+	//set screen
+	d3dDevice->OMSetRenderTargets(1, &g_pRenderTargetView, g_pDepthStencilView);
+}
 
 
 void RenderDX::swap(){

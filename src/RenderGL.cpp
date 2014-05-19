@@ -411,7 +411,6 @@ public:
 	}
 };
 
-
 BaseRenderTexture* RenderGL::createRenderTexture(size_t w,
 												 size_t h,
 												 size_t zbuffer,
@@ -426,7 +425,6 @@ BaseRenderTexture* RenderGL::createRenderTexture(size_t w,
 	//select type
 	switch (type){
 	case RD_RGBA:
-	case RD_RGB:
 
 		//////////////////////////
 		//Only render texture
@@ -435,7 +433,7 @@ BaseRenderTexture* RenderGL::createRenderTexture(size_t w,
 		//enable texture id
 		rtexture->enableTBO();
 		//create texture buffer 
-		format = type==RD_RGBA ? GL_RGBA : GL_RGB;
+		format = GL_RGBA;
 		glTexImage2D(GL_TEXTURE_2D, 
 					0, 
 					format,

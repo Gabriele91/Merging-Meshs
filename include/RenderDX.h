@@ -29,6 +29,8 @@ namespace Easy3D {
 		friend  class Application;
 		friend  class Screen;
 		friend  class ShaderDX;
+		friend  class UniformTexture;
+		friend  class UniformRenderTexture;
 		virtual void __renderInit();
 
     public:
@@ -95,7 +97,12 @@ namespace Easy3D {
         //texture functions
 		virtual BaseTexture* sendTexture2D(size_t w, size_t h, void* byte, TextureType type);
 		virtual BaseRenderTexture* createRenderTexture(size_t w, size_t h, size_t zbuffer, RenderTextureType type);
-        
+
+		void uniformVSTexture(uint n, BaseTexture*);
+		void uniformVSTexture(uint n, BaseRenderTexture*);
+		void uniformPSTexture(uint n, BaseTexture*);
+		void uniformPSTexture(uint n, BaseRenderTexture*);
+
 		virtual void deleteTexture(BaseTexture*);
 		virtual void deleteTexture(BaseRenderTexture*);
 

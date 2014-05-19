@@ -40,14 +40,14 @@ namespace Easy3D {
 	};
 
 	enum TextureType{
-		TX_RGBA,
-		TX_RGB,
-		TX_RG,
-		TX_RED
+		TX_RGBA8,
+		TX_RG8,
+		TX_R8,
+		TX_RG16,
+		TX_R16
 	};
 	enum RenderTextureType{
 		RD_RGBA,
-		RD_RGB,
 		RD_SHADOW
 	};
 
