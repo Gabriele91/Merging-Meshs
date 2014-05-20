@@ -80,7 +80,7 @@ namespace Easy3D{
 		size_t valueOffset = 0;
 		size = 0;
 		//calc size
-		for (uint i = 0; i < desc.BoundResources; ++i)
+		for (uint i = 0; i < desc.ConstantBuffers; ++i)
 		{
 			pConstantBuffer = pReflection->GetConstantBufferByIndex(i);
 
@@ -323,8 +323,8 @@ namespace Easy3D{
 			,idtexture(idtexture){}
 
 		virtual void  set(const void* value, size_t s, size_t n){
-			if (n == 1) getRender().uniformVSTexture(idtexture, (BaseTexture*)value);
-			else if (n == 2) getRender().uniformVSTexture(idtexture, (BaseRenderTexture*)value);
+			if (n == 0) getRender().uniformVSTexture(idtexture, (BaseTexture*)value);
+			else  getRender().uniformVSTexture(idtexture, (BaseRenderTexture*)value);
 		}
 		virtual void  set(const void* value) { /* void */ }
 		virtual void* get(){ return NULL; }
@@ -345,8 +345,8 @@ namespace Easy3D{
 			, idtexture(idtexture){}
 
 		virtual void  set(const void* value, size_t s, size_t n){
-			if (n == 1) getRender().uniformPSTexture(idtexture, (BaseTexture*)value);
-			else if (n == 2) getRender().uniformPSTexture(idtexture, (BaseRenderTexture*)value);
+			if (n == 0) getRender().uniformPSTexture(idtexture, (BaseTexture*)value);
+			else getRender().uniformPSTexture(idtexture, (BaseRenderTexture*)value);
 		}
 		virtual void  set(const void* value) { /* void */ }
 		virtual void* get(){ return NULL; }

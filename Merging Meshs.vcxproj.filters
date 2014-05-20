@@ -277,6 +277,15 @@
     <None Include="shader\geometry\geometry.vs.glsl">
       <Filter>File di risorse\geometry</Filter>
     </None>
+    <None Include="shader\geometry\geometry_basic.fs.glsl">
+      <Filter>File di risorse\geometry</Filter>
+    </None>
+    <None Include="shader\geometry\geometryShadow.fs.glsl">
+      <Filter>File di risorse\geometry</Filter>
+    </None>
+    <None Include="shader\geometry\geometryShadow.vs.glsl">
+      <Filter>File di risorse\geometry</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="shader\trackball\trackball.fs.hlsl">
@@ -289,6 +298,12 @@
       <Filter>File di risorse\geometry</Filter>
     </Text>
     <Text Include="shader\geometry\geometry.fs.hlsl">
+      <Filter>File di risorse\geometry</Filter>
+    </Text>
+    <Text Include="shader\geometry\geometryShadow.fs.hlsl">
+      <Filter>File di risorse\geometry</Filter>
+    </Text>
+    <Text Include="shader\geometry\geometryShadow.vs.hlsl">
       <Filter>File di risorse\geometry</Filter>
     </Text>
   </ItemGroup>

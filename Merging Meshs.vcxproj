@@ -175,6 +175,9 @@
   <ItemGroup>
     <None Include="shader\geometry\geometry.fs.glsl" />
     <None Include="shader\geometry\geometry.vs.glsl" />
+    <None Include="shader\geometry\geometryShadow.fs.glsl" />
+    <None Include="shader\geometry\geometryShadow.vs.glsl" />
+    <None Include="shader\geometry\geometry_basic.fs.glsl" />
     <None Include="shader\trackball\trackball.fs.glsl" />
     <None Include="shader\trackball\trackball.vs.glsl" />
   </ItemGroup>
@@ -191,6 +194,14 @@
       <FileType>Document</FileType>
     </Text>
     <Text Include="shader\geometry\geometry.vs.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="shader\geometry\geometryShadow.fs.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+    <Text Include="shader\geometry\geometryShadow.vs.hlsl">
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>

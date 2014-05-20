@@ -218,7 +218,9 @@ void RenderDX::__renderInit(){
 	descDSV.ViewDimension = D3D10_DSV_DIMENSION_TEXTURE2D;
 	descDSV.Texture2D.MipSlice = 0;
 	DX_ASSERT_MSG(d3dDevice->CreateDepthStencilView(g_pDepthStencil, &descDSV, &g_pDepthStencilView));
-	d3dDevice->OMSetRenderTargets(1, &g_pRenderTargetView, g_pDepthStencilView);
+	/////////////////////////////////////////////////////////////////////////////////////////
+	//SET RANDER TARGETS
+	setRenderTargets(g_pRenderTargetView, g_pDepthStencilView);
 	/////////////////////////////////////////////////////////////////////////////////////////
 	//Query textures - CPU Access buffer
 	//Color buffer
@@ -277,8 +279,20 @@ void RenderDX::doClear(){
 		clearColorState.color.bNormalize(),
 		clearColorState.color.aNormalize()
 	};
-	d3dDevice->ClearRenderTargetView(g_pRenderTargetView, color);
-	d3dDevice->ClearDepthStencilView(g_pDepthStencilView, D3D10_CLEAR_DEPTH, 1.0f, 0);
+	if (currentRenderTargetView)
+		d3dDevice->ClearRenderTargetView(currentRenderTargetView, color);
+	if (currentDepthStencilView)
+		d3dDevice->ClearDepthStencilView(currentDepthStencilView, D3D10_CLEAR_DEPTH, 1.0f, 0);
+}
+
+void RenderDX::setRenderTargets(ID3D10RenderTargetView* renderTargetView, ID3D10DepthStencilView* depthStencilView){
+	if (renderTargetView)
+		d3dDevice->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
+	else
+		d3dDevice->OMSetRenderTargets(0, 0, depthStencilView);
+	//save state
+	currentRenderTargetView = renderTargetView;
+	currentDepthStencilView = depthStencilView;
 }
 
 const ZBufferState& RenderDX::getZBufferState() const{
@@ -496,6 +510,7 @@ void RenderDX::bindShader(Shader* inshader){
 	currentShader->bind();
 }
 void RenderDX::unbindShader(){
+	DEBUG_ASSERT(currentShader);
 	currentShader->unbind();
 	currentShader = nullptr;
 }
@@ -681,9 +696,27 @@ Vec4  RenderDX::getColor(const Vec2& pixel){
 class BaseTexture{
 
 public:
-
 	ID3D10Texture2D* texture2D{ nullptr };
+	ID3D10SamplerState* sempler{ nullptr };
 	ID3D10ShaderResourceView* resourceView{ nullptr };
+
+	void createSemple(ID3D10Device* d3dDevice,D3D10_FILTER filter){
+		//input
+		D3D10_SAMPLER_DESC sampDesc;
+		ZeroMemory(&sampDesc, sizeof(sampDesc));
+		sampDesc.Filter = filter;
+		sampDesc.AddressU = D3D10_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressV = D3D10_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressW = D3D10_TEXTURE_ADDRESS_WRAP;
+		sampDesc.ComparisonFunc = D3D10_COMPARISON_NEVER;
+		sampDesc.MinLOD = 0;
+		sampDesc.MaxLOD = D3D10_FLOAT32_MAX;
+		//create
+		d3dDevice->CreateSamplerState(&sampDesc, &sempler);
+		//D3D10_FILTER_MIN_MAG_MIP_LINEAR
+		//D3D10_FILTER_MIN_LINEAR_MAG_MIP_POINT
+
+	}
 
 };
 
@@ -709,7 +742,7 @@ BaseTexture* RenderDX::sendTexture2D(size_t w, size_t h, void* byte, TextureType
 		1,//UINT ArraySize;
 		dxTextureType,	   			   //DXGI_FORMAT Format;
 		1, 0,                          //DXGI_SAMPLE_DESC SampleDesc;
-		D3D10_USAGE_STAGING,           //D3D10_USAGE Usage;
+		D3D10_USAGE_DEFAULT,           //D3D10_USAGE Usage;
 	    D3D10_BIND_SHADER_RESOURCE ,   //UINT BindFlags;
 		0,							   //UINT CPUAccessFlags;
 		0					           //UINT MiscFlags;
@@ -722,10 +755,12 @@ BaseTexture* RenderDX::sendTexture2D(size_t w, size_t h, void* byte, TextureType
 	sSubData.SysMemPitch = (UINT)(w * bsize);
 	sSubData.SysMemSlicePitch = (UINT)(w * h * bsize);
 	d3dDevice->CreateTexture2D(&textureDesc, &sSubData, &texture->texture2D);
+	//create semple
+	texture->createSemple(d3dDevice, D3D10_FILTER_MIN_MAG_MIP_LINEAR);
 	//create resource view
 	D3D10_SHADER_RESOURCE_VIEW_DESC srvDesc;	
 	srvDesc.Format = textureDesc.Format;
-	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MostDetailedMip = 0;
 	srvDesc.Texture2D.MipLevels = 1;
 
@@ -750,16 +785,22 @@ BaseRenderTexture* RenderDX::createRenderTexture(size_t w,
 												 RenderTextureType type){
 
 	DXGI_FORMAT dxTextureType = DXGI_FORMAT_R8G8B8A8_UNORM;
+	DXGI_FORMAT targetType = DXGI_FORMAT_R8G8B8A8_UNORM;
+	DXGI_FORMAT svrType = DXGI_FORMAT_R8G8B8A8_UNORM;
 	uint bindFlags = D3D10_BIND_SHADER_RESOURCE;
 
-	 
+	
 	switch (type){
-	case RD_RGBA:   
+	case RD_RGBA:
 		dxTextureType = DXGI_FORMAT_R8G8B8A8_UNORM;
+	    targetType = DXGI_FORMAT_R8G8B8A8_UNORM;
+		svrType = DXGI_FORMAT_R8G8B8A8_UNORM;
 		bindFlags |= D3D10_BIND_RENDER_TARGET;
 	break;
 	case RD_SHADOW:
-		dxTextureType = DXGI_FORMAT_D32_FLOAT;
+		dxTextureType = DXGI_FORMAT_R32_TYPELESS;
+		targetType = DXGI_FORMAT_D32_FLOAT;
+		svrType = DXGI_FORMAT_R32_FLOAT;
 		bindFlags |= D3D10_BIND_DEPTH_STENCIL;
 	break;
 	default:      break;
@@ -769,64 +810,75 @@ BaseRenderTexture* RenderDX::createRenderTexture(size_t w,
 	BaseRenderTexture* texture = new BaseRenderTexture();
 
 	//create texture
-	D3D10_TEXTURE2D_DESC textureDesc = {
-		w,//UINT Width;
-		h,//UINT Height;
-		1,//UINT MipLevels;
-		1,//UINT ArraySize;
-		dxTextureType,	   			   //DXGI_FORMAT Format;
-		1, 0,                          //DXGI_SAMPLE_DESC SampleDesc;
-		D3D10_USAGE_STAGING,           //D3D10_USAGE Usage;
-		D3D10_BIND_RENDER_TARGET | 
-		bindFlags,					   //UINT BindFlags;
-		0,							   //UINT CPUAccessFlags;
-		0					           //UINT MiscFlags;
-	};
+	D3D10_TEXTURE2D_DESC textureDesc;
+	textureDesc.Width = w;
+	textureDesc.Height = h;
+	textureDesc.MipLevels = 1;
+	textureDesc.ArraySize = 1;
+	textureDesc.Format = dxTextureType;
+	textureDesc.SampleDesc.Count = 1;
+	textureDesc.SampleDesc.Quality = 0;
+	textureDesc.Usage = D3D10_USAGE_DEFAULT;
+	textureDesc.BindFlags = bindFlags;
+	textureDesc.CPUAccessFlags = 0;
+	textureDesc.MiscFlags = 0;
+
 	d3dDevice->CreateTexture2D(&textureDesc, NULL, &texture->texture2D);
-
-	//create resource view
-	D3D10_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	srvDesc.Format = textureDesc.Format;
-	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MostDetailedMip = 0;
-	srvDesc.Texture2D.MipLevels = 1;
-	d3dDevice->CreateShaderResourceView(texture->texture2D, &srvDesc, &texture->resourceView);
-
-	// Create the render target view.
+	//no linear
+	texture->createSemple(d3dDevice, D3D10_FILTER_MIN_LINEAR_MAG_MIP_POINT);
+	// Create the render target view/ depth stecil.
 	switch (type){
 	case RD_RGBA:
-		D3D10_RENDER_TARGET_VIEW_DESC tvmDesc;
-		tvmDesc.Format = textureDesc.Format;
-		tvmDesc.ViewDimension = D3D10_RTV_DIMENSION_TEXTURE2D;
-		tvmDesc.Texture2D.MipSlice = 0;
-		d3dDevice->CreateRenderTargetView(texture->texture2D, &tvmDesc, &texture->renderTargetView);
+		{
+			D3D10_RENDER_TARGET_VIEW_DESC tvmDesc;
+			tvmDesc.Format = targetType;
+			tvmDesc.ViewDimension = D3D10_RTV_DIMENSION_TEXTURE2D;
+			tvmDesc.Texture2D.MipSlice = 0;
+			d3dDevice->CreateRenderTargetView(texture->texture2D, &tvmDesc, &texture->renderTargetView); 
+		}
 		break;
 	case RD_SHADOW:
-		D3D10_DEPTH_STENCIL_VIEW_DESC dsvDesc;
-		dsvDesc.Format = textureDesc.Format;
-		dsvDesc.ViewDimension = D3D10_DSV_DIMENSION_TEXTURE2D;
-		dsvDesc.Texture2D.MipSlice = 0;
-		d3dDevice->CreateDepthStencilView(texture->texture2D, &dsvDesc, &texture->depthStencilView);
+		{
+			D3D10_DEPTH_STENCIL_VIEW_DESC dsvDesc;
+			dsvDesc.Format = targetType;
+			dsvDesc.ViewDimension = D3D10_DSV_DIMENSION_TEXTURE2D;
+			dsvDesc.Texture2D.MipSlice = 0;
+			d3dDevice->CreateDepthStencilView(texture->texture2D, &dsvDesc, &texture->depthStencilView);
+	    }
 		break;
 	default:      break;
 	}
+
+	//create resource view
+	D3D10_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	srvDesc.Format = svrType;
+	srvDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = textureDesc.MipLevels;;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	d3dDevice->CreateShaderResourceView(texture->texture2D, &srvDesc, &texture->resourceView);
+
+
 	//ptr to the texture
 	return texture;
 
 }
 
 void RenderDX::uniformVSTexture(uint n, BaseTexture* texture){
-	d3dDevice->VSSetShaderResources(0, n, &texture->resourceView);
+	d3dDevice->VSSetShaderResources(n, 1, &texture->resourceView);
+	d3dDevice->VSSetSamplers(n, 1, &texture->sempler);
 }
 void RenderDX::uniformPSTexture(uint n, BaseTexture* texture){
-	d3dDevice->PSSetShaderResources(0, n, &texture->resourceView);
+	d3dDevice->PSSetShaderResources(n, 1, &texture->resourceView);
+	d3dDevice->PSSetSamplers(n, 1, &texture->sempler);
 }
 
 void RenderDX::uniformVSTexture(uint n, BaseRenderTexture* texture){
-	d3dDevice->VSSetShaderResources(0, n, &texture->resourceView);
+	d3dDevice->VSSetShaderResources(n, 1, &texture->resourceView);
+	d3dDevice->VSSetSamplers(n, 1, &texture->sempler);
 }
 void RenderDX::uniformPSTexture(uint n, BaseRenderTexture* texture){
-	d3dDevice->PSSetShaderResources(0, n, &texture->resourceView);
+	d3dDevice->PSSetShaderResources(n, 1, &texture->resourceView);
+	d3dDevice->PSSetSamplers(n, 1, &texture->sempler);
 }
 
 
@@ -846,14 +898,14 @@ void RenderDX::beginRenderToTexture(BaseRenderTexture* texture){
 	//set texture
 	if (texture->renderTargetView)
 		//color
-		d3dDevice->OMSetRenderTargets(1, &texture->renderTargetView, g_pDepthStencilView);
+		setRenderTargets(texture->renderTargetView, g_pDepthStencilView);
 	else
 		//zbuffer
-		d3dDevice->OMSetRenderTargets(0, 0, texture->depthStencilView);
+		setRenderTargets(0, texture->depthStencilView);
 }
 void RenderDX::endRenderToTexture(BaseRenderTexture*){
 	//set screen
-	d3dDevice->OMSetRenderTargets(1, &g_pRenderTargetView, g_pDepthStencilView);
+	setRenderTargets(g_pRenderTargetView, g_pDepthStencilView);
 }
 
 

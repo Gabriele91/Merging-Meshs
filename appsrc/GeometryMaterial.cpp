@@ -152,7 +152,6 @@ void GeometryMaterial::draw(const Mesh& m) {
 }
 void GeometryMaterial::unbind(){
 	Render& r = *Application::instance()->getRender();
-	r.unbindShader();
 	//reset context
 	r.setBlendState(ctxBlend);
 	r.setCullFaceState(ctxCFaces);

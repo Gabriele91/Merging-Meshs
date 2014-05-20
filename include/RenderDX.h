@@ -141,6 +141,11 @@ namespace Easy3D {
 		ID3D10RasterizerState*    g_cullface_back{ nullptr };     //back
 		ID3D10RasterizerState*    g_cullface_front{ nullptr };	  //front
 		ID3D10RasterizerState*    g_cullface_disable{ nullptr };  //disable
+		//current buffer
+		ID3D10RenderTargetView*  currentRenderTargetView{ nullptr };
+		ID3D10DepthStencilView* currentDepthStencilView{ nullptr };
+		void setRenderTargets(ID3D10RenderTargetView* renderTargetView, 
+							  ID3D10DepthStencilView* depthStencilView);
 		// blend state
 		ID3D10BlendState*		  g_pBlendState{ nullptr };
 		void dxCreateBlend(bool blend,GLenum src,GLenum dst);
