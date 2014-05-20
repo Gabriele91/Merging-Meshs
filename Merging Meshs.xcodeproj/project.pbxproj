@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		E001AE05191A1543004C46D1 /* meshs in Resources */ = {isa = PBXBuildFile; fileRef = E001AE04191A1543004C46D1 /* meshs */; };
 		E02A856E18FFEF3400F05C0E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E02A856D18FFEF3400F05C0E /* Cocoa.framework */; };
 		E02A857818FFEF3400F05C0E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E02A857618FFEF3400F05C0E /* InfoPlist.strings */; };
 		E02A857E18FFEF3400F05C0E /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = E02A857C18FFEF3400F05C0E /* Credits.rtf */; };
@@ -44,6 +43,9 @@
 		E045E9EE1903E55C0033A7E2 /* RenderGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E045E9ED1903E55C0033A7E2 /* RenderGL.cpp */; };
 		E045E9F11903FA020033A7E2 /* ShaderGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E045E9F01903FA020033A7E2 /* ShaderGL.cpp */; };
 		E06FBC60191A74A600B2A4E2 /* Object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E06FBC5F191A74A600B2A4E2 /* Object.cpp */; };
+		E075BF0F192B3AD10071F4E8 /* GeometryMaterial.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E075BF0A192B3AD10071F4E8 /* GeometryMaterial.cpp */; };
+		E075BF10192B3AD10071F4E8 /* TrackballMaterial.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E075BF0D192B3AD10071F4E8 /* TrackballMaterial.cpp */; };
+		E075BF11192B3C270071F4E8 /* meshs in Resources */ = {isa = PBXBuildFile; fileRef = E001AE04191A1543004C46D1 /* meshs */; };
 		E0B272A81916747400CABAC1 /* Mesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E0B272A71916747400CABAC1 /* Mesh.cpp */; };
 		E0CB398C1920B10000DDF9AF /* TrackArea.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E0CB39881920B10000DDF9AF /* TrackArea.cpp */; };
 		E0CB398D1920B10000DDF9AF /* Trackball.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E0CB398A1920B10000DDF9AF /* Trackball.cpp */; };
@@ -222,6 +224,11 @@
 		E045E9F21903FA1F0033A7E2 /* ShaderGL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderGL.h; sourceTree = "<group>"; };
 		E06FBC5E191A749800B2A4E2 /* Object.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Object.h; sourceTree = "<group>"; };
 		E06FBC5F191A74A600B2A4E2 /* Object.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Object.cpp; sourceTree = "<group>"; };
+		E075BF0A192B3AD10071F4E8 /* GeometryMaterial.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GeometryMaterial.cpp; sourceTree = "<group>"; };
+		E075BF0B192B3AD10071F4E8 /* GeometryMaterial.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeometryMaterial.h; sourceTree = "<group>"; };
+		E075BF0C192B3AD10071F4E8 /* Material.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Material.h; sourceTree = "<group>"; };
+		E075BF0D192B3AD10071F4E8 /* TrackballMaterial.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TrackballMaterial.cpp; sourceTree = "<group>"; };
+		E075BF0E192B3AD10071F4E8 /* TrackballMaterial.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TrackballMaterial.h; sourceTree = "<group>"; };
 		E0B272A619166AFE00CABAC1 /* Mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mesh.h; sourceTree = "<group>"; };
 		E0B272A71916747400CABAC1 /* Mesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Mesh.cpp; sourceTree = "<group>"; };
 		E0CB39871920B10000DDF9AF /* Geometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Geometry.h; sourceTree = "<group>"; };
@@ -575,9 +582,22 @@
 			path = lib;
 			sourceTree = "<group>";
 		};
+		E075BF09192B3ABD0071F4E8 /* Materials */ = {
+			isa = PBXGroup;
+			children = (
+				E075BF0A192B3AD10071F4E8 /* GeometryMaterial.cpp */,
+				E075BF0B192B3AD10071F4E8 /* GeometryMaterial.h */,
+				E075BF0C192B3AD10071F4E8 /* Material.h */,
+				E075BF0D192B3AD10071F4E8 /* TrackballMaterial.cpp */,
+				E075BF0E192B3AD10071F4E8 /* TrackballMaterial.h */,
+			);
+			name = Materials;
+			sourceTree = "<group>";
+		};
 		E0D17A8619000A9A00E4D6E1 /* appsrc */ = {
 			isa = PBXGroup;
 			children = (
+				E075BF09192B3ABD0071F4E8 /* Materials */,
 				E0CB398E1920B10F00DDF9AF /* Camera.cpp */,
 				E0CB398F1920B10F00DDF9AF /* Camera.h */,
 				E0CB39901920B10F00DDF9AF /* Geometry.cpp */,
@@ -671,7 +691,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E001AE05191A1543004C46D1 /* meshs in Resources */,
+				E075BF11192B3C270071F4E8 /* meshs in Resources */,
 				E02A861018FFF02F00F05C0E /* shader in Resources */,
 				E02A857818FFEF3400F05C0E /* InfoPlist.strings in Resources */,
 				E02A858618FFEF3400F05C0E /* Images.xcassets in Resources */,
@@ -707,6 +727,7 @@
 				E02A85F218FFF01C00F05C0E /* CocoaScreen.mm in Sources */,
 				E02A860318FFF01C00F05C0E /* Memory.cpp in Sources */,
 				E02A85F018FFF01C00F05C0E /* CocoaApp.mm in Sources */,
+				E075BF10192B3AD10071F4E8 /* TrackballMaterial.cpp in Sources */,
 				E02A85F718FFF01C00F05C0E /* EString.cpp in Sources */,
 				E02A85F918FFF01C00F05C0E /* Game.cpp in Sources */,
 				E0ECBB9D190D0EA90057DAAB /* MathUtility.cpp in Sources */,
@@ -716,6 +737,7 @@
 				E02A85F518FFF01C00F05C0E /* Debug.cpp in Sources */,
 				E0B272A81916747400CABAC1 /* Mesh.cpp in Sources */,
 				E02A85FA18FFF01C00F05C0E /* Input.cpp in Sources */,
+				E075BF0F192B3AD10071F4E8 /* GeometryMaterial.cpp in Sources */,
 				E0CB39911920B10F00DDF9AF /* Camera.cpp in Sources */,
 				E02A85F118FFF01C00F05C0E /* CocoaInput.mm in Sources */,
 				E02A85F818FFF01C00F05C0E /* ETime.cpp in Sources */,
