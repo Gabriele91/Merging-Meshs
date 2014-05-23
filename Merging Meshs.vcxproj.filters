@@ -34,6 +34,18 @@
     <Filter Include="appsrc\Materials">
       <UniqueIdentifier>{7ae8ddcf-a3fc-4836-b46e-22b7ae40a777}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File di risorse\geometry\OpenGL">
+      <UniqueIdentifier>{30cc68af-19d5-4c44-b959-0aaa53cc1e15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di risorse\geometry\DirectX">
+      <UniqueIdentifier>{c002418c-db5e-466c-bed4-f98e25a82c3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di risorse\trackball\DirectX">
+      <UniqueIdentifier>{01f247d7-4905-4bcf-9688-cfa0651e46f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di risorse\trackball\OpenGL">
+      <UniqueIdentifier>{4747554c-daae-434d-a831-54587c4421be}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Application.h">
@@ -265,49 +277,49 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader\trackball\trackball.fs.glsl">
-      <Filter>File di risorse\trackball</Filter>
-    </None>
-    <None Include="shader\trackball\trackball.vs.glsl">
-      <Filter>File di risorse\trackball</Filter>
-    </None>
     <None Include="shader\geometry\geometry.fs.glsl">
-      <Filter>File di risorse\geometry</Filter>
+      <Filter>File di risorse\geometry\OpenGL</Filter>
     </None>
     <None Include="shader\geometry\geometry.vs.glsl">
-      <Filter>File di risorse\geometry</Filter>
-    </None>
-    <None Include="shader\geometry\geometry_basic.fs.glsl">
-      <Filter>File di risorse\geometry</Filter>
+      <Filter>File di risorse\geometry\OpenGL</Filter>
     </None>
     <None Include="shader\geometry\geometryShadow.fs.glsl">
-      <Filter>File di risorse\geometry</Filter>
+      <Filter>File di risorse\geometry\OpenGL</Filter>
     </None>
     <None Include="shader\geometry\geometryShadow.vs.glsl">
-      <Filter>File di risorse\geometry</Filter>
+      <Filter>File di risorse\geometry\OpenGL</Filter>
+    </None>
+    <None Include="shader\geometry\geometry_basic.fs.glsl">
+      <Filter>File di risorse\geometry\OpenGL</Filter>
+    </None>
+    <None Include="shader\trackball\trackball.fs.glsl">
+      <Filter>File di risorse\trackball\OpenGL</Filter>
+    </None>
+    <None Include="shader\trackball\trackball.vs.glsl">
+      <Filter>File di risorse\trackball\OpenGL</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="shader\trackball\trackball.fs.hlsl">
-      <Filter>File di risorse\trackball</Filter>
-    </Text>
-    <Text Include="shader\trackball\trackball.vs.hlsl">
-      <Filter>File di risorse\trackball</Filter>
+    <Text Include="shader\geometry\geometry.fs.hlsl">
+      <Filter>File di risorse\geometry\DirectX</Filter>
     </Text>
     <Text Include="shader\geometry\geometry.vs.hlsl">
-      <Filter>File di risorse\geometry</Filter>
-    </Text>
-    <Text Include="shader\geometry\geometry.fs.hlsl">
-      <Filter>File di risorse\geometry</Filter>
+      <Filter>File di risorse\geometry\DirectX</Filter>
     </Text>
     <Text Include="shader\geometry\geometryShadow.fs.hlsl">
-      <Filter>File di risorse\geometry</Filter>
+      <Filter>File di risorse\geometry\DirectX</Filter>
     </Text>
     <Text Include="shader\geometry\geometryShadow.vs.hlsl">
-      <Filter>File di risorse\geometry</Filter>
+      <Filter>File di risorse\geometry\DirectX</Filter>
     </Text>
     <Text Include="shader\geometry\geometry_basic.fs.hlsl">
-      <Filter>File di risorse\geometry</Filter>
+      <Filter>File di risorse\geometry\DirectX</Filter>
+    </Text>
+    <Text Include="shader\trackball\trackball.fs.hlsl">
+      <Filter>File di risorse\trackball\DirectX</Filter>
+    </Text>
+    <Text Include="shader\trackball\trackball.vs.hlsl">
+      <Filter>File di risorse\trackball\DirectX</Filter>
     </Text>
   </ItemGroup>
 </Project>

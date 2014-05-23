@@ -12,13 +12,6 @@ struct VS_OUTPUT
 //shadow map
 Texture2D  shadowMap;
 SamplerState sampleShadow;
-SamplerState pointSampler
-{
-	Filter = min_mag_mip_point;
-	AddressU = WRAP;
-	AddressV = WRAP;
-	ComparisonFunc = EQUAL;
-};
 
 //uniforms
 cbuffer C_UNIFORMS{
@@ -43,7 +36,8 @@ static float2 poissonDisk[16] = {
 	float2(-0.24188840, 0.99706507),
 	float2(-0.81409955, 0.91437590),
 	float2(0.19984126, 0.78641367),
-	float2(0.14383161, -0.14100790)};
+	float2(0.14383161, -0.14100790)
+};
 //uniform texture
 //-----------------------------------------------------------------------------
 // Name: main

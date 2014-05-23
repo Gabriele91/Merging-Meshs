@@ -12,13 +12,6 @@ struct VS_OUTPUT
 //shadow map
 Texture2D  shadowMap;
 SamplerState sampleShadow;
-SamplerState pointSampler
-{
-	Filter = min_mag_mip_point;
-	AddressU = WRAP;
-	AddressV = WRAP;
-};
-
 //uniforms
 cbuffer C_UNIFORMS{
 	float3 light; // = { 0, 2, 1 };
@@ -55,7 +48,7 @@ float4 main(VS_OUTPUT input) : SV_Target
 		input.shadowpos.y = input.shadowpos.y *-0.5 + 0.5;
 
 		//sample shadow map - point sampler
-		float shadowMapDepth = shadowMap.Sample(pointSampler, input.shadowpos.xy).r;
+		float shadowMapDepth = shadowMap.Sample(sampleShadow, input.shadowpos.xy).r;
 
 		//if clip space z value greater than shadow map value then pixel is in shadow
 		if (shadowMapDepth <= (input.shadowpos.z - zBias)) {

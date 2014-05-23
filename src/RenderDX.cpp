@@ -120,7 +120,9 @@ RenderDX::~RenderDX()
 		releaseDX(g_pDepthStencil)
 		releaseDX(g_pDepthStencilView)
 		releaseDX(g_depthStencilState)
-		releaseDX(g_depthDisabledStencilState)
+		releaseDX(g_stencilStateNoDepth)
+		releaseDX(g_depthStateNoStencil)
+		releaseDX(g_stateNoDepthNoStencil)
 		releaseDX(g_cullface_back)
 		releaseDX(g_cullface_front)
 		releaseDX(g_cullface_disable)
@@ -212,34 +214,60 @@ void RenderDX::__renderInit(){
 
 	//////////////////////////////////////////////////////////////////////////////////////////
 	//create depth desc state;
-	D3D10_DEPTH_STENCIL_DESC depthStencilDesc;
-	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
-
-	// Set up the description of the stencil state.
-	depthStencilDesc.DepthEnable = true;
-	depthStencilDesc.DepthWriteMask = D3D10_DEPTH_WRITE_MASK_ALL;
-	depthStencilDesc.DepthFunc = D3D10_COMPARISON_LESS;
-	//
-	depthStencilDesc.StencilEnable = true;
-	depthStencilDesc.StencilReadMask = (UINT8)0xFFFFFFFF;
-	depthStencilDesc.StencilWriteMask = (UINT8)0xFFFFFFFF;
-	//op if is front ace
-	depthStencilDesc.FrontFace.StencilFailOp = D3D10_STENCIL_OP_KEEP;
-	depthStencilDesc.FrontFace.StencilDepthFailOp = D3D10_STENCIL_OP_INCR;
-	depthStencilDesc.FrontFace.StencilPassOp = D3D10_STENCIL_OP_KEEP;
-	depthStencilDesc.FrontFace.StencilFunc = D3D10_COMPARISON_ALWAYS;
-	//op if is back face
-	depthStencilDesc.BackFace.StencilFailOp = D3D10_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilDepthFailOp = D3D10_STENCIL_OP_DECR;
-	depthStencilDesc.BackFace.StencilPassOp = D3D10_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilFunc = D3D10_COMPARISON_ALWAYS;
-
+	D3D10_DEPTH_STENCIL_DESC depthStencilDesc = {
+		TRUE,                           // BOOL DepthEnable;
+		D3D10_DEPTH_WRITE_MASK_ALL,     // D3D10_DEPTH_WRITE_MASK DepthWriteMask;
+		D3D10_COMPARISON_LESS_EQUAL,    // D3D10_COMPARISON_FUNC DepthFunc;
+		TRUE,                           // BOOL StencilEnable;
+		(UINT8)0xFFFFFFFF,              // UINT8 StencilReadMask;
+		(UINT8)0xFFFFFFFF,              // UINT8 StencilWriteMask;
+		{                               // D3D10_DEPTH_STENCILOP_DESC FrontFace;
+			D3D10_STENCIL_OP_KEEP,      // D3D10_STENCIL_OP StencilFailOp;
+			D3D10_STENCIL_OP_INCR,      // D3D10_STENCIL_OP StencilDepthFailOp;
+			D3D10_STENCIL_OP_KEEP,      // D3D10_STENCIL_OP StencilPassOp;
+			D3D10_COMPARISON_ALWAYS,    // D3D10_COMPARISON_FUNC StencilFunc;
+		},
+		{                               // D3D10_DEPTH_STENCILOP_DESC BackFace;
+			D3D10_STENCIL_OP_KEEP,      // D3D10_STENCIL_OP StencilFailOp;
+			D3D10_STENCIL_OP_DECR,      // D3D10_STENCIL_OP StencilDepthFailOp;
+			D3D10_STENCIL_OP_KEEP,      // D3D10_STENCIL_OP StencilPassOp;
+			D3D10_COMPARISON_ALWAYS,    // D3D10_COMPARISON_FUNC StencilFunc;
+		},
+	};
 	// Create the depth stencil state.
 	DX_ASSERT_MSG(d3dDevice->CreateDepthStencilState(&depthStencilDesc, &g_depthStencilState));
 	//disable zbuffer
 	depthStencilDesc.DepthEnable = false;
 	// Create the state using the device.
-	DX_ASSERT_MSG(d3dDevice->CreateDepthStencilState(&depthStencilDesc, &g_depthDisabledStencilState));
+	DX_ASSERT_MSG(d3dDevice->CreateDepthStencilState(&depthStencilDesc, &g_stencilStateNoDepth));
+
+	//no stencil 
+	D3D10_DEPTH_STENCIL_DESC depthStencilDescNoStencil = {
+		TRUE,                           // BOOL DepthEnable;
+		D3D10_DEPTH_WRITE_MASK_ALL,     // D3D11_DEPTH_WRITE_MASK DepthWriteMask;
+		D3D10_COMPARISON_LESS_EQUAL,    // D3D11_COMPARISON_FUNC DepthFunc;
+		FALSE,                          // BOOL StencilEnable;
+		0,                              // UINT8 StencilReadMask;
+		0,                              // UINT8 StencilWriteMask;
+		{                               // D3D11_DEPTH_STENCILOP_DESC FrontFace;
+			D3D10_STENCIL_OP_KEEP,      // D3D11_STENCIL_OP StencilFailOp;
+			D3D10_STENCIL_OP_KEEP,      // D3D11_STENCIL_OP StencilDepthFailOp;
+			D3D10_STENCIL_OP_KEEP,      // D3D11_STENCIL_OP StencilPassOp;
+			D3D10_COMPARISON_NEVER,     // D3D11_COMPARISON_FUNC StencilFunc;
+		},
+		{                               // D3D11_DEPTH_STENCILOP_DESC BackFace;
+			D3D10_STENCIL_OP_KEEP,      // D3D11_STENCIL_OP StencilFailOp;
+			D3D10_STENCIL_OP_KEEP,      // D3D11_STENCIL_OP StencilDepthFailOp;
+			D3D10_STENCIL_OP_KEEP,      // D3D11_STENCIL_OP StencilPassOp;
+			D3D10_COMPARISON_NEVER,     // D3D11_COMPARISON_FUNC StencilFunc;
+		},
+	};
+	// Create the state using the device.
+	DX_ASSERT_MSG(d3dDevice->CreateDepthStencilState(&depthStencilDescNoStencil, &g_depthStateNoStencil));
+	//disable zbuffer
+	depthStencilDescNoStencil.DepthEnable = false;
+	// Create the state using the device.
+	DX_ASSERT_MSG(d3dDevice->CreateDepthStencilState(&depthStencilDescNoStencil, &g_stateNoDepthNoStencil));
 	//////////////////////////////////////////////////////////////////////////////////////////
 	D3D10_RASTERIZER_DESC wfdesc;
 	ZeroMemory(&wfdesc, sizeof(D3D10_RASTERIZER_DESC));
@@ -347,9 +375,9 @@ const ZBufferState& RenderDX::getZBufferState() const{
 void  RenderDX::setZBufferState(const ZBufferState& zb){
     
     if(zb.zbuffer)
-		d3dDevice->OMSetDepthStencilState(g_depthStencilState, 1);
+		d3dDevice->OMSetDepthStencilState(g_depthStateNoStencil, 1);
 	else
-		d3dDevice->OMSetDepthStencilState(g_depthDisabledStencilState, 1);
+		d3dDevice->OMSetDepthStencilState(g_stateNoDepthNoStencil, 1);
 
 	zBufferState = zb;
 }
@@ -740,14 +768,15 @@ public:
 
 	void createSemple(ID3D10Device* d3dDevice,
 					  D3D10_FILTER filter,
+					  D3D10_TEXTURE_ADDRESS_MODE mode, 
 					  D3D10_COMPARISON_FUNC compfun){
 		//input
 		D3D10_SAMPLER_DESC sampDesc;
 		ZeroMemory(&sampDesc, sizeof(sampDesc));
 		sampDesc.Filter = filter;
-		sampDesc.AddressU = D3D10_TEXTURE_ADDRESS_WRAP;
-		sampDesc.AddressV = D3D10_TEXTURE_ADDRESS_WRAP;
-		sampDesc.AddressW = D3D10_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressU = mode;
+		sampDesc.AddressV = mode;
+		sampDesc.AddressW = mode;
 		sampDesc.ComparisonFunc = compfun;
 		sampDesc.MinLOD = 0;
 		sampDesc.MaxLOD = D3D10_FLOAT32_MAX;
@@ -811,6 +840,7 @@ BaseTexture* RenderDX::sendTexture2D(size_t w, size_t h, void* byte, TextureType
 	//create semple
 	texture->createSemple(d3dDevice,
 						  D3D10_FILTER_MIN_MAG_MIP_LINEAR,
+						  D3D10_TEXTURE_ADDRESS_WRAP,
 						  D3D10_COMPARISON_NEVER);
 	//create resource view
 	texture->createResourceView(d3dDevice, textureDesc.Format);
@@ -893,45 +923,41 @@ BaseRenderTexture* RenderDX::createRenderTexture(size_t w,
 	                                             size_t h, 
 												 size_t zbuffer, 
 												 RenderTextureType type){
-	#define SHADOW_COLOR
+	//#define SHADOW_COLOR
 
 	DXGI_FORMAT dxTextureType = DXGI_FORMAT_R8G8B8A8_UNORM;
 	DXGI_FORMAT targetType    = DXGI_FORMAT_R8G8B8A8_UNORM;
 	DXGI_FORMAT resViewType   = DXGI_FORMAT_R8G8B8A8_UNORM;
 	D3D10_COMPARISON_FUNC cmpfunction = D3D10_COMPARISON_NEVER;
+	D3D10_TEXTURE_ADDRESS_MODE mode   = D3D10_TEXTURE_ADDRESS_WRAP;
 	uint bindFlags = D3D10_BIND_SHADER_RESOURCE;
 
 	switch (type){
 	case RD_RGBA:
 		//texture
 		dxTextureType = DXGI_FORMAT_R8G8B8A8_UNORM;
-		cmpfunction = D3D10_COMPARISON_NEVER;
 		bindFlags = D3D10_BIND_RENDER_TARGET | D3D10_BIND_SHADER_RESOURCE;
+		//semple 
+		mode = D3D10_TEXTURE_ADDRESS_WRAP;
+		cmpfunction = D3D10_COMPARISON_NEVER;
+		//semple 
+		mode = D3D10_TEXTURE_ADDRESS_WRAP;
 		//Sheder Resource View
 		resViewType = DXGI_FORMAT_R8G8B8A8_UNORM;
 		//RenderTarget
 	    targetType = DXGI_FORMAT_R8G8B8A8_UNORM;
 	break;
 	case RD_SHADOW:
-	#ifdef SHADOW_COLOR
-			//texture
-			dxTextureType = DXGI_FORMAT_R32G32B32A32_FLOAT;
-			cmpfunction = D3D10_COMPARISON_NEVER;
-			bindFlags = D3D10_BIND_RENDER_TARGET | D3D10_BIND_SHADER_RESOURCE;
-			//Sheder Resource View
-			resViewType = DXGI_FORMAT_R32G32B32A32_FLOAT;
-			//RenderTarget
-			targetType = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	#else
-			//texture
-			dxTextureType = DXGI_FORMAT_R32_TYPELESS;
-			cmpfunction = D3D10_COMPARISON_LESS;
-			bindFlags = D3D10_BIND_DEPTH_STENCIL | D3D10_BIND_SHADER_RESOURCE;
-			//Sheder Resource View
-			resViewType = DXGI_FORMAT_R32_FLOAT;
-			//Depth Stencil View
-			targetType = DXGI_FORMAT_D32_FLOAT;
-	#endif
+		//texture
+		dxTextureType = DXGI_FORMAT_R32_TYPELESS;
+		bindFlags = D3D10_BIND_DEPTH_STENCIL | D3D10_BIND_SHADER_RESOURCE; 
+		//semple 
+		mode = D3D10_TEXTURE_ADDRESS_CLAMP;
+		cmpfunction = D3D10_COMPARISON_LESS;
+		//Sheder Resource View
+		resViewType = DXGI_FORMAT_R32_FLOAT;
+		//Depth Stencil View
+		targetType = DXGI_FORMAT_D32_FLOAT;
 	break;
 	default:      break;
 	}
@@ -941,7 +967,7 @@ BaseRenderTexture* RenderDX::createRenderTexture(size_t w,
 	//create texture
 	texture->createRenderTexture(d3dDevice, w, h, 1, dxTextureType, bindFlags);
 	//no linear
-	texture->createSemple(d3dDevice, D3D10_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT, cmpfunction);
+	texture->createSemple(d3dDevice, D3D10_FILTER_MIN_MAG_MIP_POINT, mode, cmpfunction);
 	//create resource view
 	texture->createResourceView(d3dDevice, resViewType, 0, 1);
 	// Create the render target view/ depth stecil.
@@ -951,25 +977,11 @@ BaseRenderTexture* RenderDX::createRenderTexture(size_t w,
 			texture->addDepthStencil32Bit(d3dDevice, w, h);
 		break;
 		case RD_SHADOW:
-		#ifdef SHADOW_COLOR
-			texture->createRenderTargetView(d3dDevice, targetType);
-			texture->addDepthStencil32Bit(d3dDevice, w, h);
-		#else
 			texture->createDepthStencilView(d3dDevice, targetType);
-		#endif
 		break;
 		default: break;
 	}
 
-	/*
-	dxTextureType = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	resViewType = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	targetType = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	cmpfunction = D3D10_COMPARISON_NEVER;
-	bindFlags |= D3D10_BIND_RENDER_TARGET;
-	texture->createRenderTargetView(d3dDevice, targetType);
-	texture->addDepthStencil32Bit(d3dDevice, w, h);*/
-	//ptr to the texture
 	return texture;
 
 }

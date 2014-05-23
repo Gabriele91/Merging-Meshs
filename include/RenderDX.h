@@ -138,8 +138,10 @@ namespace Easy3D {
 		ID3D10Texture2D*            g_pDepthStencil{ nullptr };
 		ID3D10DepthStencilView*     g_pDepthStencilView{ nullptr };
 		// zbuffer state
-		ID3D10DepthStencilState*    g_depthStencilState{ nullptr };         //enable
-		ID3D10DepthStencilState*    g_depthDisabledStencilState{ nullptr }; //disable
+		ID3D10DepthStencilState*    g_depthStencilState{ nullptr };           //enable zbuffer enable stencil
+		ID3D10DepthStencilState*    g_stencilStateNoDepth{ nullptr };         //disable zbuffer enable ste
+		ID3D10DepthStencilState*    g_depthStateNoStencil{ nullptr };         //enable zbuffer disable stencil
+		ID3D10DepthStencilState*    g_stateNoDepthNoStencil{ nullptr };       //disable zbuffer disable stencilncil
 		// render state
 		ID3D10RasterizerState*    g_cullface_back{ nullptr };     //back
 		ID3D10RasterizerState*    g_cullface_front{ nullptr };	  //front
