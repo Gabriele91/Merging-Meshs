@@ -306,5 +306,8 @@
     <Text Include="shader\geometry\geometryShadow.vs.hlsl">
       <Filter>File di risorse\geometry</Filter>
     </Text>
+    <Text Include="shader\geometry\geometry_basic.fs.hlsl">
+      <Filter>File di risorse\geometry</Filter>
+    </Text>
   </ItemGroup>
 </Project>

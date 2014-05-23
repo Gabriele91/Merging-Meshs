@@ -75,7 +75,42 @@ static void glLikeBlendConfig(D3D10_BLEND_DESC& blendState, bool blend, GLenum s
 	blendState.BlendOpAlpha = D3D10_BLEND_OP_ADD;
 	blendState.RenderTargetWriteMask[0] = D3D10_COLOR_WRITE_ENABLE_ALL;
 }
+#if defined( DEBUG ) || defined( _DEBUG )
+#pragma comment(lib, "DXGI.lib")
+static void debugNvidiaDriver(IDXGIAdapter** selectedAdapter, D3D10_DRIVER_TYPE* driverType){
+	// Look for 'NVIDIA PerfHUD' adapter 
+	// If it is present, override default settings 
+	IDXGIFactory *pDXGIFactory;
+	ID3D10Device *pDevice;
+	HRESULT hRes;
+	hRes = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&pDXGIFactory);
+	// Search for a PerfHUD adapter. 
+	UINT nAdapter = 0;
+	IDXGIAdapter* adapter = NULL;
+	//default
+	(*selectedAdapter) = NULL;
+	(*driverType) = D3D10_DRIVER_TYPE_HARDWARE;
+	//search
+	while (pDXGIFactory->EnumAdapters(nAdapter, &adapter) != DXGI_ERROR_NOT_FOUND)
+	{
+		if (adapter){
+			DXGI_ADAPTER_DESC adaptDesc;
+			if (SUCCEEDED(adapter->GetDesc(&adaptDesc))){
+				const bool isPerfHUD = wcscmp(adaptDesc.Description, L"NVIDIA PerfHUD") == 0;
 
+				// Select the first adapter in normal circumstances or the PerfHUD one if it exists.
+				if (nAdapter == 0 || isPerfHUD)
+					(*selectedAdapter) = adapter;
+
+				if (isPerfHUD)
+					(*driverType) = D3D10_DRIVER_TYPE_REFERENCE;
+
+			}
+		}
+		++nAdapter;
+	}
+}
+#endif
 
 RenderDX::RenderDX() :contextInit(false){}
 RenderDX::~RenderDX()
@@ -109,6 +144,7 @@ void RenderDX::dxCreateBlend(bool blend, GLenum src, GLenum dst){
 }
 
 
+
 void RenderDX::__renderInit(){
 	//OPENGL
 	contextInit=true;
@@ -133,20 +169,24 @@ void RenderDX::__renderInit(){
 	scd.Windowed = TRUE;
 	scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
-	int createDeviceFlags=0;
+
+	IDXGIAdapter* selectedAdapter = NULL;
+	D3D10_DRIVER_TYPE driverType = D3D10_DRIVER_TYPE_HARDWARE;
+	int createDeviceFlags = 0;
 #if defined( DEBUG ) || defined( _DEBUG )
-	createDeviceFlags |= D3D10_CREATE_DEVICE_DEBUG;
+	debugNvidiaDriver(&selectedAdapter, &driverType);
+	if (!selectedAdapter) createDeviceFlags |= D3D10_CREATE_DEVICE_DEBUG;
 #endif
 	// create a device class and swap chain class using the information in the scd struct
-	DX_ASSERT_MSG
-		(D3D10CreateDeviceAndSwapChain(NULL,
-									D3D10_DRIVER_TYPE_HARDWARE,
-									NULL,
-									createDeviceFlags,
-									D3D10_SDK_VERSION,
-									&scd,
-									&d3dSwap,
-									&d3dDevice));
+	DX_ASSERT_MSG(D3D10CreateDeviceAndSwapChain(
+		          selectedAdapter,
+				  driverType,
+                  NULL,
+				  createDeviceFlags,
+				  D3D10_SDK_VERSION,
+				  &scd,
+				  &d3dSwap,
+				  &d3dDevice));
 	//////////////////////////////////////////////////////////////////////////////////////
 	// create a texture for the depth buffer
 	// Create a render target view
@@ -206,6 +246,12 @@ void RenderDX::__renderInit(){
 	wfdesc.FillMode = D3D10_FILL_SOLID;
 	wfdesc.CullMode = D3D10_CULL_BACK;
 	wfdesc.DepthClipEnable = true;
+	wfdesc.FrontCounterClockwise = true;
+	wfdesc.DepthBias = false;
+	wfdesc.DepthBiasClamp = 0;
+	wfdesc.SlopeScaledDepthBias = 0;
+	//wfdesc.MultisampleEnable = false;
+	//wfdesc.AntialiasedLineEnable = true;
 	DX_ASSERT_MSG(d3dDevice->CreateRasterizerState(&wfdesc, &g_cullface_back));
 	wfdesc.CullMode = D3D10_CULL_FRONT;
 	DX_ASSERT_MSG(d3dDevice->CreateRasterizerState(&wfdesc, &g_cullface_front));
@@ -363,20 +409,12 @@ Mat4 RenderDX::calculatesOrto(float left, float right, float bottom, float top, 
 }
 Mat4 RenderDX::calculatesProjection(float fovy, float aspect, float vnear, float vfar) const {
 	Mat4 projection;
-	projection.setPerspective(fovy, aspect, vnear, vfar);
-	projection[10] += 1;    // [-1 1] & [2fn]  -> [ 0 2]  & [2fn]
-	projection[10] *= 0.5;  // [ 0 2] & [2fn]  -> [ 0 1]  & [2fn] 
-	projection[10] -= 1;    // [ 0 1] & [2fn]  -> [-1 0]  & [2fn] 
-	projection[14] *= 0.5;  // [-1 0] & [2fn]  -> [-1 0]  & [fn]
+	projection.setPerspectiveRHDX(fovy, aspect, vnear, vfar);
 	return projection;
 }
 Mat4 RenderDX::calculatesProjection(float left, float right, float bottom, float top, float vnear, float vfar) const {
 	Mat4 projection;
-	projection.setPerspective(left,right,bottom,top, vnear, vfar);
-	projection[10] += 1;    // [-1 1] & [2fn]  -> [ 0 2]  & [2fn]
-	projection[10] *= 0.5;  // [ 0 2] & [2fn]  -> [ 0 1]  & [2fn] 
-	projection[10] -= 1;    // [ 0 1] & [2fn]  -> [-1 0]  & [2fn] 
-	projection[14] *= 0.5;  // [-1 0] & [2fn]  -> [-1 0]  & [fn]
+	projection.setPerspectiveRHDX(left,right,bottom,top, vnear, vfar);
 	return projection;
 }
 
@@ -700,7 +738,9 @@ public:
 	ID3D10SamplerState* sempler{ nullptr };
 	ID3D10ShaderResourceView* resourceView{ nullptr };
 
-	void createSemple(ID3D10Device* d3dDevice,D3D10_FILTER filter){
+	void createSemple(ID3D10Device* d3dDevice,
+					  D3D10_FILTER filter,
+					  D3D10_COMPARISON_FUNC compfun){
 		//input
 		D3D10_SAMPLER_DESC sampDesc;
 		ZeroMemory(&sampDesc, sizeof(sampDesc));
@@ -708,14 +748,27 @@ public:
 		sampDesc.AddressU = D3D10_TEXTURE_ADDRESS_WRAP;
 		sampDesc.AddressV = D3D10_TEXTURE_ADDRESS_WRAP;
 		sampDesc.AddressW = D3D10_TEXTURE_ADDRESS_WRAP;
-		sampDesc.ComparisonFunc = D3D10_COMPARISON_NEVER;
+		sampDesc.ComparisonFunc = compfun;
 		sampDesc.MinLOD = 0;
 		sampDesc.MaxLOD = D3D10_FLOAT32_MAX;
 		//create
-		d3dDevice->CreateSamplerState(&sampDesc, &sempler);
+		DX_ASSERT_MSG(d3dDevice->CreateSamplerState(&sampDesc, &sempler));
 		//D3D10_FILTER_MIN_MAG_MIP_LINEAR
 		//D3D10_FILTER_MIN_LINEAR_MAG_MIP_POINT
 
+	}
+
+	void createResourceView(ID3D10Device* d3dDevice, 
+							DXGI_FORMAT format,
+						    uint detailedMip=0,
+							uint mipLivel=1){
+		//create resource view
+		D3D10_SHADER_RESOURCE_VIEW_DESC srvDesc;
+		srvDesc.Format = format;
+		srvDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MostDetailedMip = detailedMip;
+		srvDesc.Texture2D.MipLevels = mipLivel;
+		DX_ASSERT_MSG(d3dDevice->CreateShaderResourceView(texture2D, &srvDesc, &resourceView));
 	}
 
 };
@@ -756,151 +809,225 @@ BaseTexture* RenderDX::sendTexture2D(size_t w, size_t h, void* byte, TextureType
 	sSubData.SysMemSlicePitch = (UINT)(w * h * bsize);
 	d3dDevice->CreateTexture2D(&textureDesc, &sSubData, &texture->texture2D);
 	//create semple
-	texture->createSemple(d3dDevice, D3D10_FILTER_MIN_MAG_MIP_LINEAR);
+	texture->createSemple(d3dDevice,
+						  D3D10_FILTER_MIN_MAG_MIP_LINEAR,
+						  D3D10_COMPARISON_NEVER);
 	//create resource view
-	D3D10_SHADER_RESOURCE_VIEW_DESC srvDesc;	
-	srvDesc.Format = textureDesc.Format;
-	srvDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MostDetailedMip = 0;
-	srvDesc.Texture2D.MipLevels = 1;
-
-	d3dDevice->CreateShaderResourceView(texture->texture2D, &srvDesc, &texture->resourceView);
+	texture->createResourceView(d3dDevice, textureDesc.Format);
 	//ptr to the texture
 	return texture;
 
 }
 
 class BaseRenderTexture : public BaseTexture{
+	
 
 public:
 
+	ID3D10Texture2D* texture2Ddepth{ nullptr };
 	ID3D10RenderTargetView* renderTargetView{ nullptr };
 	ID3D10DepthStencilView* depthStencilView{ nullptr };
 
+	void createRenderTargetView(ID3D10Device* d3dDevice, DXGI_FORMAT format, uint mipSlice=0){
+		D3D10_RENDER_TARGET_VIEW_DESC tvmDesc;
+		tvmDesc.Format = format;
+		tvmDesc.ViewDimension = D3D10_RTV_DIMENSION_TEXTURE2D;
+		tvmDesc.Texture2D.MipSlice = mipSlice;
+		DX_ASSERT_MSG(d3dDevice->CreateRenderTargetView(texture2D, &tvmDesc, &renderTargetView));
+	}
+	void createDepthStencilView(ID3D10Device* d3dDevice, DXGI_FORMAT format, uint mipSlice=0){
+		D3D10_DEPTH_STENCIL_VIEW_DESC dsvDesc;
+		dsvDesc.Format = format;
+		dsvDesc.ViewDimension = D3D10_DSV_DIMENSION_TEXTURE2D;
+		dsvDesc.Texture2D.MipSlice = mipSlice;
+		DX_ASSERT_MSG(d3dDevice->CreateDepthStencilView(texture2D, &dsvDesc, &depthStencilView));
+	}
+	void createRenderTexture(ID3D10Device* d3dDevice, 
+							 uint width,
+							 uint height,
+							 uint mipLevels,
+							 DXGI_FORMAT format, 
+							 uint bindFlags){
+		D3D10_TEXTURE2D_DESC textureDesc;
+		textureDesc.Width = width;
+		textureDesc.Height = height;
+		textureDesc.MipLevels = mipLevels;
+		textureDesc.ArraySize = 1;
+		textureDesc.Format = format;
+		textureDesc.SampleDesc.Count = 1;
+		textureDesc.SampleDesc.Quality = 0;
+		textureDesc.Usage = D3D10_USAGE_DEFAULT;
+		textureDesc.BindFlags = bindFlags;
+		textureDesc.CPUAccessFlags = 0;
+		textureDesc.MiscFlags = 0;
+		DX_ASSERT_MSG(d3dDevice->CreateTexture2D(&textureDesc, NULL, &texture2D));
+	}
+
+	void addDepthStencil32Bit(ID3D10Device* d3dDevice,
+							  uint width,
+							  uint height){
+		// Create depth stencil texture
+		D3D10_TEXTURE2D_DESC descDepth;
+		descDepth.Width = width;
+		descDepth.Height = height;
+		descDepth.MipLevels = 1;
+		descDepth.ArraySize = 1;
+		descDepth.Format = DXGI_FORMAT_D32_FLOAT;
+		descDepth.SampleDesc.Count = 1;
+		descDepth.SampleDesc.Quality = 0;
+		descDepth.Usage = D3D10_USAGE_DEFAULT;
+		descDepth.BindFlags = D3D10_BIND_DEPTH_STENCIL;
+		descDepth.CPUAccessFlags = 0;
+		descDepth.MiscFlags = 0;
+		DX_ASSERT_MSG(d3dDevice->CreateTexture2D(&descDepth, NULL, &texture2Ddepth));
+		// Create the depth stencil view
+		D3D10_DEPTH_STENCIL_VIEW_DESC descDSV;
+		descDSV.Format = descDepth.Format;
+		descDSV.ViewDimension = D3D10_DSV_DIMENSION_TEXTURE2D;
+		descDSV.Texture2D.MipSlice = 0;
+		DX_ASSERT_MSG(d3dDevice->CreateDepthStencilView(texture2Ddepth, &descDSV, &depthStencilView));
+	}
 };
 
 BaseRenderTexture* RenderDX::createRenderTexture(size_t w, 
 	                                             size_t h, 
 												 size_t zbuffer, 
 												 RenderTextureType type){
+	#define SHADOW_COLOR
 
 	DXGI_FORMAT dxTextureType = DXGI_FORMAT_R8G8B8A8_UNORM;
-	DXGI_FORMAT targetType = DXGI_FORMAT_R8G8B8A8_UNORM;
-	DXGI_FORMAT svrType = DXGI_FORMAT_R8G8B8A8_UNORM;
+	DXGI_FORMAT targetType    = DXGI_FORMAT_R8G8B8A8_UNORM;
+	DXGI_FORMAT resViewType   = DXGI_FORMAT_R8G8B8A8_UNORM;
+	D3D10_COMPARISON_FUNC cmpfunction = D3D10_COMPARISON_NEVER;
 	uint bindFlags = D3D10_BIND_SHADER_RESOURCE;
 
-	
 	switch (type){
 	case RD_RGBA:
+		//texture
 		dxTextureType = DXGI_FORMAT_R8G8B8A8_UNORM;
+		cmpfunction = D3D10_COMPARISON_NEVER;
+		bindFlags = D3D10_BIND_RENDER_TARGET | D3D10_BIND_SHADER_RESOURCE;
+		//Sheder Resource View
+		resViewType = DXGI_FORMAT_R8G8B8A8_UNORM;
+		//RenderTarget
 	    targetType = DXGI_FORMAT_R8G8B8A8_UNORM;
-		svrType = DXGI_FORMAT_R8G8B8A8_UNORM;
-		bindFlags |= D3D10_BIND_RENDER_TARGET;
 	break;
 	case RD_SHADOW:
-		dxTextureType = DXGI_FORMAT_R32_TYPELESS;
-		targetType = DXGI_FORMAT_D32_FLOAT;
-		svrType = DXGI_FORMAT_R32_FLOAT;
-		bindFlags |= D3D10_BIND_DEPTH_STENCIL;
+	#ifdef SHADOW_COLOR
+			//texture
+			dxTextureType = DXGI_FORMAT_R32G32B32A32_FLOAT;
+			cmpfunction = D3D10_COMPARISON_NEVER;
+			bindFlags = D3D10_BIND_RENDER_TARGET | D3D10_BIND_SHADER_RESOURCE;
+			//Sheder Resource View
+			resViewType = DXGI_FORMAT_R32G32B32A32_FLOAT;
+			//RenderTarget
+			targetType = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	#else
+			//texture
+			dxTextureType = DXGI_FORMAT_R32_TYPELESS;
+			cmpfunction = D3D10_COMPARISON_LESS;
+			bindFlags = D3D10_BIND_DEPTH_STENCIL | D3D10_BIND_SHADER_RESOURCE;
+			//Sheder Resource View
+			resViewType = DXGI_FORMAT_R32_FLOAT;
+			//Depth Stencil View
+			targetType = DXGI_FORMAT_D32_FLOAT;
+	#endif
 	break;
 	default:      break;
 	}
 
 	//texture ptr
 	BaseRenderTexture* texture = new BaseRenderTexture();
-
 	//create texture
-	D3D10_TEXTURE2D_DESC textureDesc;
-	textureDesc.Width = w;
-	textureDesc.Height = h;
-	textureDesc.MipLevels = 1;
-	textureDesc.ArraySize = 1;
-	textureDesc.Format = dxTextureType;
-	textureDesc.SampleDesc.Count = 1;
-	textureDesc.SampleDesc.Quality = 0;
-	textureDesc.Usage = D3D10_USAGE_DEFAULT;
-	textureDesc.BindFlags = bindFlags;
-	textureDesc.CPUAccessFlags = 0;
-	textureDesc.MiscFlags = 0;
-
-	d3dDevice->CreateTexture2D(&textureDesc, NULL, &texture->texture2D);
+	texture->createRenderTexture(d3dDevice, w, h, 1, dxTextureType, bindFlags);
 	//no linear
-	texture->createSemple(d3dDevice, D3D10_FILTER_MIN_LINEAR_MAG_MIP_POINT);
+	texture->createSemple(d3dDevice, D3D10_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT, cmpfunction);
+	//create resource view
+	texture->createResourceView(d3dDevice, resViewType, 0, 1);
 	// Create the render target view/ depth stecil.
 	switch (type){
-	case RD_RGBA:
-		{
-			D3D10_RENDER_TARGET_VIEW_DESC tvmDesc;
-			tvmDesc.Format = targetType;
-			tvmDesc.ViewDimension = D3D10_RTV_DIMENSION_TEXTURE2D;
-			tvmDesc.Texture2D.MipSlice = 0;
-			d3dDevice->CreateRenderTargetView(texture->texture2D, &tvmDesc, &texture->renderTargetView); 
-		}
+		case RD_RGBA: 
+			texture->createRenderTargetView(d3dDevice, targetType);
+			texture->addDepthStencil32Bit(d3dDevice, w, h);
 		break;
-	case RD_SHADOW:
-		{
-			D3D10_DEPTH_STENCIL_VIEW_DESC dsvDesc;
-			dsvDesc.Format = targetType;
-			dsvDesc.ViewDimension = D3D10_DSV_DIMENSION_TEXTURE2D;
-			dsvDesc.Texture2D.MipSlice = 0;
-			d3dDevice->CreateDepthStencilView(texture->texture2D, &dsvDesc, &texture->depthStencilView);
-	    }
+		case RD_SHADOW:
+		#ifdef SHADOW_COLOR
+			texture->createRenderTargetView(d3dDevice, targetType);
+			texture->addDepthStencil32Bit(d3dDevice, w, h);
+		#else
+			texture->createDepthStencilView(d3dDevice, targetType);
+		#endif
 		break;
-	default:      break;
+		default: break;
 	}
 
-	//create resource view
-	D3D10_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	srvDesc.Format = svrType;
-	srvDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = textureDesc.MipLevels;;
-	srvDesc.Texture2D.MostDetailedMip = 0;
-	d3dDevice->CreateShaderResourceView(texture->texture2D, &srvDesc, &texture->resourceView);
-
-
+	/*
+	dxTextureType = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	resViewType = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	targetType = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	cmpfunction = D3D10_COMPARISON_NEVER;
+	bindFlags |= D3D10_BIND_RENDER_TARGET;
+	texture->createRenderTargetView(d3dDevice, targetType);
+	texture->addDepthStencil32Bit(d3dDevice, w, h);*/
 	//ptr to the texture
 	return texture;
 
 }
 
-void RenderDX::uniformVSTexture(uint n, BaseTexture* texture){
-	d3dDevice->VSSetShaderResources(n, 1, &texture->resourceView);
-	d3dDevice->VSSetSamplers(n, 1, &texture->sempler);
+
+void RenderDX::enableVSTexture(uint t, uint s, BaseTexture* texture){
+	d3dDevice->VSSetShaderResources(t, 1, &texture->resourceView);
+	d3dDevice->VSSetSamplers(s, 1, &texture->sempler);
 }
-void RenderDX::uniformPSTexture(uint n, BaseTexture* texture){
-	d3dDevice->PSSetShaderResources(n, 1, &texture->resourceView);
-	d3dDevice->PSSetSamplers(n, 1, &texture->sempler);
+void RenderDX::enablePSTexture(uint t, uint s, BaseTexture* texture){
+	d3dDevice->PSSetShaderResources(t, 1, &texture->resourceView);
+	d3dDevice->PSSetSamplers(s, 1, &texture->sempler);
 }
 
-void RenderDX::uniformVSTexture(uint n, BaseRenderTexture* texture){
-	d3dDevice->VSSetShaderResources(n, 1, &texture->resourceView);
-	d3dDevice->VSSetSamplers(n, 1, &texture->sempler);
+void RenderDX::enableVSTexture(uint t, uint s, BaseRenderTexture* texture){
+	d3dDevice->PSSetShaderResources(t, 1, &texture->resourceView);
+	d3dDevice->PSSetSamplers(s, 1, &texture->sempler);
 }
-void RenderDX::uniformPSTexture(uint n, BaseRenderTexture* texture){
-	d3dDevice->PSSetShaderResources(n, 1, &texture->resourceView);
-	d3dDevice->PSSetSamplers(n, 1, &texture->sempler);
+void RenderDX::enablePSTexture(uint t, uint s, BaseRenderTexture* texture){
+	d3dDevice->PSSetShaderResources(t, 1, &texture->resourceView);
+	d3dDevice->PSSetSamplers(s, 1, &texture->sempler);
 }
-
+void RenderDX::disableVSTexture(uint t, uint s){
+	ID3D10SamplerState* sS = NULL;
+	ID3D10ShaderResourceView* srV = NULL;
+	d3dDevice->VSSetShaderResources(t, 1, &srV);
+	d3dDevice->VSSetSamplers(s, 1, &sS);
+}
+void RenderDX::disablePSTexture(uint t, uint s){
+	ID3D10SamplerState* sS = NULL;
+	ID3D10ShaderResourceView* srV = NULL;
+	d3dDevice->PSSetShaderResources(t, 1, &srV);
+	d3dDevice->PSSetSamplers(s, 1, &sS);
+}
 
 void RenderDX::deleteTexture(BaseTexture* texture){
+	releaseDX(texture->sempler)
 	releaseDX(texture->resourceView)
 	releaseDX(texture->texture2D)
 	delete texture;
 }
 void RenderDX::deleteTexture(BaseRenderTexture* texture){
+	releaseDX(texture->sempler)
 	releaseDX(texture->renderTargetView)
+	releaseDX(texture->depthStencilView)
 	releaseDX(texture->resourceView)
 	releaseDX(texture->texture2D)
+	releaseDX(texture->texture2Ddepth)
 	delete texture;
 }
 
 void RenderDX::beginRenderToTexture(BaseRenderTexture* texture){
-	//set texture
-	if (texture->renderTargetView)
-		//color
+
+	if (texture->renderTargetView && texture->depthStencilView)
+		setRenderTargets(texture->renderTargetView, texture->depthStencilView);
+	else if (texture->renderTargetView)
 		setRenderTargets(texture->renderTargetView, g_pDepthStencilView);
 	else
-		//zbuffer
 		setRenderTargets(0, texture->depthStencilView);
 }
 void RenderDX::endRenderToTexture(BaseRenderTexture*){

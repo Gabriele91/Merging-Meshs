@@ -196,11 +196,17 @@ namespace Easy3D{
 		virtual ~UniformGLMat4(){}
 	};
 
-	class UniformGLTexture : public Uniform < UniformGLTexture > {
+	class UniformGLTexture : public CTexture {
+		long unformID{-1};
 		GLuint id{ 0 };
 		ShaderGL* shader{ nullptr };
+
 	public:
 		UniformGLTexture(GLuint id, ShaderGL* shader) : id(id), shader(shader){}
+		virtual void disable(){
+			getRender().disableTexture((uint)unformID);
+			unformID = -1;
+		}
 		virtual void  set(const void* value, size_t s, size_t n){
 			//next
 			++shader->ntexture;
@@ -208,7 +214,8 @@ namespace Easy3D{
 			if (n == 0) getRender().enableTexture((BaseTexture*)value, shader->ntexture);
 			else        getRender().enableTexture((BaseRenderTexture*)value, shader->ntexture);
 			//uniform
-			glUniform1i(id, shader->ntexture);
+			unformID = shader->ntexture;
+			glUniform1i(id, unformID);
 		}
 		virtual void  set(const void* value) {
 			//void
@@ -273,8 +280,7 @@ namespace Easy3D{
 
 	void ShaderGL::uniform(){
 		//disable all texture
-		for (long nt = 0; nt <= ntexture; ++ntexture)
-			getRender().disableTexture((uint)nt);
+		//for (long nt = 0; nt <= ntexture; ++ntexture) //getRender().disableTexture((uint)nt);
 		//restart texture uniform
 		ntexture = -1;
 	}

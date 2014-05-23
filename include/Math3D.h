@@ -802,8 +802,10 @@ namespace Easy3D{
 		///set orthogonal transformation (projection matrix)
 		void setOrtho(float left, float right, float bottom,float top, float n, float f);
 		///set projection transformation (projection matrix)
-		void setPerspective(float left, float right, float bottom,float top, float n, float f);
-		void setPerspective(float fovy, float aspect, float n, float f);
+		void setPerspectiveRHGL(float left, float right, float bottom, float top, float n, float f);
+		void setPerspectiveRHDX(float left, float right, float bottom, float top, float n, float f);
+		void setPerspectiveRHGL(float fovy, float aspect, float n, float f);
+		void setPerspectiveRHDX(float fovy, float aspect, float n, float f);
 		//operators:
 		DFORCEINLINE float& operator[](int i) { return entries[i]; }
 		DFORCEINLINE float& operator()(int x,int y) { return entries[x+(y*4)]; }

@@ -23,41 +23,21 @@ namespace Easy3D{
 
 	class CTexture : public Uniform<CTexture> {
 		public:
-			CTexture(BaseTexture* tex){
-				setValue(tex);
-			}
-			CTexture(BaseRenderTexture* tex){
-				setValue(tex);
-			}
+			CTexture(){}
 
-			operator BaseTexture*() const{
-				return (BaseTexture*)(this->get());
-			}
-			operator BaseRenderTexture*() const{
-				return (BaseRenderTexture*)(this->get());
-			}
-
-			void setValue(BaseTexture* tex){
+			void enable(BaseTexture* tex){
 				this->set(tex, (size_t)0, (size_t)0);
 			}
-			void setValue(BaseRenderTexture* tex){
+			void enable(BaseRenderTexture* tex){
 				this->set(tex, (size_t)0, (size_t)1);
 			}
-
-			BaseTexture* operator = (BaseTexture* tex){
-				setValue(tex);
-				return tex;
-			}
-			BaseRenderTexture* operator = (BaseRenderTexture* tex){
-				setValue(tex);
-				return tex;
-			}
+			virtual void disable()=0;
 
 			operator const BaseTexture*() const{
-				return (BaseTexture*)(this->get());
+				return (const BaseTexture*)(this->get());
 			}
 			operator const BaseRenderTexture*() const{
-				return (BaseRenderTexture*)(this->get());
+				return (const BaseRenderTexture*)(this->get());
 			}
 	};
 

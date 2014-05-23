@@ -1351,9 +1351,9 @@ void Matrix4x4::setOrtho(float left, float right, float bottom,float top, float 
  Right (RL, OpenGL)
  */
 #define DEPTH_RANGE_OPENGL //-1 & 1
-void Matrix4x4::setPerspective(float l, float r,
-							   float b,float t,
-							   float n, float f){
+void Matrix4x4::setPerspectiveRHGL(float l, float r,
+								   float b,float t,
+								   float n, float f){
     
     //http://www.manpagez.com/man/3/glFrustum/
     identity();
@@ -1363,72 +1363,97 @@ void Matrix4x4::setPerspective(float l, float r,
     //colum 2
     entries[5]  = 2 * n / (t - b);
     entries[9]  = (t + b) / (t - b);
-
-#ifdef DEPTH_RANGE_OPENGL
     //colum 3 [-1 & 1]
 	entries[10] = -(f + n) / (f - n);
 	entries[14] = -(2 * f * n) / (f - n);
-#else
 	//colum 3 [0 & 1]
 	entries[10] = -(f) / (f - n);
 	entries[14] = -(f * n) / (f - n);
-#endif
-
     //colum 4
     entries[11] = -1;
     entries[15] =  0;
      
 }
-/*
- Right (RL, OpenGL)
- */
-void Matrix4x4::setPerspective(float fov, float fRealAspect, float fNear, float fFar){
-    
-    //from:https://code.google.com/p/oolongengine/source/browse/trunk/Oolong%20Engine2/Math/Matrix.cpp
-    float f, n;
-    
-    f = 1.0f / (float)std::tan(fov * 0.5f);
+void Matrix4x4::setPerspectiveRHDX(float l, float r, float b, float t, float n, float f){
 
-#ifdef DEPTH_RANGE_OPENGL
-	n = 1.0f / (fNear - fFar);
-#else
-	n = 1.0f / (fFar - fNear);
-#endif
-    
-    entries[ 0] = f / fRealAspect;
-    entries[ 1] = 0;
-    entries[ 2] = 0;
-    entries[ 3] = 0;
-    
-    entries[ 4] = 0;
-    entries[ 5] = f;
-    entries[ 6] = 0;
-    entries[ 7] = 0;
-	
-#ifdef DEPTH_RANGE_OPENGL
-	//range [-1 & 1]
-	entries[ 8] = 0;
-	entries[ 9] = 0;
-	entries[10] = (fFar+fNear) * n;
+	//http://www.manpagez.com/man/3/glFrustum/
+	identity();
+	//colum 1
+	entries[0] = 2 * n / (r - l);
+	entries[8] = (r + l) / (r - l);
+	//colum 2
+	entries[5] = 2 * n / (t - b);
+	entries[9] = (t + b) / (t - b);
+	//colum 3 [0 & 1]
+	entries[10] = -(f) / (f - n);
+	entries[14] = -(f * n) / (f - n);
+	//colum 4
 	entries[11] = -1;
-
-	entries[12] = 0;
-	entries[13] = 0;
-	entries[14] = (2*fFar * fNear) * n;
 	entries[15] = 0;
-#else
-	//range[0 & 1]
+
+}
+/*
+Perspective RH
+*/
+void Matrix4x4::setPerspectiveRHGL(float fov, float fRealAspect, float fNear, float fFar){
+
+	//from:https://code.google.com/p/oolongengine/source/browse/trunk/Oolong%20Engine2/Math/Matrix.cpp
+	float f, n;
+
+	f = 1.0f / (float)std::tan(fov * 0.5f);
+
+	n = 1.0f / (fNear - fFar);
+
+	entries[0] = f / fRealAspect;
+	entries[1] = 0;
+	entries[2] = 0;
+	entries[3] = 0;
+
+	entries[4] = 0;
+	entries[5] = f;
+	entries[6] = 0;
+	entries[7] = 0;
+
+	//range [-1 & 1]
 	entries[8] = 0;
 	entries[9] = 0;
-	entries[10] = -fFar * n;
+	entries[10] = (fFar + fNear) * n;
 	entries[11] = -1;
 
 	entries[12] = 0;
 	entries[13] = 0;
-	entries[14] = -(fFar * fNear) * n;
+	entries[14] = (2 * fFar * fNear) * n;
 	entries[15] = 0;
-#endif
-    
+
+}
+void Matrix4x4::setPerspectiveRHDX(float fov, float fRealAspect, float fNear, float fFar){
+
+	//from:http://msdn.microsoft.com/en-us/library/windows/desktop/bb205351(v=vs.85).aspx
+	float yScale = 1.0f / (float)std::tan(fov * 0.5f); //ctan
+	float xScale = yScale / fRealAspect;
+	float diV = 1.0f / (fNear - fFar);
+
+	entries[0] = xScale;
+	entries[1] = 0;
+	entries[2] = 0;
+	entries[3] = 0;
+
+	entries[4] = 0;
+	entries[5] = yScale;
+	entries[6] = 0;
+	entries[7] = 0;
+
+	//range [-1 & 1]
+	entries[8] = 0;
+	entries[9] = 0;
+	entries[10] = fFar * diV;
+	entries[11] = -1;
+
+	entries[12] = 0;
+	entries[13] = 0;
+	entries[14] = fNear * fFar *diV;
+	entries[15] = 0;
+
 }
 
 String Matrix4x4::toString(const String& start,const String& sep,const String& sepline,const String& end) const{

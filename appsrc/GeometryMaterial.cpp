@@ -58,7 +58,7 @@ void GeometryMaterial::initColor(){
 						    rpath + "/shader/geometry/geometry.fs.hlsl");
 		lightDir = colorSH->getConstVec3("ps.light")->shared();
 		lightDiffuse = colorSH->getConstVec4("ps.diffuse")->shared();
-		colorTEX = colorSH->getConstTexture("ps.shadowMap")->shared();
+		colorTEX = colorSH->getConstTexture("ps.shadowMap:sampleShadow")->shared();
 	}
 	//camera 
 	colorP = colorSH->getConstMat4("projection")->shared();
@@ -101,7 +101,6 @@ void GeometryMaterial::drawShadow(const Mesh& m){
 	Render& r = *Application::instance()->getRender();
 	//CREATE A SHADOW MAP
 	r.beginRenderToTexture(shadowMap);
-
 	r.setViewportState(shadowCam.getViewport());
 	r.doClear();
 
@@ -113,8 +112,9 @@ void GeometryMaterial::drawShadow(const Mesh& m){
 
 	m.draw(shadowIL);
 
+	r.unbindShader();	
+
 	r.endRenderToTexture(shadowMap);
-	r.unbindShader();
 }
 
 void GeometryMaterial::drawColor(const Mesh& m){
@@ -122,13 +122,12 @@ void GeometryMaterial::drawColor(const Mesh& m){
 	Render& r = *Application::instance()->getRender();
 	//DRAW MESH
 	r.setViewportState(ctxViewport);
-
 	r.bindShader(colorSH);
-	//shadow map
-	colorTEX->setValue(shadowMap);
 	//shadow camera
 	colorSWP->setValue(shadowCam.getProjectionMatrix());
 	colorSWV->setValue(shadowCam.getViewMatrix());
+	//shadow map
+	colorTEX->enable(shadowMap);
 	//camera coords
 	colorP->setValue(camera->getProjectionMatrix());
 	colorV->setValue(camera->getViewMatrix());
@@ -139,6 +138,8 @@ void GeometryMaterial::drawColor(const Mesh& m){
 	lightDiffuse->setValue(ldiffuse);
 	//draw
 	m.draw(colorIL);
+	//disable shadow map
+	colorTEX->disable();
 	//end draw
 	r.unbindShader();
 }

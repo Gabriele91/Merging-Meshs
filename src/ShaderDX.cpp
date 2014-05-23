@@ -115,6 +115,7 @@ namespace Easy3D{
 	DFORCEINLINE static void getResources(ID3D10Device *d3dDevice,
 										  const String& prefix,
 										  DUNORDERED_MAP <String, size_t>& mapResource,
+										  DUNORDERED_MAP <String, size_t>& mapSampler,
 										  ID3D10Blob* pCode){
 		HRESULT hr;
 		ID3D10ShaderReflection* pReflection = NULL;
@@ -141,7 +142,7 @@ namespace Easy3D{
 				mapResource[prefix + '.' + resourceDesc.Name] = resourceDesc.BindPoint;
 			}
 			else if (resourceDesc.Type == D3D10_SIT_SAMPLER){
-				//void
+				mapSampler[resourceDesc.Name] = resourceDesc.BindPoint;
 			}
 		}
 	}
@@ -210,7 +211,7 @@ namespace Easy3D{
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		DX_ASSERT_MSG(render->d3dDevice->CreateVertexShader((DWORD*)vShaderBinary->GetBufferPointer(), vShaderBinary->GetBufferSize(), &vShader));
 		getContants(render->d3dDevice, "vs", vVariablesRef, vShaderBinary, &vConstantBuffer10, vSizeConstantBuffer);
-		getResources(render->d3dDevice, "vs", vResourcesRef, vShaderBinary);
+		getResources(render->d3dDevice, "vs", vResourcesRef, vSamplerRef, vShaderBinary);
 		if (vSizeConstantBuffer)
 			vBufferCpu.resize(vSizeConstantBuffer);
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -229,7 +230,7 @@ namespace Easy3D{
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		DX_ASSERT_MSG(render->d3dDevice->CreatePixelShader((DWORD*)pShaderBinary->GetBufferPointer(), pShaderBinary->GetBufferSize(), &pShader));
 		getContants(render->d3dDevice, "ps", pVariablesRef, pShaderBinary, &pConstantBuffer10, pSizeConstantBuffer);
-		getResources(render->d3dDevice, "ps", pResourcesRef, pShaderBinary);
+		getResources(render->d3dDevice, "ps", pResourcesRef, vSamplerRef, pShaderBinary);
 		if (pSizeConstantBuffer)
 			pBufferCpu.resize(pSizeConstantBuffer);
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -311,50 +312,56 @@ namespace Easy3D{
 		}
 	};
 
-	class UniformVSTexture : public Uniform < UniformTexture > {
+	class UniformVSTexture : public CTexture {
 
 		ShaderDX* shader{ nullptr };
 		uint idtexture{ 0 };
+		uint idsampler{ 0 };
 
 	public:
 
-		UniformVSTexture(ShaderDX* shader, uint idtexture)
+		UniformVSTexture(ShaderDX* shader, uint idtexture, uint idsampler)
 			:shader(shader)
-			,idtexture(idtexture){}
+			, idtexture(idtexture)
+			, idsampler(idsampler){}
 
+		virtual void disable(){
+			getRender().disableVSTexture(idtexture, idsampler);
+		}
 		virtual void  set(const void* value, size_t s, size_t n){
-			if (n == 0) getRender().uniformVSTexture(idtexture, (BaseTexture*)value);
-			else  getRender().uniformVSTexture(idtexture, (BaseRenderTexture*)value);
+			if (n == 0) getRender().enableVSTexture(idtexture, idsampler, (BaseTexture*)value);
+			else  getRender().enableVSTexture(idtexture, idsampler, (BaseRenderTexture*)value);
 		}
 		virtual void  set(const void* value) { /* void */ }
 		virtual void* get(){ return NULL; }
 		virtual const void* get() const { return NULL; }
 		virtual ~UniformVSTexture(){}
-
-
 	};
-	class UniformPSTexture : public Uniform < UniformTexture > {
+
+	class UniformPSTexture : public CTexture {
 
 		ShaderDX* shader{ nullptr };
 		uint idtexture{ 0 };
+		uint idsampler{ 0 };
 
 	public:
 
-		UniformPSTexture(ShaderDX* shader, uint idtexture)
+		UniformPSTexture(ShaderDX* shader, uint idtexture, uint idsampler)
 			:shader(shader)
-			, idtexture(idtexture){}
+			, idtexture(idtexture)
+			, idsampler(idsampler){}
 
+		virtual void disable(){
+			getRender().disablePSTexture(idtexture, idsampler);
+		}
 		virtual void  set(const void* value, size_t s, size_t n){
-			if (n == 0) getRender().uniformPSTexture(idtexture, (BaseTexture*)value);
-			else getRender().uniformPSTexture(idtexture, (BaseRenderTexture*)value);
+			if (n == 0) getRender().enablePSTexture(idtexture, idsampler, (BaseTexture*)value);
+			else  getRender().enablePSTexture(idtexture, idsampler, (BaseRenderTexture*)value);
 		}
 		virtual void  set(const void* value) { /* void */ }
 		virtual void* get(){ return NULL; }
 		virtual const void* get() const { return NULL; }
 		virtual ~UniformPSTexture(){}
-
-
-
 	};
 
 #define uniformMethod(name,type, bsize,ctype)\
@@ -387,17 +394,21 @@ namespace Easy3D{
 
 
 
-CTexture* ShaderDX::getConstTexture(const char *name){
-	if (name[0] && name[1] && '.' == name[2]){
-			if ('v' == *name)
-				return (CTexture*)new UniformVSTexture(this, vVariablesRef[name]); 
-			else if ('p' == *name)
-				return (CTexture*)new UniformPSTexture(this, pVariablesRef[name]); 
+CTexture* ShaderDX::getConstTexture(const char *argName){
+	
+	String sname(argName);
+	auto names=sname.split(':');
+
+	if (names[0][0] && names[1] && '.' == names[0][2]){
+			if ('v' == names[0][0])
+				return (CTexture*)new UniformVSTexture(this, vResourcesRef[names[0]], vSamplerRef[names[1]]);
+			else if ('p' == names[0][0])
+				return (CTexture*)new UniformPSTexture(this, pResourcesRef[names[0]], pSamplerRef[names[1]]);
 			else
 				return nullptr; 
 	}
 	else{
-		return (CTexture*)new UniformVSTexture(this, vVariablesRef[String("vs.")+ name]);
+		return (CTexture*)new UniformVSTexture(this, vVariablesRef[String("vs.") + names[0]], vSamplerRef[names[1]]);
 	}
 }
 	

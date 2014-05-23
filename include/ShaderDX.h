@@ -76,10 +76,12 @@ namespace Easy3D{
 		//cpu info
 		DUNORDERED_MAP <String, size_t> vVariablesRef;
 		DUNORDERED_MAP <String, size_t> vResourcesRef;
+		DUNORDERED_MAP <String, size_t> vSamplerRef;
 		DUNORDERED_MAP <String, size_t> pVariablesRef;
 		DUNORDERED_MAP <String, size_t> pResourcesRef;
+		DUNORDERED_MAP <String, size_t> pSamplerRef;
 		std::vector<uchar> vBufferCpu;
-		std::vector<uchar> pBufferCpu;
+		std::vector<uchar> pBufferCpu; 
 
 
 	};

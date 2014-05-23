@@ -35,21 +35,24 @@ void main(){
     float intensity=max(dot(outNormal, lightDirection), 0.0);
     //shadow
     float visibility = 1.0;
-    
-    for (int i=0;i<16;i++){
-        if( outShadow.w > 0.0) {
-            //get shadow value
-            vec3  sCoors= vec3(outShadow.xy + poissonDisk[i]/102.4 ,outShadow.z-zBias) / outShadow.w;
-            float sDepth = texture(shadowMap, sCoors );       
-            //zbuffer
-            float depth = outShadow.z / outShadow.w;
-            //is it a pixel shadows?
-            if(sDepth < depth) {
-              //shadow color
-              visibility -= 0.022; 
-            }
-        }
-    }
+	const float sizetexture = 1.0f / 102.4f;
+
+	for (int i=0;i<16;i++){
+		if( outShadow.w > 0.0) {
+			//get shadow value
+			vec2 coord = outShadow.xy + poissonDisk[i] * sizetexture;
+			vec3  sCoors= vec3( coord ,outShadow.z-zBias) / outShadow.w;
+			float sDepth = texture(shadowMap, sCoors );       
+			//zbuffer
+			float depth = outShadow.z / outShadow.w;
+			//is it a pixel shadows?
+			if(sDepth < depth) {
+				//shadow color
+				visibility -= 0.022; 
+			}
+		}
+	}
+	
     //ouput
     oColor =  diffuse*intensity*visibility;
 }

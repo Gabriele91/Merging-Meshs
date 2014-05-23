@@ -98,10 +98,13 @@ namespace Easy3D {
 		virtual BaseTexture* sendTexture2D(size_t w, size_t h, void* byte, TextureType type);
 		virtual BaseRenderTexture* createRenderTexture(size_t w, size_t h, size_t zbuffer, RenderTextureType type);
 
-		void uniformVSTexture(uint n, BaseTexture*);
-		void uniformVSTexture(uint n, BaseRenderTexture*);
-		void uniformPSTexture(uint n, BaseTexture*);
-		void uniformPSTexture(uint n, BaseRenderTexture*);
+		void enableVSTexture(uint t, uint s, BaseTexture*);
+		void enableVSTexture(uint t, uint s, BaseRenderTexture*);
+		void enablePSTexture(uint t, uint s, BaseTexture*);
+		void enablePSTexture(uint t, uint s, BaseRenderTexture*);
+
+		void disableVSTexture(uint t, uint s);
+		void disablePSTexture(uint t, uint s);
 
 		virtual void deleteTexture(BaseTexture*);
 		virtual void deleteTexture(BaseRenderTexture*);

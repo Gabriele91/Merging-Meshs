@@ -27,7 +27,8 @@ cbuffer C_UNIFORMS
 VS_OUTPUT main( CPU_INPUT input )
 {
 	VS_OUTPUT output;
-	output.position = mul( projection, mul( view, mul( model, float4(input.position, 1.0))));
+	output.position = mul(mul(projection, view),
+						  mul(model, float4(input.position, 1.0)));
 	return output;
 }
 
