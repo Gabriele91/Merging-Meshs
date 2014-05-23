@@ -8,6 +8,7 @@
 #include "Camera.h"
 #include "Mesh.h"
 #include "Geometry.h"
+#include "Trackball.h"
 
 namespace Easy3D{
 
@@ -45,6 +46,7 @@ namespace Easy3D{
 		void draw();
 		//set & get
 		void setMesh(Mesh& obj);
+		void setTrackball(Trackball& obj);
 		void setViewport(const ViewportState& viewport);
 		void setZoomVelocity(float zvelocity);
 		void setZDistance(float zdistance);
@@ -56,6 +58,8 @@ namespace Easy3D{
 		Object   protation;
 		Geometry geometry;
 		Camera	 camera;
+		Trackball *trackball;
+
 		//zoom
 		float scaleZoom{ 1.0 };
 		float velocity{ 1.0 };

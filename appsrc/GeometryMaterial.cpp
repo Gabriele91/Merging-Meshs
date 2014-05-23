@@ -85,16 +85,6 @@ void GeometryMaterial::init(){
 int  GeometryMaterial::id(){
 	return 1;
 };
-void GeometryMaterial::bind(){
-	Render& r = *Application::instance()->getRender();
-	//save context
-	ctxCFaces   =r.getCullFaceState();
-	ctxBlend    =r.getBlendState();
-	ctxViewport =r.getViewportState();
-	//bind
-	r.setCullFaceState(CullFace::DISABLE);
-	r.setBlendState({ BLEND::ONE, BLEND::ZERO });
-}
 
 void GeometryMaterial::drawShadow(const Mesh& m){
 	//get render
@@ -146,14 +136,20 @@ void GeometryMaterial::drawColor(const Mesh& m){
 
 
 void GeometryMaterial::draw(const Mesh& m) {
+	//bind 
+	Render& r = *Application::instance()->getRender();
+	//save context
+	ctxCFaces = r.getCullFaceState();
+	ctxBlend = r.getBlendState();
+	ctxViewport = r.getViewportState();
+	//bind
+	r.setCullFaceState(CullFace::DISABLE);
+	r.setBlendState({ BLEND::ONE, BLEND::ZERO });
 	//build shadow
 	drawShadow(m);
 	//draw model
 	drawColor(m);
-}
-void GeometryMaterial::unbind(){
-	Render& r = *Application::instance()->getRender();
-	//reset context
+	//unbind
 	r.setBlendState(ctxBlend);
 	r.setCullFaceState(ctxCFaces);
 	r.setViewportState(ctxViewport);

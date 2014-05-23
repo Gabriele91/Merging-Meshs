@@ -51,13 +51,8 @@ Trackball::~Trackball(){
 
 void Trackball::draw(Camera& camera){
 	//draw
-	material->bind();
-	material->setProj(camera.getProjectionMatrix());
-	material->setView(camera.getViewMatrix());
-	material->setModel(getGlobalMatrix());
-
+	material->setCamera(&camera);
+	material->setObject(this);
 	material->draw(trackball3D);
-
-	material->unbind();
 }
 

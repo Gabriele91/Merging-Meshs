@@ -839,7 +839,7 @@ BaseTexture* RenderDX::sendTexture2D(size_t w, size_t h, void* byte, TextureType
 	d3dDevice->CreateTexture2D(&textureDesc, &sSubData, &texture->texture2D);
 	//create semple
 	texture->createSemple(d3dDevice,
-						  D3D10_FILTER_MIN_MAG_MIP_LINEAR,
+						  D3D10_FILTER_MIN_MAG_MIP_POINT,
 						  D3D10_TEXTURE_ADDRESS_WRAP,
 						  D3D10_COMPARISON_NEVER);
 	//create resource view
@@ -923,8 +923,6 @@ BaseRenderTexture* RenderDX::createRenderTexture(size_t w,
 	                                             size_t h, 
 												 size_t zbuffer, 
 												 RenderTextureType type){
-	//#define SHADOW_COLOR
-
 	DXGI_FORMAT dxTextureType = DXGI_FORMAT_R8G8B8A8_UNORM;
 	DXGI_FORMAT targetType    = DXGI_FORMAT_R8G8B8A8_UNORM;
 	DXGI_FORMAT resViewType   = DXGI_FORMAT_R8G8B8A8_UNORM;

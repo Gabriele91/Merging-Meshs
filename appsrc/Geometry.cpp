@@ -31,15 +31,11 @@ void Geometry::draw(Camera& camera){
 	//calc offset
 	auto bcenter = geometry->getBox().getCenter();
 	relative.setPosition(-bcenter * relative.getScale());
-	//draw
-	material->bind();
-
+	//update material
 	material->setCamera(&camera);
 	material->setObject(&relative);
 	material->setLightDir(lDir);
 	material->setLightDiffuse(lDiffuse);
-
+	//draw
 	material->draw(*geometry);
-
-	material->unbind();
 }

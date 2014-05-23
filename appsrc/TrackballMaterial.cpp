@@ -34,7 +34,7 @@ void TrackballMaterial::init(){
 int  TrackballMaterial::id(){
 	return 0;
 };
-void TrackballMaterial::bind(){
+void TrackballMaterial::draw(const Mesh& m) {
 	Render& r = *Application::instance()->getRender();
 	//save context
 	ctxCFaces = r.getCullFaceState();
@@ -43,12 +43,14 @@ void TrackballMaterial::bind(){
 	r.bindShader(shader);
 	r.setCullFaceState(CullFace::DISABLE);
 	r.setBlendState({ BLEND::ONE, BLEND::ZERO });
-}
-void TrackballMaterial::draw(const Mesh& m) {
+	//camera coords
+	proj->setValue(camera->getProjectionMatrix());
+	view->setValue(camera->getViewMatrix());
+	//model
+	model->setValue(object->getGlobalMatrix());
+	//draw
 	m.draw(il);
-}
-void TrackballMaterial::unbind(){
-	Render& r = *Application::instance()->getRender();
+	//unbind
 	r.unbindShader();
 	//reset context
 	r.setBlendState(ctxBlend);

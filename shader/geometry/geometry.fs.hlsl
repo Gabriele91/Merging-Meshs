@@ -71,6 +71,7 @@ float4 main(VS_OUTPUT input) : SV_Target
 				visibility = visibility - 0.022;
 			}
 		}
+
 	}
 
 	return diffuse*intensity*visibility;

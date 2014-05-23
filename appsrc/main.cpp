@@ -58,6 +58,7 @@ public:
 		//init track 
 		trackAreaLeft.init(&matGeometry);
 		trackAreaLeft.setMesh(modelLeft);
+		trackAreaLeft.setTrackball(trackball);
 		trackAreaLeft.sphere.radius = 1.5;
 		trackAreaLeft.setZoomVelocity(0.1);
 		trackAreaLeft.setZDistance(4);
@@ -72,6 +73,7 @@ public:
 		//init track 
 		trackAreaRight.init(&matGeometry);
 		trackAreaRight.setMesh(modelRight);
+		trackAreaRight.setTrackball(trackball);
 		trackAreaRight.sphere.radius = 1.5;
 		trackAreaRight.setZoomVelocity(0.1);
 		trackAreaRight.setZDistance(4);

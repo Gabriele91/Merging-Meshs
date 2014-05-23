@@ -4,6 +4,8 @@
 #include <Config.h>
 #include <Shader.h>
 #include <Math3D.h>
+#include <Object.h>
+#include "Camera.h"
 #include "Material.h"
 
 namespace Easy3D {
@@ -19,6 +21,9 @@ namespace Easy3D {
 		//draw context
 		CullFaceState  ctxCFaces;
 		BlendState     ctxBlend;
+		//uniform input
+		Camera* camera;
+		Object* object;
 
 	public:
 
@@ -26,17 +31,12 @@ namespace Easy3D {
 		virtual int  id();
 		virtual void init();
 		virtual void draw(const Mesh& m);
-		virtual void bind();
-		virtual void unbind();
-
-		DFORCEINLINE void setModel(const Mat4& m){
-			model->setValue(m);
+		
+		DFORCEINLINE void setCamera(Camera* cam){
+			camera = cam;
 		}
-		DFORCEINLINE void setView(const Mat4& v){
-			view->setValue(v);
-		}
-		DFORCEINLINE void setProj(const Mat4& p){
-			proj->setValue(p);
+		DFORCEINLINE void setObject(Object* obj){
+			object = obj;
 		}
 
 	};

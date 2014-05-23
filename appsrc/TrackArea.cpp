@@ -62,26 +62,20 @@ void TrackArea::draw(){
 	geometry.draw(camera);
 	//save info query
 	picking = camera.picking(input.getMouse());
-
-	//from mouse
-	//if (getInput().getMouseHit(Key::BUTTON_MIDDLE))
-	//	geometry.setMove(-cameraLeft.picking(getInput().getMouse()), true);
-	//if (getInput().getKeyDown(Key::R))
-	//	geometry.setPosition(Vec3::ZERO);
-	//draw picking
-	//trackball.setPosition(cameraLeft.picking(getInput().getMouse()));
-	//trackball.setScale(Vec3::ONE*.05);
-	//trackball.setRotation(Quaternion::fromEulero(Vec3::ZERO));
-	//trackball.draw(cameraLeft);
 	//draw trackball
-	//trackball.setPosition(trackAreaLeft.sphere.point);
-	//trackball.setScale(trackAreaLeft.sphere.radius*Vec3::ONE);
-	//trackball.setRotation(pivot1.getRotation(true));
-	//trackball.draw(cameraLeft);
+	if (trackball){
+		trackball->setPosition(sphere.point);
+		trackball->setScale(sphere.radius*Vec3::ONE);
+		trackball->setRotation(protation.getRotation(true));
+		trackball->draw(camera);
+	}
 }
 //set & get
 void TrackArea::setMesh(Mesh& obj){
 	geometry.setMesh(&obj);
+}
+void TrackArea::setTrackball(Trackball& trk){
+	trackball = &trk;
 }
 void TrackArea::setViewport(const ViewportState& viewport){
 	//camera

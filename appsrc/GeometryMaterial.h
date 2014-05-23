@@ -63,8 +63,6 @@ namespace Easy3D {
 		virtual int  id();
 		virtual void init();
 		virtual void draw(const Mesh& m);
-		virtual void bind();
-		virtual void unbind();
 
 		DFORCEINLINE void setObject(Object* obj){
 			object = obj;
