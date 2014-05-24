@@ -25,6 +25,9 @@ void Geometry::setMesh(Mesh* mesh){
 	//calc offset
 	relative.setScale(factor);
 }
+GeometryMaterial* Geometry::getMaterial() const{
+	return material;
+}
 void Geometry::draw(Camera& camera){
 	//render
 	DEBUG_ASSERT(geometry);

@@ -122,7 +122,7 @@ void  RenderGL::setBlendState(const BlendState& bs){
 //projection matrix
 Mat4 RenderGL::calculatesOrto(float left, float right, float bottom, float top, float vnear, float vfar) const {
 	Mat4 projection;
-	projection.setOrtho(left, right, bottom, top, vnear, vfar);
+	projection.setOrthoRHGL(left, right, bottom, top, vnear, vfar);
 	return projection;
 }
 Mat4 RenderGL::calculatesProjection(float fovy, float aspect, float vnear, float vfar) const {

@@ -31,6 +31,7 @@ namespace Easy3D{
 		void setMesh(Mesh* mesh);
 		Mesh* getMesh(){ return geometry; }
 		void draw(Camera& camera);
+		GeometryMaterial* getMaterial() const;
 
 	};
 };

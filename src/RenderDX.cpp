@@ -428,11 +428,7 @@ void  RenderDX::setBlendState(const BlendState& bs){
 //projection matrix
 Mat4 RenderDX::calculatesOrto(float left, float right, float bottom, float top, float vnear, float vfar) const {
 	Mat4 projection;
-	projection.setOrtho(left, right, bottom, top, vnear, vfar);
-	projection[10] += 1;    // [-1 1] & [2fn]  -> [ 0 2]  & [2fn]
-	projection[10] *= 0.5;  // [ 0 2] & [2fn]  -> [ 0 1]  & [2fn] 
-	projection[10] -= 1;    // [ 0 1] & [2fn]  -> [-1 0]  & [2fn] 
-	projection[14] *= 0.5;  // [-1 0] & [2fn]  -> [-1 0]  & [fn]
+	projection.setOrthoRHDX(left, right, bottom, top, vnear, vfar);
 	return projection;
 }
 Mat4 RenderDX::calculatesProjection(float fovy, float aspect, float vnear, float vfar) const {

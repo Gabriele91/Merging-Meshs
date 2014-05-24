@@ -58,7 +58,7 @@ namespace Easy3D{
 		Object   protation;
 		Geometry geometry;
 		Camera	 camera;
-		Trackball *trackball;
+		Trackball *trackball{ nullptr };
 
 		//zoom
 		float scaleZoom{ 1.0 };

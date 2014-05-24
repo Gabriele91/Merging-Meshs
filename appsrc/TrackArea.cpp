@@ -50,6 +50,14 @@ void TrackArea::rayCast(){
 void TrackArea::calcRay(const Vec2& mouse){
 	camera.ray(mouse, ray.origin, ray.dir);
 }
+
+inline Quaternion pointTarget(const Vec3& target, const Vec3& point){
+	Vec3 diff(target - point);
+	float xzdist = std::sqrt(diff.x*diff.x + diff.z*diff.z);
+	float pitch = std::atan2(diff.y, xzdist);
+	float yaw = std::atan2(-diff.x, -diff.z);
+	return Quaternion::fromEulero({ pitch, yaw, 0.0f });
+}
 //draw mesh
 void TrackArea::draw(){
 
@@ -58,6 +66,17 @@ void TrackArea::draw(){
 	Input&  input = *Application::instance()->getInput();
 	//camera left
 	render.setViewportState(camera.getViewport());
+	//set shadow camera distance:
+	//get shadow camera
+	auto& scam = geometry.getMaterial()->getShadowCamera();
+	//dist
+	Vec3 dir=Vec3(0.0, 0.9,.9).getNormalize();
+	const float clen =4.0;
+	Vec3 pos = dir*clen + dir*(protation.getScale(true) - 1.0);
+	//set dist
+	scam.setPosition(pos);
+	//angle
+	scam.setRotation(pointTarget(sphere.point, pos));
 	//draw model
 	geometry.draw(camera);
 	//save info query

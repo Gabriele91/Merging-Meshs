@@ -800,7 +800,10 @@ namespace Easy3D{
 		///set quaternion transformation
 		void setQuaternion(const Quaternion &qt);
 		///set orthogonal transformation (projection matrix)
-		void setOrtho(float left, float right, float bottom,float top, float n, float f);
+		void setOrthoRHGL(float w, float h, float n, float f);
+		void setOrthoRHDX(float w, float h, float n, float f);
+		void setOrthoRHGL(float left, float right, float bottom, float top, float n, float f);
+		void setOrthoRHDX(float left, float right, float bottom, float top, float n, float f);
 		///set projection transformation (projection matrix)
 		void setPerspectiveRHGL(float left, float right, float bottom, float top, float n, float f);
 		void setPerspectiveRHDX(float left, float right, float bottom, float top, float n, float f);

@@ -68,8 +68,8 @@ public:
 			);
 		////////////////
 		//RIGHT
-		//init first ship/tet3dcc2
-		modelRight.loadOFF(rspath + "/meshs/tet3dcc2.off", Mesh::OFF_VERTEX_NORMALS);
+		//init first ship/tet3dcc2/m299/head/m332/m355/m1003/m1372
+		modelRight.loadOFF(rspath + "/meshs/m299.off", Mesh::OFF_VERTEX_NORMALS_SLOW);
 		//init track 
 		trackAreaRight.init(&matGeometry);
 		trackAreaRight.setMesh(modelRight);

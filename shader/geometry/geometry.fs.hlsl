@@ -59,12 +59,12 @@ float4 main(VS_OUTPUT input) : SV_Target
 		input.shadowpos.y = input.shadowpos.y *-0.5 + 0.5;
 
 		float shadowMapDepth = 0;
-		float depthbias = input.shadowpos.z - zBias;
+		float depthbias = input.shadowpos.z - zBias / input.shadowpos.w;
 		const float sizetexture = 1.0f / 102.4f;
 
 		for (int i = 0; i < 16; ++i){
 			//sample shadow map - point sampler
-			float2 coord = input.shadowpos.xy + poissonDisk[i] * sizetexture;
+			float2 coord = input.shadowpos.xy + (poissonDisk[i] * sizetexture) / input.shadowpos.w;
 			shadowMapDepth = shadowMap.SampleLevel(sampleShadow, coord, 0).r;
 			//if clip space z value greater than shadow map value then pixel is in shadow
 			if (shadowMapDepth < depthbias) {

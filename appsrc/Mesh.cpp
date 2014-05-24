@@ -163,7 +163,7 @@ void Mesh::offSlowComputeNormals(){
 	}
 	// A as a face of Mesh
 	//#pragma loop(hint_parallel(4))
-	#pragma omp parallel for private(adj,av,n) num_threads(2)
+	#pragma omp parallel for private(adj,av,n) num_threads(4)
 	for (long a = 0; a < nsize; a += 3){
 		//for all vertex of A
 		for (size_t v = 0; v != 3; ++v){

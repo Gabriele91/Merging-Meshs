@@ -1332,25 +1332,59 @@ void Matrix4x4::setQuaternion(const Quaternion &qt){
     (*this)=qt.getMatrix();
 }
 /*
- Right (RL, OpenGL)
- */
-void Matrix4x4::setOrtho(float left, float right, float bottom,float top, float n, float f){
+Ortogonal RH
+*/
+void Matrix4x4::setOrthoRHGL(float w, float h, float n, float f){
 	identity();
 
-	entries[0]=2.0f/(right-left);
+	entries[0] = 2.0f / w;
 
-	entries[5]=2.0f/(top-bottom);
+	entries[5] = 2.0f / h;
 
-	entries[10]=-2.0f/(f-n);
+	entries[10] = -2.0f / (f - n);
 
-	entries[12]=-(right+left)/(right-left);
-	entries[13]=-(top+bottom)/(top-bottom);
-	entries[14]=-(f+n)/(f-n);
+	entries[14] = -(f + n) / (f - n);
+}
+void Matrix4x4::setOrthoRHDX(float w, float h, float n, float f){
+	identity();
+
+	entries[0] = 2.0f / w;
+
+	entries[5] = 2.0f / h;
+
+	entries[10] = 1.0f / (f - n);
+
+	entries[14] = -n / (f - n);
+}
+void Matrix4x4::setOrthoRHGL(float left, float right, float bottom, float top, float n, float f){
+	identity();
+
+	entries[0] = 2.0f / (right - left);
+
+	entries[5] = 2.0f / (top - bottom);
+
+	entries[10] = -2.0f / (f - n);
+
+	entries[12] = -(right + left) / (right - left);
+	entries[13] = -(top + bottom) / (top - bottom);
+	entries[14] = -(f + n) / (f - n);
+}
+void Matrix4x4::setOrthoRHDX(float left, float right, float bottom, float top, float n, float f){
+	identity();
+
+	entries[0] = 2.0f*n / (right - left);
+	entries[5] = 2.0f*n / (top - bottom);
+
+	entries[8] = (left + right) / (right - left);
+	entries[9] = (top + bottom) / (top - bottom);
+	entries[10] = f / (n - f);
+	entries[11] = -1;
+
+	entries[14] = (n * f) / (n - f);
 }
 /*
- Right (RL, OpenGL)
+Perspective RH
  */
-#define DEPTH_RANGE_OPENGL //-1 & 1
 void Matrix4x4::setPerspectiveRHGL(float l, float r,
 								   float b,float t,
 								   float n, float f){
@@ -1376,7 +1410,7 @@ void Matrix4x4::setPerspectiveRHGL(float l, float r,
 }
 void Matrix4x4::setPerspectiveRHDX(float l, float r, float b, float t, float n, float f){
 
-	//http://www.manpagez.com/man/3/glFrustum/
+	//http://msdn.microsoft.com/en-us/library/windows/desktop/bb205354(v=vs.85).aspx
 	identity();
 	//colum 1
 	entries[0] = 2 * n / (r - l);

@@ -52,8 +52,8 @@ namespace Easy3D {
 		ViewportState  ctxViewport;
 
 		//uniform input
-		Camera* camera;
-		Object* object;
+		Camera* camera{ nullptr };
+		Object* object{ nullptr };
 		Vec3 ldir;
 		Vec4 ldiffuse;
 
@@ -71,7 +71,7 @@ namespace Easy3D {
 			camera = cam;
 		}
 
-		DFORCEINLINE Camera& getCamera(){
+		DFORCEINLINE Camera& getShadowCamera(){
 			return shadowCam;
 		}
 

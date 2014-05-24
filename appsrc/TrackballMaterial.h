@@ -22,8 +22,8 @@ namespace Easy3D {
 		CullFaceState  ctxCFaces;
 		BlendState     ctxBlend;
 		//uniform input
-		Camera* camera;
-		Object* object;
+		Camera* camera{ nullptr };
+		Object* object{ nullptr };
 
 	public:
 
