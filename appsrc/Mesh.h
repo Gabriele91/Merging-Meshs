@@ -23,11 +23,12 @@ namespace Easy3D{
         enum OFFCompute{
 			OFF_NO_NORMALS,
 			OFF_VERTEX_NORMALS,
-			OFF_VERTEX_NORMALS_SLOW
+			OFF_VERTEX_NORMALS_SLOW,
+			OFF_VERTEX_NORMALS_AUTO
         };
         
 		//load mesh from off file
-		void loadOFF(const Utility::Path& path,OFFCompute normals=OFF_NO_NORMALS);
+		void loadOFF(const Utility::Path& path, OFFCompute normals = OFF_VERTEX_NORMALS_AUTO);
         
         //begin create mash
 		void format(uchar type, size_t vsize=0, size_t isize=0);

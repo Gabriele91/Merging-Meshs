@@ -7,6 +7,7 @@
 using namespace Easy3D;
 #define VBO_N_PAGE  256
 #define IBO_N_PAGE  256
+#define A_SMALL_MESH  8000
 //utility
 
 DFORCEINLINE static void textFileRead(String& out,const Utility::Path &path) {
@@ -95,7 +96,7 @@ void Mesh::offNormalize(){
 }
 void Mesh::offComputeNormals(){
 	long nsize = (long)sizeIndexs();
-	#pragma omp parallel for num_threads(2)
+	#pragma omp parallel for num_threads(4)
 	for (long i = 0; i < nsize; i += 3){
 		auto v1 = offV(indexs[i+1]) - offV(indexs[i]);
 		auto v2 = offV(indexs[i+2]) - offV(indexs[i]);
@@ -225,7 +226,7 @@ void Mesh::loadOFF(const Utility::Path& path,OFFCompute normals){
 		VERTEX,
 		FACE
 	};
-    std::vector<String> values;
+	//start state
 	POFFState state = SHOFF;
     //type mesh
     uchar type;                         type =Mesh::POSITION3D;
@@ -234,7 +235,10 @@ void Mesh::loadOFF(const Utility::Path& path,OFFCompute normals){
 	size_t nvertex=0;
 	size_t nface=0;
 	size_t nindex=0;
-	size_t iindex=0;
+	size_t iindex = 0;
+	//values stack
+	std::vector<String> values;
+	values.resize(8);//fake alloc
 	//parser
 	for (size_t i = 0; i != lines.size();++i){
 		//get values
@@ -294,6 +298,15 @@ void Mesh::loadOFF(const Utility::Path& path,OFFCompute normals){
 		offComputeNormals();
 	else if (normals == Mesh::OFF_VERTEX_NORMALS_SLOW)
 		offSlowComputeNormals();
+	else if (normals == Mesh::OFF_VERTEX_NORMALS_AUTO){
+		long faces = (long)sizeIndexs() / 3;
+		if (faces<A_SMALL_MESH)
+			offSlowComputeNormals(); 
+		else
+			offComputeNormals();
+	}
+
+
 	//draw mode
 	mode(DRAW_TRIANGLES);
 	//fix box
