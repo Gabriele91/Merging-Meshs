@@ -1,5 +1,5 @@
-#ifndef TRACKBALLMATERIAL_H
-#define TRACKBALLMATERIAL_H
+#ifndef POINTSMATERIAL_H
+#define POINTSMATERIAL_H
 
 #include <Config.h>
 #include <Shader.h>
@@ -10,7 +10,8 @@
 
 namespace Easy3D {
 
-	class TrackballMaterial : public Material {
+
+	class PointsMaterial : public Material {
 
 		//shader input
 		Shader*	shader{ nullptr };
@@ -24,11 +25,11 @@ namespace Easy3D {
 
 	public:
 
-		virtual ~TrackballMaterial();
+		virtual ~PointsMaterial();
 		virtual int  id();
 		virtual void init();
 		virtual void draw(const Mesh& m);
-		
+
 		DFORCEINLINE void setCamera(Camera* cam){
 			camera = cam;
 		}

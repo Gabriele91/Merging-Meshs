@@ -209,7 +209,10 @@ void Mesh::offFixBox(){
 	}
 }
 
-void Mesh::loadOFF(const Utility::Path& path,OFFCompute normals){
+void Mesh::loadOFF(const Utility::Path& path, bool cpudelete){
+	loadOFF(path, OFFCompute::OFF_VERTEX_NORMALS_AUTO, cpudelete);
+}
+void Mesh::loadOFF(const Utility::Path& path, OFFCompute normals, bool cpudelete){
 	DEBUG_ASSERT(!bVertex);
 	//load file
 	String textfile;
@@ -312,7 +315,7 @@ void Mesh::loadOFF(const Utility::Path& path,OFFCompute normals){
 	//fix box
 	//offFixBox(); //not necessary
 	//bind mesh
-	bind();
+	bind(cpudelete);
 }
 
 size_t Mesh::attSize(uchar type){
@@ -365,13 +368,10 @@ void Mesh::addIndexCPage(){
 }
 //begin create mash
 void Mesh::format(uchar type, size_t vsize, size_t isize){
+	clear();
 	calcVertexSize(type);
 	vertexs = std::vector<byte> (vSize*(vsize != 0 ? vsize : VBO_N_PAGE));
 	indexs = std::vector<uint> (isize != 0 ? isize : IBO_N_PAGE);
-	currentVertex = 0;
-	currentIndex = 0;
-    mBox=AABox();
-	centroid = Vec3::ZERO;
 }
 
 //like opengl 1.4
@@ -415,6 +415,50 @@ void Mesh::index(uint i){
 	++currentIndex;
 }
 
+//clear mesh
+void Mesh::clear(){
+	Render& r = *Application::instance()->getRender();
+	//clear vars:
+	sBVertex = 0;
+	sBIndex = 0;
+	currentVertex = 0;
+	currentIndex = 0;
+	mBox = AABox();
+	centroid = Vec3::ZERO;
+	//cpu clear
+	vertexs = std::vector<byte>(0);
+	indexs = std::vector<uint>(0);
+	//gpu clear
+	if (bVertex){
+		r.deleteVBO(bVertex);
+		bVertex = nullptr;
+	}
+	if (bIndex){
+		r.deleteIBO(bIndex);
+		bIndex = nullptr;
+	}
+}
+//at mesh delete
+Mesh::~Mesh(){
+	clear();
+}
+
+//get cpu info
+uint  Mesh::getIndex(size_t i){
+	return indexs[i];
+}
+Easy3D::byte* Mesh::getVertex(size_t i, size_t offset){
+	return &vertexs[i*vSize + offset];
+}
+Vec2& Mesh::getVertex2(size_t i, size_t offset){
+	return *((Vec2*)getVertex(i,offset));
+}
+Vec3& Mesh::getVertex3(size_t i, size_t offset){
+	return *((Vec3*)getVertex(i, offset));
+}
+Vec4& Mesh::getVertex4(size_t i, size_t offset){
+	return *((Vec4*)getVertex(i, offset));
+}
 //bind
 bool Mesh::bind(bool force){
 	Render& r = *Application::instance()->getRender();

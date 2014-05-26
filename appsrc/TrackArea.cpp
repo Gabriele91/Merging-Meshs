@@ -7,14 +7,22 @@
 using namespace Easy3D;
 
 
+inline Quaternion pointTarget(const Vec3& target, const Vec3& point){
+	Vec3 diff(target - point);
+	float xzdist = std::sqrt(diff.x*diff.x + diff.z*diff.z);
+	float pitch = std::atan2(diff.y, xzdist);
+	float yaw = std::atan2(-diff.x, -diff.z);
+	return Quaternion::fromEulero({ pitch, yaw, 0.0f });
+}
 //init
 TrackArea::TrackArea(){
 	//reg input
 	Application::instance()->getInput()->addHandler((Input::MouseHandler*)this);
 }
-void TrackArea::init(GeometryMaterial* material){
+void TrackArea::init(GeometryMaterial* gmap, PointsMaterial* pmat){
 	//set geometry
-	geometry.init(material);
+	geometry.init(gmap);
+	cldpoints.init(pmat);
 	//attach geometry to protation
 	protation.addChild(&geometry,false);
 	//camera
@@ -51,13 +59,30 @@ void TrackArea::calcRay(const Vec2& mouse){
 	camera.ray(mouse, ray.origin, ray.dir);
 }
 
-inline Quaternion pointTarget(const Vec3& target, const Vec3& point){
-	Vec3 diff(target - point);
-	float xzdist = std::sqrt(diff.x*diff.x + diff.z*diff.z);
-	float pitch = std::atan2(diff.y, xzdist);
-	float yaw = std::atan2(-diff.x, -diff.z);
-	return Quaternion::fromEulero({ pitch, yaw, 0.0f });
+//pikking
+void TrackArea::addPoint(const Vec3& point){
+	Mat4 modelinv = geometry.getModelMatrix().getInverse();
+	Vec3 vpoint = modelinv.mul({ point, 1.0 }).xyz();
+	//search the most near point
+	Mesh& mesh = *geometry.getMesh();
+	size_t ivertex = mesh.getIndex(0);
+	Vec3  mostnear = mesh.getVertex3(ivertex, 0);
+	float mindist = mostnear.distancePow2(vpoint);
+	float tmpdistance = mindist;
+	//search
+	for (size_t i = 1; i != mesh.sindex(); ++i){
+		ivertex = mesh.getIndex(i);
+		tmpdistance = mesh.getVertex3(ivertex, 0).distancePow2(vpoint);
+		if (tmpdistance < mindist){
+			mindist = tmpdistance;
+			mostnear = mesh.getVertex3(ivertex, 0);
+		}
+	}
+	//add
+	cldpoints.addPoint(mostnear);
+
 }
+
 //draw mesh
 void TrackArea::draw(){
 
@@ -88,6 +113,10 @@ void TrackArea::draw(){
 		trackball->setRotation(protation.getRotation(true));
 		trackball->draw(camera);
 	}
+
+	//draw selected points
+	cldpoints.setObject(geometry.getRelative());
+	cldpoints.draw(camera);
 }
 //set & get
 void TrackArea::setMesh(Mesh& obj){
@@ -127,7 +156,8 @@ void TrackArea::onMousePress(Vec2 mouse, Key::Mouse bt){
 			from = segment.vnear;
 		break;
 		case Key::BUTTON_MIDDLE:
-			geometry.setPosition(Vec3::ZERO);
+			//geometry.setPosition(Vec3::ZERO);
+			addPoint(picking);
 		break;
 		case Key::BUTTON_RIGHT:
 			geometry.setMove(-picking, true);

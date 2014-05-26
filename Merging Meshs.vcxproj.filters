@@ -46,6 +46,15 @@
     <Filter Include="File di risorse\trackball\OpenGL">
       <UniqueIdentifier>{4747554c-daae-434d-a831-54587c4421be}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File di risorse\points">
+      <UniqueIdentifier>{bdd2b42e-19b0-49be-ba45-286b5ebf6852}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di risorse\points\DirectX">
+      <UniqueIdentifier>{9c76cc96-b8f5-4c4c-b02a-980d48d268be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di risorse\points\OpenGL">
+      <UniqueIdentifier>{6072691f-edc1-47c6-af69-7d86524c0b63}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Application.h">
@@ -138,9 +147,6 @@
     <ClInclude Include="include\ShaderGL.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
-    <ClInclude Include="appsrc\MathUtility.h">
-      <Filter>appsrc</Filter>
-    </ClInclude>
     <ClInclude Include="appsrc\Mesh.h">
       <Filter>appsrc</Filter>
     </ClInclude>
@@ -166,6 +172,12 @@
       <Filter>appsrc\Materials</Filter>
     </ClInclude>
     <ClInclude Include="appsrc\GeometryMaterial.h">
+      <Filter>appsrc\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="appsrc\PointsCloud.h">
+      <Filter>appsrc</Filter>
+    </ClInclude>
+    <ClInclude Include="appsrc\PointsMaterial.h">
       <Filter>appsrc\Materials</Filter>
     </ClInclude>
   </ItemGroup>
@@ -248,9 +260,6 @@
     <ClCompile Include="src\ShaderGL.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
-    <ClCompile Include="appsrc\MathUtility.cpp">
-      <Filter>appsrc</Filter>
-    </ClCompile>
     <ClCompile Include="appsrc\Mesh.cpp">
       <Filter>appsrc</Filter>
     </ClCompile>
@@ -273,6 +282,12 @@
       <Filter>appsrc\Materials</Filter>
     </ClCompile>
     <ClCompile Include="appsrc\GeometryMaterial.cpp">
+      <Filter>appsrc\Materials</Filter>
+    </ClCompile>
+    <ClCompile Include="appsrc\PointsCloud.cpp">
+      <Filter>appsrc</Filter>
+    </ClCompile>
+    <ClCompile Include="appsrc\PointsMaterial.cpp">
       <Filter>appsrc\Materials</Filter>
     </ClCompile>
   </ItemGroup>
@@ -298,6 +313,12 @@
     <None Include="shader\trackball\trackball.vs.glsl">
       <Filter>File di risorse\trackball\OpenGL</Filter>
     </None>
+    <None Include="shader\points\points.vs.glsl">
+      <Filter>File di risorse\points\OpenGL</Filter>
+    </None>
+    <None Include="shader\points\points.fs.glsl">
+      <Filter>File di risorse\points\OpenGL</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="shader\geometry\geometry.fs.hlsl">
@@ -321,5 +342,13 @@
     <Text Include="shader\trackball\trackball.vs.hlsl">
       <Filter>File di risorse\trackball\DirectX</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="shader\points\points.fs.hlsl">
+      <Filter>File di risorse\points\DirectX</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\points\points.vs.hlsl">
+      <Filter>File di risorse\points\DirectX</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

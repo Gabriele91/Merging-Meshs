@@ -28,7 +28,8 @@ namespace Easy3D{
         };
         
 		//load mesh from off file
-		void loadOFF(const Utility::Path& path, OFFCompute normals = OFF_VERTEX_NORMALS_AUTO);
+		void loadOFF(const Utility::Path& path,bool cpudelete = true);
+		void loadOFF(const Utility::Path& path, OFFCompute normals, bool cpudelete = true);
         
         //begin create mash
 		void format(uchar type, size_t vsize=0, size_t isize=0);
@@ -62,7 +63,22 @@ namespace Easy3D{
         //get box
 		const AABox& getBox(){ return  mBox; };
 		const Vec3&  getCentroid(){ return  centroid; };
-		        
+
+		//clear mesh
+		void clear();
+
+		//at mesh delete
+		virtual ~Mesh();
+
+		//get cpu info
+		size_t sindex(){ return indexs.size(); }
+		size_t svertex(){ return vertexs.size()/vSize; }
+		uint  getIndex(size_t i);
+		byte* getVertex(size_t i, size_t offset);
+		Vec2& getVertex2(size_t i, size_t offset);
+		Vec3& getVertex3(size_t i, size_t offset);
+		Vec4& getVertex4(size_t i, size_t offset);
+
     private:
         
         //draw mode

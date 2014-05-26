@@ -9,7 +9,6 @@
 #include <Object.h>
 #include <Debug.h>
 
-#include "MathUtility.h"
 #include "Mesh.h"
 #include "Camera.h"
 #include "Trackball.h"
@@ -23,6 +22,7 @@ public:
 
 	//materials
 	TrackballMaterial matTrackball;
+	PointsMaterial	  matPoints;
 	GeometryMaterial  matGeometry;
 	//model 1
 	Mesh modelLeft;
@@ -48,15 +48,16 @@ public:
 		getRender().setCullFaceState(CullFace::DISABLE);
 		//materials
 		matTrackball.init();
+		matPoints.init();
 		matGeometry.init();
 		//init trackball
 		trackball.init(&matTrackball);
 		////////////////
 		//LEFT
 		//init first
-		modelLeft.loadOFF(rspath + "/meshs/faccia000.off");
+		modelLeft.loadOFF(rspath + "/meshs/all.off",false);
 		//init track 
-		trackAreaLeft.init(&matGeometry);
+		trackAreaLeft.init(&matGeometry, &matPoints);
 		trackAreaLeft.setMesh(modelLeft);
 		trackAreaLeft.setTrackball(trackball);
 		trackAreaLeft.sphere.radius = 1.5;
@@ -69,9 +70,9 @@ public:
 		////////////////
 		//RIGHT
 		//init first ship/tet3dcc2/m299/head/m332/m355/m1003/m1372
-		modelRight.loadOFF(rspath + "/meshs/m1372.off");
+		modelRight.loadOFF(rspath + "/meshs/ship.off", false);
 		//init track 
-		trackAreaRight.init(&matGeometry);
+		trackAreaRight.init(&matGeometry, &matPoints);
 		trackAreaRight.setMesh(modelRight);
 		trackAreaRight.setTrackball(trackball);
 		trackAreaRight.sphere.radius = 1.5;
@@ -103,8 +104,8 @@ public:
 
 int main(){
 	Easy3D::Application::create("Easy3DExemple", 
-												//OPENGL_DRIVER
-												DIRECTX_DRIVER
+												OPENGL_DRIVER
+												//DIRECTX_DRIVER
 												);
 	Easy3D::Application::instance()->exec(new MyGame());
 	delete Easy3D::Application::instance()->getGame();

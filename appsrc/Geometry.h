@@ -28,10 +28,13 @@ namespace Easy3D{
 
 		virtual ~Geometry();
 		void init(GeometryMaterial* gm);
+		void draw(Camera& camera);
+
 		void setMesh(Mesh* mesh);
 		Mesh* getMesh(){ return geometry; }
-		void draw(Camera& camera);
 		GeometryMaterial* getMaterial() const;
+		Mat4 getModelMatrix();
+		Object* getRelative();
 
 	};
 };

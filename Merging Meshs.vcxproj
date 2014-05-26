@@ -95,8 +95,9 @@
     <ClInclude Include="appsrc\Geometry.h" />
     <ClInclude Include="appsrc\GeometryMaterial.h" />
     <ClInclude Include="appsrc\Material.h" />
-    <ClInclude Include="appsrc\MathUtility.h" />
+    <ClInclude Include="appsrc\PointsCloud.h" />
     <ClInclude Include="appsrc\Mesh.h" />
+    <ClInclude Include="appsrc\PointsMaterial.h" />
     <ClInclude Include="appsrc\TrackArea.h" />
     <ClInclude Include="appsrc\Trackball.h" />
     <ClInclude Include="appsrc\TrackballMaterial.h" />
@@ -137,8 +138,9 @@
     <ClCompile Include="appsrc\Geometry.cpp" />
     <ClCompile Include="appsrc\GeometryMaterial.cpp" />
     <ClCompile Include="appsrc\main.cpp" />
-    <ClCompile Include="appsrc\MathUtility.cpp" />
+    <ClCompile Include="appsrc\PointsCloud.cpp" />
     <ClCompile Include="appsrc\Mesh.cpp" />
+    <ClCompile Include="appsrc\PointsMaterial.cpp" />
     <ClCompile Include="appsrc\TrackArea.cpp" />
     <ClCompile Include="appsrc\Trackball.cpp" />
     <ClCompile Include="appsrc\TrackballMaterial.cpp" />
@@ -178,6 +180,8 @@
     <None Include="shader\geometry\geometryShadow.fs.glsl" />
     <None Include="shader\geometry\geometryShadow.vs.glsl" />
     <None Include="shader\geometry\geometry_basic.fs.glsl" />
+    <None Include="shader\points\points.fs.glsl" />
+    <None Include="shader\points\points.vs.glsl" />
     <None Include="shader\trackball\trackball.fs.glsl" />
     <None Include="shader\trackball\trackball.vs.glsl" />
   </ItemGroup>
@@ -207,6 +211,14 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="shader\geometry\geometry_basic.fs.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="shader\points\points.fs.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+    <Text Include="shader\points\points.vs.hlsl">
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>

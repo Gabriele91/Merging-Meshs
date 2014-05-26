@@ -1,40 +1,37 @@
 #include <stdafx.h>
-#include <Render.h>
-#include <Utility.h>
 #include <Application.h>
-#include "TrackballMaterial.h"
+#include "PointsMaterial.h"
 ///////////////////////
 using namespace Easy3D;
 ///////////////////////
 
 
-void TrackballMaterial::init(){
+void PointsMaterial::init(){
 	//get render
 	Render& r = *Application::instance()->getRender();
 	String  rpath = Application::instance()->appResourcesDirectory();
 	//init shader
 	shader = r.createShader();
 	if (r.getRenderDriver() == OPENGL_DRIVER)
-		shader->loadShader(rpath + "/shader/trackball/trackball.vs.glsl",
-		rpath + "/shader/trackball/trackball.fs.glsl");
+		shader->loadShader(rpath + "/shader/points/points.vs.glsl",
+					  	   rpath + "/shader/points/points.fs.glsl");
 	else if (r.getRenderDriver() == DIRECTX_DRIVER)
-		shader->loadShader(rpath + "/shader/trackball/trackball.vs.hlsl",
-		rpath + "/shader/trackball/trackball.fs.hlsl");
+		shader->loadShader(rpath + "/shader/points/points.vs.hlsl",
+					       rpath + "/shader/points/points.fs.hlsl");
 
 	proj = shader->getConstMat4("projection")->shared();
 	view = shader->getConstMat4("view")->shared();
 	model = shader->getConstMat4("model")->shared();
 
 	AttributeList aList = {
-		{ "inPosition", ATT_FLOAT3 },
-		{ "inColor", ATT_FLOAT4 }
+		{ "inPosition", ATT_FLOAT3 }
 	};
 	il = r.createIL(shader, aList);
 }
-int  TrackballMaterial::id(){
+int  PointsMaterial::id(){
 	return 0;
 };
-void TrackballMaterial::draw(const Mesh& m) {
+void PointsMaterial::draw(const Mesh& m) {
 	Render& r = *Application::instance()->getRender();
 	//save context
 	auto ctxCFaces = r.getCullFaceState();
@@ -57,10 +54,11 @@ void TrackballMaterial::draw(const Mesh& m) {
 	r.setCullFaceState(ctxCFaces);
 }
 
-TrackballMaterial::~TrackballMaterial(){
+PointsMaterial::~PointsMaterial(){
 	Render* r = Application::instance()->getRender();
 	if (il)
 		r->deleteIL(il);
 	if (shader)
 		r->deleteShader(shader);
 }
+

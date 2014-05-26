@@ -16,6 +16,7 @@ void Geometry::init(GeometryMaterial* gm){
 	///////////////////////////
 }
 Geometry::~Geometry(){}
+
 void Geometry::setMesh(Mesh* mesh){
 	geometry = mesh;
     //calc offset
@@ -28,6 +29,13 @@ void Geometry::setMesh(Mesh* mesh){
 GeometryMaterial* Geometry::getMaterial() const{
 	return material;
 }
+Mat4 Geometry::getModelMatrix(){
+	return relative.getGlobalMatrix();
+}
+Object* Geometry::getRelative(){
+	return &relative;
+}
+
 void Geometry::draw(Camera& camera){
 	//render
 	DEBUG_ASSERT(geometry);

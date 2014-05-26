@@ -9,6 +9,7 @@
 #include "Mesh.h"
 #include "Geometry.h"
 #include "Trackball.h"
+#include "PointsCloud.h"
 
 namespace Easy3D{
 
@@ -40,7 +41,7 @@ namespace Easy3D{
 
 		//init
 		TrackArea();
-		void init(GeometryMaterial* material);
+		void init(GeometryMaterial* gmap,PointsMaterial* pmat);
 		virtual ~TrackArea();
 		//draw mesh
 		void draw();
@@ -59,7 +60,9 @@ namespace Easy3D{
 		Geometry geometry;
 		Camera	 camera;
 		Trackball *trackball{ nullptr };
-
+		//point cloud
+		PointsCloud cldpoints;
+		void addPoint(const Vec3& point);
 		//zoom
 		float scaleZoom{ 1.0 };
 		float velocity{ 1.0 };
