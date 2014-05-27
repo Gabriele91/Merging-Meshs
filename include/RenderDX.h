@@ -102,9 +102,12 @@ namespace Easy3D {
 		void enableVSTexture(uint t, uint s, BaseRenderTexture*);
 		void enablePSTexture(uint t, uint s, BaseTexture*);
 		void enablePSTexture(uint t, uint s, BaseRenderTexture*);
+		void enableGSTexture(uint t, uint s, BaseTexture*);
+		void enableGSTexture(uint t, uint s, BaseRenderTexture*);
 
 		void disableVSTexture(uint t, uint s);
 		void disablePSTexture(uint t, uint s);
+		void disableGSTexture(uint t, uint s);
 
 		virtual void deleteTexture(BaseTexture*);
 		virtual void deleteTexture(BaseRenderTexture*);

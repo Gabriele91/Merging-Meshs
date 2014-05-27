@@ -14,13 +14,30 @@ namespace Easy3D{
 	class ShaderDX : public Shader {
 
 
+
+		void loadShader(bool enableGeometry,
+						const Utility::Path& vs,
+						const Utility::Path& fs,
+						const Utility::Path& gs,
+						const std::vector<String>& defines);
+
 	public:
 		//costruttore
 		ShaderDX(RenderDX* render);
 		//distruttore
 		virtual ~ShaderDX();
 		//inizializza
-		virtual void loadShader(const Utility::Path& vs,const Utility::Path& fs,const std::vector<String>& defines);
+		virtual void loadShader(const Utility::Path& vs,
+								const Utility::Path& fs,
+								const std::vector<String>& defines){
+			loadShader(false, vs, fs, "", defines);
+		}
+		virtual void loadShader(const Utility::Path& vs,
+								const Utility::Path& fs,
+								const Utility::Path& gs,
+								const std::vector<String>& defines){
+			loadShader(true, vs, fs, gs, defines);
+		}
 
 		//get consts
 		virtual CTexture* getConstTexture(const char *name);
@@ -43,11 +60,17 @@ namespace Easy3D{
 		uchar* getCpuPBuffer(){
 			return &pBufferCpu[0];
 		}
+		uchar* getCpuGBuffer(){
+			return &gBufferCpu[0];
+		}
 		size_t getCpuVBufferSize(){
 			return vBufferCpu.size();
 		}
 		size_t getCpuPBufferSize(){
 			return pBufferCpu.size();
+		}
+		size_t getCpuGBufferSize(){
+			return gBufferCpu.size();
 		}
 
 	protected:
@@ -72,16 +95,28 @@ namespace Easy3D{
 		ID3D10PixelShader *pShader{ nullptr };
 		size_t pSizeConstantBuffer{ 0 };
 		ID3D10Buffer*  pConstantBuffer10{ nullptr };
+		
+		ID3D10Blob* gShaderBinary{ nullptr };
+		ID3D10GeometryShader *gShader{ nullptr };
+		size_t gSizeConstantBuffer{ 0 };
+		ID3D10Buffer*  gConstantBuffer10{ nullptr };
 
 		//cpu info
 		DUNORDERED_MAP <String, size_t> vVariablesRef;
 		DUNORDERED_MAP <String, size_t> vResourcesRef;
 		DUNORDERED_MAP <String, size_t> vSamplerRef;
+
 		DUNORDERED_MAP <String, size_t> pVariablesRef;
 		DUNORDERED_MAP <String, size_t> pResourcesRef;
 		DUNORDERED_MAP <String, size_t> pSamplerRef;
+
+		DUNORDERED_MAP <String, size_t> gVariablesRef;
+		DUNORDERED_MAP <String, size_t> gResourcesRef;
+		DUNORDERED_MAP <String, size_t> gSamplerRef;
+
 		std::vector<uchar> vBufferCpu;
-		std::vector<uchar> pBufferCpu; 
+		std::vector<uchar> pBufferCpu;
+		std::vector<uchar> gBufferCpu;
 
 
 	};

@@ -182,7 +182,7 @@ namespace Easy3D{
 	//costruttore
 	ShaderDX::ShaderDX(RenderDX* render) :render(render){}
 	//distruttore
-#define releaseDX(x) if(x){ x->Release(); x=nullptr; } 
+	#define releaseDX(x) if(x){ x->Release(); x=nullptr; } 
 	ShaderDX::~ShaderDX(){
 		releaseDX(vShaderBinary)
 			releaseDX(vConstantBuffer10)
@@ -191,9 +191,11 @@ namespace Easy3D{
 	}
 
 	//inizializza
-	void ShaderDX::loadShader(const Utility::Path& vs,
-		const Utility::Path& ps,
-		const std::vector<String>& defines){
+	void ShaderDX::loadShader(bool  geometry, 
+							  const Utility::Path& vs,
+							  const Utility::Path& ps, 
+							  const Utility::Path& gs,
+		                      const std::vector<String>& defines){
 
 		HRESULT hr = NULL;
 		DWORD vShaderFlags = D3D10_SHADER_ENABLE_STRICTNESS;
@@ -230,11 +232,30 @@ namespace Easy3D{
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		DX_ASSERT_MSG(render->d3dDevice->CreatePixelShader((DWORD*)pShaderBinary->GetBufferPointer(), pShaderBinary->GetBufferSize(), &pShader));
 		getContants(render->d3dDevice, "ps", pVariablesRef, pShaderBinary, &pConstantBuffer10, pSizeConstantBuffer);
-		getResources(render->d3dDevice, "ps", pResourcesRef, vSamplerRef, pShaderBinary);
+		getResources(render->d3dDevice, "ps", pResourcesRef, pSamplerRef, pShaderBinary);
 		if (pSizeConstantBuffer)
 			pBufferCpu.resize(pSizeConstantBuffer);
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+		if (geometry){
+			DWORD gShaderFlags = D3D10_SHADER_ENABLE_STRICTNESS;
+			#if defined( DEBUG ) || defined( _DEBUG )
+			//gShaderFlags |= D3D10_SHADER_DEBUG;
+			//gShaderFlags |= D3D10_SHADER_FORCE_PS_SOFTWARE_NO_OPT;
+			#endif
+			String gShaderFile = textFileRead(gs);
+			//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			ID3D10Blob* gErrors = NULL;
+			hr = D3D10CompileShader(gShaderFile, gShaderFile.size(), String(gs.getFilename()), NULL, NULL, "main", "gs_4_0", gShaderFlags, &gShaderBinary, &gErrors);
+			dxShaderError(gErrors);
+			DX_ASSERT_MSG(hr);
+			//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			DX_ASSERT_MSG(render->d3dDevice->CreateGeometryShader((DWORD*)gShaderBinary->GetBufferPointer(), gShaderBinary->GetBufferSize(), &gShader));
+			getContants(render->d3dDevice, "gs", gVariablesRef, gShaderBinary, &gConstantBuffer10, gSizeConstantBuffer);
+			getResources(render->d3dDevice, "gs", gResourcesRef, gSamplerRef, gShaderBinary);
+			if (gSizeConstantBuffer)
+				gBufferCpu.resize(gSizeConstantBuffer);
+			//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		}
 	}
 
 	///////////////////
@@ -311,7 +332,37 @@ namespace Easy3D{
 		virtual ~UniformDXPS(){
 		}
 	};
+	class UniformDXGS : public Uniform < UniformDXGS > {
 
+		ShaderDX* shader{ nullptr };;
+		size_t offset{ 0 };
+		size_t bsize{ 0 };
+
+	public:
+		UniformDXGS(ShaderDX* shader,
+					size_t offset,
+					size_t bsize)
+			:shader(shader)
+			, offset(offset)
+			, bsize(bsize){}
+
+		virtual void  set(const void* value, size_t s, size_t n){
+			DEBUG_ASSERT(shader->getCpuGBufferSize() >= (offset + bsize*s + bsize*n));
+			Math::memcpy((&shader->getCpuGBuffer()[offset]) + bsize*s, (Easy3D::byte*)value, bsize*n);
+		}
+		virtual void  set(const void* value) {
+			DEBUG_ASSERT(shader->getCpuGBufferSize() >= (offset + bsize));
+			Math::memcpy(&(shader->getCpuGBuffer()[offset]), (Easy3D::byte*)value, bsize);
+		}
+		virtual void* get(){
+			return NULL;
+		}
+		virtual const void* get() const {
+			return NULL;
+		}
+		virtual ~UniformDXGS(){
+		}
+	};
 	class UniformVSTexture : public CTexture {
 
 		ShaderDX* shader{ nullptr };
@@ -337,7 +388,6 @@ namespace Easy3D{
 		virtual const void* get() const { return NULL; }
 		virtual ~UniformVSTexture(){}
 	};
-
 	class UniformPSTexture : public CTexture {
 
 		ShaderDX* shader{ nullptr };
@@ -363,6 +413,31 @@ namespace Easy3D{
 		virtual const void* get() const { return NULL; }
 		virtual ~UniformPSTexture(){}
 	};
+	class UniformGSTexture : public CTexture {
+
+		ShaderDX* shader{ nullptr };
+		uint idtexture{ 0 };
+		uint idsampler{ 0 };
+
+	public:
+
+		UniformGSTexture(ShaderDX* shader, uint idtexture, uint idsampler)
+			:shader(shader)
+			, idtexture(idtexture)
+			, idsampler(idsampler){}
+
+		virtual void disable(){
+			getRender().disableGSTexture(idtexture, idsampler);
+		}
+		virtual void  set(const void* value, size_t s, size_t n){
+			if (n == 0) getRender().enableGSTexture(idtexture, idsampler, (BaseTexture*)value);
+			else  getRender().enableGSTexture(idtexture, idsampler, (BaseRenderTexture*)value);
+		}
+		virtual void  set(const void* value) { /* void */ }
+		virtual void* get(){ return NULL; }
+		virtual const void* get() const { return NULL; }
+		virtual ~UniformGSTexture(){}
+	};
 
 #define uniformMethod(name,type, bsize,ctype)\
 	ctype* ShaderDX::name(const char *name){\
@@ -371,6 +446,8 @@ namespace Easy3D{
 			return (ctype*)new UniformDXVS(this, vVariablesRef[name], bsize);\
 		else if ('p' == *name)\
 			return (ctype*)new UniformDXPS(this, pVariablesRef[name], bsize);\
+		else if ('g' == *name)\
+			return (ctype*)new UniformDXGS(this, gVariablesRef[name], bsize);\
 		else\
 		   return nullptr;\
 		}\
@@ -404,6 +481,8 @@ CTexture* ShaderDX::getConstTexture(const char *argName){
 				return (CTexture*)new UniformVSTexture(this, vResourcesRef[names[0]], vSamplerRef[names[1]]);
 			else if ('p' == names[0][0])
 				return (CTexture*)new UniformPSTexture(this, pResourcesRef[names[0]], pSamplerRef[names[1]]);
+			else if ('g' == names[0][0])
+				return (CTexture*)new UniformGSTexture(this, pResourcesRef[names[0]], pSamplerRef[names[1]]);
 			else
 				return nullptr; 
 	}
@@ -419,8 +498,11 @@ CTexture* ShaderDX::getConstTexture(const char *argName){
 
 		render->d3dDevice->PSSetConstantBuffers(0, 1, &pConstantBuffer10);
 		render->d3dDevice->PSSetShader(pShader);
-
-		render->d3dDevice->GSSetShader(NULL);
+		
+		if (gSizeConstantBuffer){
+			render->d3dDevice->GSSetConstantBuffers(0, 1, &gConstantBuffer10);
+			render->d3dDevice->GSSetShader(gShader);
+		}
 	}
 	void ShaderDX::unbind(){
 		render->d3dDevice->VSSetShader(NULL);
@@ -432,6 +514,8 @@ CTexture* ShaderDX::getConstTexture(const char *argName){
 			sendBinaryData(vConstantBuffer10, 0, &vBufferCpu[0], vSizeConstantBuffer);
 		if (pSizeConstantBuffer)
 			sendBinaryData(pConstantBuffer10, 0, &pBufferCpu[0], pSizeConstantBuffer);
+		if (gSizeConstantBuffer)
+			sendBinaryData(gConstantBuffer10, 0, &gBufferCpu[0], gSizeConstantBuffer);
 	}
 
 };

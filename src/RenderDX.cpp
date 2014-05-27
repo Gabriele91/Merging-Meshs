@@ -989,14 +989,22 @@ void RenderDX::enablePSTexture(uint t, uint s, BaseTexture* texture){
 	d3dDevice->PSSetShaderResources(t, 1, &texture->resourceView);
 	d3dDevice->PSSetSamplers(s, 1, &texture->sempler);
 }
+void RenderDX::enableGSTexture(uint t, uint s, BaseTexture* texture){
+	d3dDevice->GSSetShaderResources(t, 1, &texture->resourceView);
+	d3dDevice->GSSetSamplers(s, 1, &texture->sempler);
+}
 
 void RenderDX::enableVSTexture(uint t, uint s, BaseRenderTexture* texture){
-	d3dDevice->PSSetShaderResources(t, 1, &texture->resourceView);
-	d3dDevice->PSSetSamplers(s, 1, &texture->sempler);
+	d3dDevice->VSSetShaderResources(t, 1, &texture->resourceView);
+	d3dDevice->VSSetSamplers(s, 1, &texture->sempler);
 }
 void RenderDX::enablePSTexture(uint t, uint s, BaseRenderTexture* texture){
 	d3dDevice->PSSetShaderResources(t, 1, &texture->resourceView);
 	d3dDevice->PSSetSamplers(s, 1, &texture->sempler);
+}
+void RenderDX::enableGSTexture(uint t, uint s, BaseRenderTexture* texture){
+	d3dDevice->GSSetShaderResources(t, 1, &texture->resourceView);
+	d3dDevice->GSSetSamplers(s, 1, &texture->sempler);
 }
 void RenderDX::disableVSTexture(uint t, uint s){
 	ID3D10SamplerState* sS = NULL;
@@ -1009,6 +1017,12 @@ void RenderDX::disablePSTexture(uint t, uint s){
 	ID3D10ShaderResourceView* srV = NULL;
 	d3dDevice->PSSetShaderResources(t, 1, &srV);
 	d3dDevice->PSSetSamplers(s, 1, &sS);
+}
+void RenderDX::disableGSTexture(uint t, uint s){
+	ID3D10SamplerState* sS = NULL;
+	ID3D10ShaderResourceView* srV = NULL;
+	d3dDevice->GSSetShaderResources(t, 1, &srV);
+	d3dDevice->GSSetSamplers(s, 1, &sS);
 }
 
 void RenderDX::deleteTexture(BaseTexture* texture){

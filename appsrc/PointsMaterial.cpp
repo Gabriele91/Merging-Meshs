@@ -16,17 +16,20 @@ void PointsMaterial::init(){
 		shader->loadShader(rpath + "/shader/points/points.vs.glsl",
 					  	   rpath + "/shader/points/points.fs.glsl",
 					  	   rpath + "/shader/points/points.gs.glsl");
-        gsize=shader->getConstVec2("size")->shared();
+		gsize = shader->getConstVec2("size")->shared();
+		proj = shader->getConstMat4("projection")->shared();
+		view = shader->getConstMat4("view")->shared();
+		model = shader->getConstMat4("model")->shared();
     }
 	else if (r.getRenderDriver() == DIRECTX_DRIVER){
 		shader->loadShader(rpath + "/shader/points/points.vs.hlsl",
-					       rpath + "/shader/points/points.fs.hlsl");
-        gsize=shader->getConstVec2("gs.size")->shared();
+						   rpath + "/shader/points/points.fs.hlsl",
+						   rpath + "/shader/points/points.gs.hlsl");
+		gsize = shader->getConstVec2("gs.size")->shared();
+		proj = shader->getConstMat4("gs.projection")->shared();
+		view = shader->getConstMat4("gs.view")->shared();
+		model = shader->getConstMat4("gs.model")->shared();
     }
-
-	proj = shader->getConstMat4("projection")->shared();
-	view = shader->getConstMat4("view")->shared();
-	model = shader->getConstMat4("model")->shared();
 
 	AttributeList aList = {
 		{ "inPosition", ATT_FLOAT3 }

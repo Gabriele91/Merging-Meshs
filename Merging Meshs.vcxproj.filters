@@ -319,6 +319,9 @@
     <None Include="shader\points\points.fs.glsl">
       <Filter>File di risorse\points\OpenGL</Filter>
     </None>
+    <None Include="shader\points\points.gs.glsl">
+      <Filter>File di risorse\points\OpenGL</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="shader\geometry\geometry.fs.hlsl">
@@ -342,13 +345,14 @@
     <Text Include="shader\trackball\trackball.vs.hlsl">
       <Filter>File di risorse\trackball\DirectX</Filter>
     </Text>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="shader\points\points.fs.hlsl">
+    <Text Include="shader\points\points.fs.hlsl">
       <Filter>File di risorse\points\DirectX</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\points\points.vs.hlsl">
+    </Text>
+    <Text Include="shader\points\points.vs.hlsl">
       <Filter>File di risorse\points\DirectX</Filter>
-    </FxCompile>
+    </Text>
+    <Text Include="shader\points\points.gs.hlsl">
+      <Filter>File di risorse\points\DirectX</Filter>
+    </Text>
   </ItemGroup>
 </Project>

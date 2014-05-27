@@ -104,8 +104,8 @@ public:
 
 int main(){
 	Easy3D::Application::create("Easy3DExemple", 
-												OPENGL_DRIVER
-												//DIRECTX_DRIVER
+												//OPENGL_DRIVER
+												DIRECTX_DRIVER
 												);
 	Easy3D::Application::instance()->exec(new MyGame());
 	delete Easy3D::Application::instance()->getGame();
