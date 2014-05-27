@@ -54,8 +54,8 @@ public:
 		trackball.init(&matTrackball);
 		////////////////
 		//LEFT
-		//init first
-		modelLeft.loadOFF(rspath + "/meshs/all.off",false);
+		//init first all.off faccia000.off
+		modelLeft.loadOFF(rspath + "/meshs/faccia000.off",false);
 		//init track 
 		trackAreaLeft.init(&matGeometry, &matPoints);
 		trackAreaLeft.setMesh(modelLeft);
@@ -70,7 +70,7 @@ public:
 		////////////////
 		//RIGHT
 		//init first ship/tet3dcc2/m299/head/m332/m355/m1003/m1372
-		modelRight.loadOFF(rspath + "/meshs/ship.off", false);
+		modelRight.loadOFF(rspath + "/meshs/cube.off", false);
 		//init track 
 		trackAreaRight.init(&matGeometry, &matPoints);
 		trackAreaRight.setMesh(modelRight);

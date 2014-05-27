@@ -43,21 +43,21 @@ namespace Easy3D{
 	}
 
 	ShaderGL::ShaderGL()
-		:shader_vs(0),
-		shader_fs(0),
-		shader_id(0)
 	{
 	}
 
-	void ShaderGL::loadShader(const Utility::Path& vsFile,
-		const Utility::Path& fsFile,
-		const std::vector<String>& defines){
+	void ShaderGL::loadShader(bool  geometry,
+                              const Utility::Path& vsFile,
+                              const Utility::Path& fsFile,
+                              const Utility::Path& gsFile,
+                              const std::vector<String>& defines){
 		//delete last shader
 		deleteProgram();
 		GLint compiled = 0, linked = 0;
 		// load shaders files
 		String fileVS = textFileRead(vsFile);
 		String fileFS = textFileRead(fsFile);
+		String fileGS = geometry ? textFileRead(gsFile) : "";
 		//list define
 		String definesString;
 		for (const String& define : defines)
@@ -69,6 +69,7 @@ namespace Easy3D{
 			"#define lerp        mix                        \n"
 			"#line 0\n" +
 			fileVS;
+        //fragment
 		fileFS = "#version 150\n" +
 			definesString +
 			"#define saturate(x) clamp( x, 0.0, 1.0 )       \n"
@@ -78,16 +79,27 @@ namespace Easy3D{
 			"#define mediump\n"
 			"#define lowp\n"
 			"#line 0\n" +
-			fileFS;
+        fileFS;
+        //geometry
+		fileGS = "#version 150\n" +
+            definesString +
+            "#define saturate(x) clamp( x, 0.0, 1.0 )       \n"
+            "#define lerp        mix                        \n"
+            "#line 0\n" +
+        fileGS;
 		//create a pixel shader
 		shader_fs = glCreateShader(GL_FRAGMENT_SHADER);
 		//create a vertex shader
 		shader_vs = glCreateShader(GL_VERTEX_SHADER);
+        //geometry
+		shader_gs = geometry ? glCreateShader(GL_GEOMETRY_SHADER) : 0;
 		//send source
 		const char* cVSfile = fileVS;
 		const char* cFSfile = fileFS;
+		const char* cGSfile = fileGS;
 		glShaderSource(shader_vs, 1, &(cVSfile), 0);
 		glShaderSource(shader_fs, 1, &(cFSfile), 0);
+		glShaderSource(shader_gs, 1, &(cGSfile), 0);
 		//compiling
 		compiled = 0;
 		glCompileShader(shader_vs);
@@ -98,10 +110,19 @@ namespace Easy3D{
 		glCompileShader(shader_fs);
 		glGetShaderiv(shader_fs, GL_COMPILE_STATUS, &compiled);
 		if (!logError(shader_fs, compiled)){ glDeleteShader(shader_fs); }
+        
+        compiled = 0;
+        if(shader_gs){
+            glCompileShader(shader_gs);
+            glGetShaderiv(shader_gs, GL_COMPILE_STATUS, &compiled);
+            if (!logError(shader_gs, compiled)){ glDeleteShader(shader_gs); }
+        }
 		//made a shader program
 		shader_id = glCreateProgram();
 		glAttachShader(shader_id, shader_vs);
 		glAttachShader(shader_id, shader_fs);
+		if(shader_gs)
+            glAttachShader(shader_id, shader_gs);
 		glLinkProgram(shader_id);
 		//get link status
 		glGetProgramiv(shader_id, GL_LINK_STATUS, &linked);
@@ -119,12 +140,16 @@ namespace Easy3D{
 			//"stacca" gli schader dal shader program
 			glDetachShader(shader_id, shader_fs);
 			glDetachShader(shader_id, shader_vs);
+			if(shader_gs)
+                glDetachShader(shader_id, shader_gs);
 			//cancella gli shader
 			glDeleteShader(shader_fs);
 			glDeleteShader(shader_vs);
+			if(shader_gs)
+                glDeleteShader(shader_gs);
 			//cancella lo shader program
 			glDeleteProgram(shader_id);
-			shader_vs = shader_fs = shader_id = 0;
+			shader_vs = shader_fs = shader_gs = shader_id = 0;
 		}
 
 	}
@@ -135,12 +160,17 @@ namespace Easy3D{
 			//"stacca" gli schader dal shader program
 			glDetachShader(shader_id, shader_fs);
 			glDetachShader(shader_id, shader_vs);
+			if(shader_gs)
+                glDetachShader(shader_id, shader_gs);
 			//cancella gli shader
 			glDeleteShader(shader_fs);
 			glDeleteShader(shader_vs);
+			if(shader_gs)
+                glDeleteShader(shader_gs);
 			//cancella lo shader program
 			glDeleteProgram(shader_id);
 			//to null
+			shader_gs = 0;
 			shader_fs = 0;
 			shader_vs = 0;
 			shader_id = 0;

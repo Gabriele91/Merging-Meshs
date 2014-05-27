@@ -9,6 +9,12 @@
 namespace Easy3D{
 	//sheder class declaretrion
 	class ShaderGL : public Shader {
+        
+        void loadShader(bool enableGeometry,
+                        const Utility::Path& vs,
+                        const Utility::Path& fs,
+                        const Utility::Path& gs,
+                        const std::vector<String>& defines);
 
 	public:
 		//costruttore
@@ -17,8 +23,16 @@ namespace Easy3D{
 		virtual ~ShaderGL();
 		//inizializza
 		virtual void loadShader(const Utility::Path& vs,
-                        const Utility::Path& fs,
-                        const std::vector<String>& defines);
+                                const Utility::Path& fs,
+                                const std::vector<String>& defines){
+            loadShader(false,vs,fs,"",defines);
+        }
+		virtual void loadShader(const Utility::Path& vs,
+                                const Utility::Path& fs,
+                                const Utility::Path& gs,
+                                const std::vector<String>& defines){
+            loadShader(true,vs,fs,gs,defines);
+        }
 
 		//get consts
 		virtual CTexture* getConstTexture(const char *name);
@@ -59,6 +73,7 @@ namespace Easy3D{
 		uint shader_id{ 0 };
 		uint shader_vs{ 0 };
 		uint shader_fs{ 0 };
+		uint shader_gs{ 0 };
 		void deleteProgram();
 
 	};

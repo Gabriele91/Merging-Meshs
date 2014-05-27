@@ -12,12 +12,17 @@ void PointsMaterial::init(){
 	String  rpath = Application::instance()->appResourcesDirectory();
 	//init shader
 	shader = r.createShader();
-	if (r.getRenderDriver() == OPENGL_DRIVER)
+	if (r.getRenderDriver() == OPENGL_DRIVER){
 		shader->loadShader(rpath + "/shader/points/points.vs.glsl",
-					  	   rpath + "/shader/points/points.fs.glsl");
-	else if (r.getRenderDriver() == DIRECTX_DRIVER)
+					  	   rpath + "/shader/points/points.fs.glsl",
+					  	   rpath + "/shader/points/points.gs.glsl");
+        gsize=shader->getConstVec2("size")->shared();
+    }
+	else if (r.getRenderDriver() == DIRECTX_DRIVER){
 		shader->loadShader(rpath + "/shader/points/points.vs.hlsl",
 					       rpath + "/shader/points/points.fs.hlsl");
+        gsize=shader->getConstVec2("gs.size")->shared();
+    }
 
 	proj = shader->getConstMat4("projection")->shared();
 	view = shader->getConstMat4("view")->shared();
@@ -34,10 +39,12 @@ int  PointsMaterial::id(){
 void PointsMaterial::draw(const Mesh& m) {
 	Render& r = *Application::instance()->getRender();
 	//save context
+    auto ctxCZBuffer = r.getZBufferState();
 	auto ctxCFaces = r.getCullFaceState();
 	auto ctxBlend = r.getBlendState();
 	//bind
 	r.bindShader(shader);
+	r.setZBufferState(false);
 	r.setCullFaceState(CullFace::DISABLE);
 	r.setBlendState({ BLEND::ONE, BLEND::ZERO });
 	//camera coords
@@ -45,11 +52,14 @@ void PointsMaterial::draw(const Mesh& m) {
 	view->setValue(camera->getViewMatrix());
 	//model
 	model->setValue(object->getGlobalMatrix());
+	//size
+	gsize->setValue(size);
 	//draw
 	m.draw(il);
 	//unbind
 	r.unbindShader();
 	//reset context
+	r.setZBufferState(ctxCZBuffer);
 	r.setBlendState(ctxBlend);
 	r.setCullFaceState(ctxCFaces);
 }

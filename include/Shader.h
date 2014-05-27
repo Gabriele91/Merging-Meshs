@@ -218,7 +218,9 @@ namespace Easy3D{
 		Shader(){};
 		virtual ~Shader(){};
 		virtual void loadShader(const Utility::Path& vs, const Utility::Path& fs){ loadShader(vs, fs, {}); }
+		virtual void loadShader(const Utility::Path& vs, const Utility::Path& fs, const Utility::Path& gs){ loadShader(vs, fs, gs,{}); }
 		virtual void loadShader(const Utility::Path& vs, const Utility::Path& fs, const std::vector<String>& defines) = 0;
+		virtual void loadShader(const Utility::Path& vs, const Utility::Path& fs, const Utility::Path& gs, const std::vector<String>& defines) = 0;
 
 
 		//get consts

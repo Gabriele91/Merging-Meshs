@@ -53,6 +53,7 @@ void PointsCloud::draw(Camera& camera){
 	if (ischange) buildMesh();
 	material->setCamera(&camera);
 	material->setObject(object);
+    material->setSize({ 0.01, 0.01});
 	material->draw(*geometry);
 }
 PointsCloud::~PointsCloud(){
