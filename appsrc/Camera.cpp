@@ -65,6 +65,39 @@ Vec3 Camera::unproject(const Vec3& win) const{
 	//
 	return obj.xyz();
 }
+
+Vec3 Camera::picking(const Vec2& win){
+	//calc direction
+	Render& r = *Application::instance()->getRender();
+	//homogenee coords
+    Vec4 tmp;
+    if(r.getRenderDriver()==OPENGL_DRIVER){
+        tmp=Vec4(invScreenY(win), r.getDepth(invScreenY(win)) , 1.0);
+        tmp.x = (tmp.x - (viewport.x)) / (viewport.z);
+        tmp.y = (tmp.y - (viewport.y)) / (viewport.w);
+        tmp = tmp * 2.0 - 1.0;
+    }
+    else if(r.getRenderDriver()==DIRECTX_DRIVER){
+        tmp=Vec4(invScreenY(win), 0.0 , 1.0);
+        tmp.x = (tmp.x - (viewport.x)) / (viewport.z);
+        tmp.y = (tmp.y - (viewport.y)) / (viewport.w);
+        tmp   = tmp * 2.0 - 1.0;
+        tmp.z = r.getDepth((win));
+    }
+    //camera coord
+    Mat4 iproj=projection.getInverse();
+    Vec4 cCoords=iproj.mul(tmp);
+    
+    //normalize
+    cCoords /= cCoords.w;
+    
+    //to world space
+    Mat4 iview=view.getInverse();
+    Vec4 wCoords=iview.mul(cCoords);
+    
+	return wCoords.xyz();
+}
+/*
 Vec3 Camera::picking(const Vec2& win){
 	//calc direction
 	Render& r = *Application::instance()->getRender();
@@ -80,7 +113,7 @@ Vec3 Camera::picking(const Vec2& win){
 	//endpoint
 	Vec3 endpos = origin + dir*distance;
 	return endpos;
-}
+}*/
 void Camera::ray(const Vec2& win, Vec3& origin, Vec3& dir){
 	//calc direction
 	Render& r = *Application::instance()->getRender();
