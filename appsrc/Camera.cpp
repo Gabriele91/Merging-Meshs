@@ -73,16 +73,13 @@ Vec3 Camera::picking(const Vec2& win){
     Vec4 tmp;
     if(r.getRenderDriver()==OPENGL_DRIVER){
         tmp=Vec4(invScreenY(win), r.getDepth(invScreenY(win)) , 1.0);
-        tmp.x = (tmp.x - (viewport.x)) / (viewport.z);
-        tmp.y = (tmp.y - (viewport.y)) / (viewport.w);
+        tmp.xy() = (tmp.xy() - viewport.xy()) / viewport.zw();
         tmp = tmp * 2.0 - 1.0;
     }
     else if(r.getRenderDriver()==DIRECTX_DRIVER){
-        tmp=Vec4(invScreenY(win), 0.0 , 1.0);
-        tmp.x = (tmp.x - (viewport.x)) / (viewport.z);
-        tmp.y = (tmp.y - (viewport.y)) / (viewport.w);
-        tmp   = tmp * 2.0 - 1.0;
-        tmp.z = r.getDepth((win));
+        tmp=Vec4(invScreenY(win), r.getDepth(win) , 1.0);
+        tmp.xy() = (tmp.xy() - viewport.xy()) / viewport.zw();
+        tmp.xy() = tmp.xy() * 2.0 - 1.0;
     }
     //camera coord
     Mat4 iproj=projection.getInverse();
@@ -115,9 +112,7 @@ Vec3 Camera::picking(const Vec2& win){
 	return endpos;
 }*/
 void Camera::ray(const Vec2& win, Vec3& origin, Vec3& dir){
-	//calc direction
-	Render& r = *Application::instance()->getRender();
-	//inverse scree Y
+    //inverse scree Y
 	Vec2 point(invScreenY(win));
 	//ray
 	Vec3 start = unproject(Vec3(point, 0.0));
@@ -130,8 +125,6 @@ void Camera::ray(const Vec2& win, Vec3& origin, Vec3& dir){
 	dir = ldir;
 }
 Vec3 Camera::direction(const Vec2& win){
-	//calc direction
-	Render& r = *Application::instance()->getRender();
 	//inverse scree Y
 	Vec2 point(invScreenY(win));
 	//ray

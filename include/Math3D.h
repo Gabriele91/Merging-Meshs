@@ -172,13 +172,65 @@ namespace Easy3D{
         Vector3D(const float* v):x(v[0]),y(v[1]),z(v[2]){};
 		~Vector3D(){};
 		///////////////////////////////////////////////////////////////////////////
-		DFORCEINLINE Vec2 xy() const{
-			return Vec2(x,y);
-		}
+        DFORCEINLINE Vec2 xx() const{
+            return Vec2(x,x);
+        }
+        
+        DFORCEINLINE Vec2 xy() const{
+            return Vec2(x,y);
+        }
+        
+        DFORCEINLINE Vec2 xz() const{
+            return Vec2(x,z);
+        }
+        
+        DFORCEINLINE Vec2 yx() const{
+            return Vec2(y,x);
+        }
+        
+        DFORCEINLINE Vec2 yy() const{
+            return Vec2(y,y);
+        }
+        
+        DFORCEINLINE Vec2 yz() const{
+            return Vec2(y,z);
+        }
+        
+        DFORCEINLINE Vec2 zx() const{
+            return Vec2(z,x);
+        }
+        
+        DFORCEINLINE Vec2 zy() const{
+            return Vec2(z,y);
+        }
+        
+        DFORCEINLINE Vec2 zz() const{
+            return Vec2(z,z);
+        }
+		///////////////////////////////////////////////////////////////////////////
+        //clor
 		DFORCEINLINE Vec2 rg() const{
 			return Vec2(x,y);
 		}
-		///////////////////////////////////////////////////////////////////////////
+		DFORCEINLINE Vec2 gb() const{
+			return Vec2(g,b);
+		}
+        ///////////////////////////////////////////////////////////////////////////
+        //no const
+        DFORCEINLINE Vec2& xy(){
+			return *((Vec2*)&x);
+		}
+        DFORCEINLINE Vec2& yz(){
+			return *((Vec2*)&y);
+		}
+        DFORCEINLINE Vec2& rg(){
+			return *((Vec2*)&x);
+		}
+        DFORCEINLINE Vec2& gb(){
+			return *((Vec2*)&y);
+		}
+        ///////////////////////////////////////////////////////////////////////////
+
 		template <char A>
 		DFORCEINLINE float to() const{
 			switch (A)
@@ -362,19 +414,379 @@ namespace Easy3D{
         Vector4D(const float* v):x(v[0]),y(v[1]),z(v[2]),w(v[3]){};
 		~Vector4D(){};
 		///////////////////////////////////////////////////////////////////////////
-		DFORCEINLINE Vec2 xy() const{
-			return Vec2(x,y);
-		}
+        //TO VEC2D
+        DFORCEINLINE Vec2 xx() const{
+            return Vec2(x,x);
+        }
+        
+        DFORCEINLINE Vec2 xy() const{
+            return Vec2(x,y);
+        }
+        
+        DFORCEINLINE Vec2 xz() const{
+            return Vec2(x,z);
+        }
+        
+        DFORCEINLINE Vec2 xw() const{
+            return Vec2(x,w);
+        }
+        
+        DFORCEINLINE Vec2 yx() const{
+            return Vec2(y,x);
+        }
+        
+        DFORCEINLINE Vec2 yy() const{
+            return Vec2(y,y);
+        }
+        
+        DFORCEINLINE Vec2 yz() const{
+            return Vec2(y,z);
+        }
+        
+        DFORCEINLINE Vec2 yw() const{
+            return Vec2(y,w);
+        }
+        
+        DFORCEINLINE Vec2 zx() const{
+            return Vec2(z,x);
+        }
+        
+        DFORCEINLINE Vec2 zy() const{
+            return Vec2(z,y);
+        }
+        
+        DFORCEINLINE Vec2 zz() const{
+            return Vec2(z,z);
+        }
+        
+        DFORCEINLINE Vec2 zw() const{
+            return Vec2(z,w);
+        }
+        
+        DFORCEINLINE Vec2 wx() const{
+            return Vec2(w,x);
+        }
+        
+        DFORCEINLINE Vec2 wy() const{
+            return Vec2(w,y);
+        }
+        
+        DFORCEINLINE Vec2 wz() const{
+            return Vec2(w,z);
+        }
+        
+        DFORCEINLINE Vec2 ww() const{
+            return Vec2(w,w);
+        }
+        ///////////////////////////////////////////////////////////////////////////
+        //TO VEC3D
+		DFORCEINLINE Vec3 xxx() const{
+            return Vec3(x,x,x);
+        }
+        
+        DFORCEINLINE Vec3 xxy() const{
+            return Vec3(x,x,y);
+        }
+        
+        DFORCEINLINE Vec3 xxz() const{
+            return Vec3(x,x,z);
+        }
+        
+        DFORCEINLINE Vec3 xxw() const{
+            return Vec3(x,x,w);
+        }
+        
+        DFORCEINLINE Vec3 xyx() const{
+            return Vec3(x,y,x);
+        }
+        
+        DFORCEINLINE Vec3 xyy() const{
+            return Vec3(x,y,y);
+        }
+        
+        DFORCEINLINE Vec3 xyz() const{
+            return Vec3(x,y,z);
+        }
+        
+        DFORCEINLINE Vec3 xyw() const{
+            return Vec3(x,y,w);
+        }
+        
+        DFORCEINLINE Vec3 xzx() const{
+            return Vec3(x,z,x);
+        }
+        
+        DFORCEINLINE Vec3 xzy() const{
+            return Vec3(x,z,y);
+        }
+        
+        DFORCEINLINE Vec3 xzz() const{
+            return Vec3(x,z,z);
+        }
+        
+        DFORCEINLINE Vec3 xzw() const{
+            return Vec3(x,z,w);
+        }
+        
+        DFORCEINLINE Vec3 xwx() const{
+            return Vec3(x,w,x);
+        }
+        
+        DFORCEINLINE Vec3 xwy() const{
+            return Vec3(x,w,y);
+        }
+        
+        DFORCEINLINE Vec3 xwz() const{
+            return Vec3(x,w,z);
+        }
+        
+        DFORCEINLINE Vec3 xww() const{
+            return Vec3(x,w,w);
+        }
+        
+        DFORCEINLINE Vec3 yxx() const{
+            return Vec3(y,x,x);
+        }
+        
+        DFORCEINLINE Vec3 yxy() const{
+            return Vec3(y,x,y);
+        }
+        
+        DFORCEINLINE Vec3 yxz() const{
+            return Vec3(y,x,z);
+        }
+        
+        DFORCEINLINE Vec3 yxw() const{
+            return Vec3(y,x,w);
+        }
+        
+        DFORCEINLINE Vec3 yyx() const{
+            return Vec3(y,y,x);
+        }
+        
+        DFORCEINLINE Vec3 yyy() const{
+            return Vec3(y,y,y);
+        }
+        
+        DFORCEINLINE Vec3 yyz() const{
+            return Vec3(y,y,z);
+        }
+        
+        DFORCEINLINE Vec3 yyw() const{
+            return Vec3(y,y,w);
+        }
+        
+        DFORCEINLINE Vec3 yzx() const{
+            return Vec3(y,z,x);
+        }
+        
+        DFORCEINLINE Vec3 yzy() const{
+            return Vec3(y,z,y);
+        }
+        
+        DFORCEINLINE Vec3 yzz() const{
+            return Vec3(y,z,z);
+        }
+        
+        DFORCEINLINE Vec3 yzw() const{
+            return Vec3(y,z,w);
+        }
+        
+        DFORCEINLINE Vec3 ywx() const{
+            return Vec3(y,w,x);
+        }
+        
+        DFORCEINLINE Vec3 ywy() const{
+            return Vec3(y,w,y);
+        }
+        
+        DFORCEINLINE Vec3 ywz() const{
+            return Vec3(y,w,z);
+        }
+        
+        DFORCEINLINE Vec3 yww() const{
+            return Vec3(y,w,w);
+        }
+        
+        DFORCEINLINE Vec3 zxx() const{
+            return Vec3(z,x,x);
+        }
+        
+        DFORCEINLINE Vec3 zxy() const{
+            return Vec3(z,x,y);
+        }
+        
+        DFORCEINLINE Vec3 zxz() const{
+            return Vec3(z,x,z);
+        }
+        
+        DFORCEINLINE Vec3 zxw() const{
+            return Vec3(z,x,w);
+        }
+        
+        DFORCEINLINE Vec3 zyx() const{
+            return Vec3(z,y,x);
+        }
+        
+        DFORCEINLINE Vec3 zyy() const{
+            return Vec3(z,y,y);
+        }
+        
+        DFORCEINLINE Vec3 zyz() const{
+            return Vec3(z,y,z);
+        }
+        
+        DFORCEINLINE Vec3 zyw() const{
+            return Vec3(z,y,w);
+        }
+        
+        DFORCEINLINE Vec3 zzx() const{
+            return Vec3(z,z,x);
+        }
+        
+        DFORCEINLINE Vec3 zzy() const{
+            return Vec3(z,z,y);
+        }
+        
+        DFORCEINLINE Vec3 zzz() const{
+            return Vec3(z,z,z);
+        }
+        
+        DFORCEINLINE Vec3 zzw() const{
+            return Vec3(z,z,w);
+        }
+        
+        DFORCEINLINE Vec3 zwx() const{
+            return Vec3(z,w,x);
+        }
+        
+        DFORCEINLINE Vec3 zwy() const{
+            return Vec3(z,w,y);
+        }
+        
+        DFORCEINLINE Vec3 zwz() const{
+            return Vec3(z,w,z);
+        }
+        
+        DFORCEINLINE Vec3 zww() const{
+            return Vec3(z,w,w);
+        }
+        
+        DFORCEINLINE Vec3 wxx() const{
+            return Vec3(w,x,x);
+        }
+        
+        DFORCEINLINE Vec3 wxy() const{
+            return Vec3(w,x,y);
+        }
+        
+        DFORCEINLINE Vec3 wxz() const{
+            return Vec3(w,x,z);
+        }
+        
+        DFORCEINLINE Vec3 wxw() const{
+            return Vec3(w,x,w);
+        }
+        
+        DFORCEINLINE Vec3 wyx() const{
+            return Vec3(w,y,x);
+        }
+        
+        DFORCEINLINE Vec3 wyy() const{
+            return Vec3(w,y,y);
+        }
+        
+        DFORCEINLINE Vec3 wyz() const{
+            return Vec3(w,y,z);
+        }
+        
+        DFORCEINLINE Vec3 wyw() const{
+            return Vec3(w,y,w);
+        }
+        
+        DFORCEINLINE Vec3 wzx() const{
+            return Vec3(w,z,x);
+        }
+        
+        DFORCEINLINE Vec3 wzy() const{
+            return Vec3(w,z,y);
+        }
+        
+        DFORCEINLINE Vec3 wzz() const{
+            return Vec3(w,z,z);
+        }
+        
+        DFORCEINLINE Vec3 wzw() const{
+            return Vec3(w,z,w);
+        }
+        
+        DFORCEINLINE Vec3 wwx() const{
+            return Vec3(w,w,x);
+        }
+        
+        DFORCEINLINE Vec3 wwy() const{
+            return Vec3(w,w,y);
+        }
+        
+        DFORCEINLINE Vec3 wwz() const{
+            return Vec3(w,w,z);
+        }
+        
+        DFORCEINLINE Vec3 www() const{
+            return Vec3(w,w,w);
+        }
+        ///////////////////////////////////////////////////////////////////////////
+        //colors
 		DFORCEINLINE Vec2 rg() const{
 			return Vec2(x,y);
 		}
-		DFORCEINLINE Vec3 xyz() const{
-			return Vec3(x,y,z);
+		DFORCEINLINE Vec2 gb() const{
+			return Vec2(y,z);
+		}
+		DFORCEINLINE Vec2 ba() const{
+			return Vec2(z,w);
 		}
 		DFORCEINLINE Vec3 rgb() const{
 			return Vec3(r,g,b);
 		}
-
+		DFORCEINLINE Vec3 gba() const{
+			return Vec3(g,b,a);
+		}
+        ///////////////////////////////////////////////////////////////////////////
+        //no const
+        DFORCEINLINE Vec2& xy(){
+			return *((Vec2*)&x);
+		}
+        DFORCEINLINE Vec2& yz(){
+			return *((Vec2*)&y);
+		}
+        DFORCEINLINE Vec2& zw(){
+			return *((Vec2*)&z);
+		}
+        
+        DFORCEINLINE Vec3& xyz(){
+			return *((Vec3*)&x);
+		}
+        DFORCEINLINE Vec3& yzw(){
+			return *((Vec3*)&y);
+		}
+        
+        DFORCEINLINE Vec2& rg(){
+			return *((Vec2*)&x);
+		}
+        DFORCEINLINE Vec2& gb(){
+			return *((Vec2*)&y);
+		}
+        DFORCEINLINE Vec2& ba(){
+			return *((Vec2*)&z);
+		}
+        
+        DFORCEINLINE Vec3& rgb(){
+			return *((Vec3*)&x);
+		}
+        DFORCEINLINE Vec3& gba(){
+			return *((Vec3*)&y);
+		}
 		///////////////////////////////////////////////////////////////////////////
 		template <char A>
 		DFORCEINLINE float to() const{
