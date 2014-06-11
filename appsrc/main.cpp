@@ -58,7 +58,7 @@ public:
 		modelLeft.loadOFF(rspath + "/meshs/faccia000.off",false);
 		//init track 
 		trackAreaLeft.init(&matGeometry, &matPoints);
-		trackAreaLeft.setMesh(modelLeft);
+		trackAreaLeft.addMesh(modelLeft);
 		trackAreaLeft.setTrackball(trackball);
 		trackAreaLeft.sphere.radius = 1.5;
 		trackAreaLeft.setZoomVelocity(0.1);
@@ -70,10 +70,10 @@ public:
 		////////////////
 		//RIGHT
 		//init first ship/tet3dcc2/m299/head/m332/m355/m1003/m1372
-		modelRight.loadOFF(rspath + "/meshs/cube.off", false);
+		modelRight.loadOFF(rspath + "/meshs/faccia045.off", false);
 		//init track 
 		trackAreaRight.init(&matGeometry, &matPoints);
-		trackAreaRight.setMesh(modelRight);
+		trackAreaRight.addMesh(modelRight);
 		trackAreaRight.setTrackball(trackball);
 		trackAreaRight.sphere.radius = 1.5;
 		trackAreaRight.setZoomVelocity(0.1);

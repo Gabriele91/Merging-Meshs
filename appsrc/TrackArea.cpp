@@ -20,11 +20,9 @@ TrackArea::TrackArea(){
 	Application::instance()->getInput()->addHandler((Input::MouseHandler*)this);
 }
 void TrackArea::init(GeometryMaterial* gmap, PointsMaterial* pmat){
-	//set geometry
-	geometry.init(gmap);
+	//set materials
+	matgeom=gmap;
 	cldpoints.init(pmat);
-	//attach geometry to protation
-	protation.addChild(&geometry,false);
 	//camera
 	//camera.setPerspective(45.0f, 0.1f, 1000.0f);
 }
@@ -61,25 +59,28 @@ void TrackArea::calcRay(const Vec2& mouse){
 
 //pikking
 void TrackArea::addPoint(const Vec3& point){
-	Mat4 modelinv = geometry.getModelMatrix().getInverse();
-	Vec3 vpoint = modelinv.mul({ point, 1.0 }).xyz();
-	//search the most near point
-	Mesh& mesh = *geometry.getMesh();
-	size_t ivertex = mesh.getIndex(0);
-	Vec3  mostnear = mesh.getVertex3(ivertex, 0);
-	float mindist = mostnear.distancePow2(vpoint);
-	float tmpdistance = mindist;
-	//search
-	for (size_t i = 1; i != mesh.sindex(); ++i){
-		ivertex = mesh.getIndex(i);
-		tmpdistance = mesh.getVertex3(ivertex, 0).distancePow2(vpoint);
-		if (tmpdistance < mindist){
-			mindist = tmpdistance;
-			mostnear = mesh.getVertex3(ivertex, 0);
-		}
-	}
-	//add
-	cldpoints.addPoint(mostnear);
+    for(auto& geometry:geometies){
+        //calc mat inverse
+        Mat4 modelinv = geometry.getModelMatrix().getInverse();
+        Vec3 vpoint = modelinv.mul({ point, 1.0 }).xyz();
+        //search the most near point
+        Mesh& mesh = *geometry.getMesh();
+        size_t ivertex = mesh.getIndex(0);
+        Vec3  mostnear = mesh.getVertex3(ivertex, 0);
+        float mindist = mostnear.distancePow2(vpoint);
+        float tmpdistance = mindist;
+        //search
+        for (size_t i = 1; i != mesh.sindex(); ++i){
+            ivertex = mesh.getIndex(i);
+            tmpdistance = mesh.getVertex3(ivertex, 0).distancePow2(vpoint);
+            if (tmpdistance < mindist){
+                mindist = tmpdistance;
+                mostnear = mesh.getVertex3(ivertex, 0);
+            }
+        }
+        //add
+        cldpoints.addPoint(mostnear);
+    }
 
 }
 
@@ -91,35 +92,50 @@ void TrackArea::draw(){
 	Input&  input = *Application::instance()->getInput();
 	//camera left
 	render.setViewportState(camera.getViewport());
-	//set shadow camera distance:
-	//get shadow camera
-	auto& scam = geometry.getMaterial()->getShadowCamera();
-	//dist
-	Vec3 dir=Vec3(0.0, 0.9,.9).getNormalize();
-	const float clen =4.0;
-	Vec3 pos = dir*clen + dir*(protation.getScale(true) - 1.0);
-	//set dist
-	scam.setPosition(pos);
-	//angle
-	scam.setRotation(pointTarget(sphere.point, pos));
-	//draw model
-	geometry.draw(camera);
-	//save info query
-	picking = camera.picking(input.getMouse());
-	//draw trackball
-	if (trackball){
-		trackball->setPosition(sphere.point);
-		trackball->setScale(sphere.radius*Vec3::ONE);
-		trackball->setRotation(protation.getRotation(true));
-		trackball->draw(camera);
-	}
+    
+    
+    //set shadow camera distance:
+    //get shadow camera
+    auto& scam = matgeom->getShadowCamera();
+    //dist
+    Vec3 dir=Vec3(0.0, 0.9,.9).getNormalize();
+    const float clen =4.0;
+    Vec3 pos = dir*clen + dir*(protation.getScale(true) - 1.0);
+    //set dist
+    scam.setPosition(pos);
+    //angle
+    scam.setRotation(pointTarget(sphere.point, pos));
+    
+    for(auto& geometry:geometies){
+        //draw model
+        geometry.draw(camera);
+        //save info query
+        picking = camera.picking(input.getMouse());
+        //draw trackball
+        if (trackball){
+            trackball->setPosition(sphere.point);
+            trackball->setScale(sphere.radius*Vec3::ONE);
+            trackball->setRotation(protation.getRotation(true));
+            trackball->draw(camera);
+        }
 
-	//draw selected points
-	cldpoints.setObject(geometry.getRelative());
-	cldpoints.draw(camera);
+        //draw selected points
+        cldpoints.setObject(geometry.getRelative());
+        cldpoints.draw(camera);
+        
+    }
 }
 //set & get
-void TrackArea::setMesh(Mesh& obj){
+void TrackArea::addMesh(Mesh& obj){
+    //add geometry
+    geometies.resize(geometies.size()+1);
+    //const
+    auto& geometry=*(--geometies.end());
+    //init
+    geometry.init(matgeom);
+	//attach geometry to protation
+	protation.addChild(&geometry,false);
+    //add mesh
 	geometry.setMesh(&obj);
 }
 void TrackArea::setTrackball(Trackball& trk){
@@ -160,7 +176,8 @@ void TrackArea::onMousePress(Vec2 mouse, Key::Mouse bt){
 			addPoint(picking);
 		break;
 		case Key::BUTTON_RIGHT:
-			geometry.setMove(-picking, true);
+            for(auto& geometry:geometies)
+                geometry.setMove(-picking, true);
 		break;
 	default:
 		break;

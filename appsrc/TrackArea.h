@@ -46,7 +46,7 @@ namespace Easy3D{
 		//draw mesh
 		void draw();
 		//set & get
-		void setMesh(Mesh& obj);
+		void addMesh(Mesh& obj);
 		void setTrackball(Trackball& obj);
 		void setViewport(const ViewportState& viewport);
 		void setZoomVelocity(float zvelocity);
@@ -57,9 +57,11 @@ namespace Easy3D{
 	protected:
 
 		Object   protation;
-		Geometry geometry;
 		Camera	 camera;
 		Trackball *trackball{ nullptr };
+        //geometry info
+        GeometryMaterial*     matgeom{ nullptr };
+        std::list<Geometry> geometies;
 		//point cloud
 		PointsCloud cldpoints;
 		void addPoint(const Vec3& point);
