@@ -38,6 +38,7 @@ namespace Easy3D {
 		CMat4::ptr colorSWV{ nullptr };
 		//model
 		CMat4::ptr colorM{ nullptr };
+		CVec4::ptr colorC{ nullptr };
 		//light
 		CVec3::ptr lightDir{ nullptr };
 		CVec4::ptr lightDiffuse{ nullptr };
@@ -56,6 +57,7 @@ namespace Easy3D {
 		Object* object{ nullptr };
 		Vec3 ldir;
 		Vec4 ldiffuse;
+		Vec4 color;
 
 	public:
 
@@ -80,6 +82,9 @@ namespace Easy3D {
 		}
 		DFORCEINLINE void setLightDiffuse(const Vec4& color){
 			ldiffuse = color;
+		}
+		DFORCEINLINE void setColor(const Vec4& color){
+			this->color = color;
 		}
 	};
 };

@@ -56,12 +56,13 @@ namespace Easy3D{
 	
 	protected:
 
+		//geometry info
+		GeometryMaterial*     matgeom{ nullptr };
+		std::list<Geometry> geometies;
+		//scene elements
 		Object   protation;
 		Camera	 camera;
 		Trackball *trackball{ nullptr };
-        //geometry info
-        GeometryMaterial*     matgeom{ nullptr };
-        std::list<Geometry> geometies;
 		//point cloud
 		PointsCloud cldpoints;
 		void addPoint(const Vec3& point);

@@ -26,6 +26,7 @@ public:
 	GeometryMaterial  matGeometry;
 	//model 1
 	Mesh modelLeft;
+	Mesh modelLeft2;
 	TrackArea trackAreaLeft;
 	//model 2
 	Mesh modelRight;
@@ -50,15 +51,18 @@ public:
 		matTrackball.init();
 		matPoints.init();
 		matGeometry.init();
+		matGeometry.setColor({1.0,0.0,0.0,1.0});
 		//init trackball
 		trackball.init(&matTrackball);
 		////////////////
 		//LEFT
 		//init first all.off faccia000.off
-		modelLeft.loadOFF(rspath + "/meshs/faccia000.off",false);
+		modelLeft.loadOFF(rspath + "/meshs/faccia000.off", false);
+		modelLeft2.loadOFF(rspath + "/meshs/faccia045.off", false); 
 		//init track 
 		trackAreaLeft.init(&matGeometry, &matPoints);
 		trackAreaLeft.addMesh(modelLeft);
+		trackAreaLeft.addMesh(modelLeft2);
 		trackAreaLeft.setTrackball(trackball);
 		trackAreaLeft.sphere.radius = 1.5;
 		trackAreaLeft.setZoomVelocity(0.1);

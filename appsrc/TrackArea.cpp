@@ -118,12 +118,11 @@ void TrackArea::draw(){
             trackball->setRotation(protation.getRotation(true));
             trackball->draw(camera);
         }
+	}
 
-        //draw selected points
-        cldpoints.setObject(geometry.getRelative());
-        cldpoints.draw(camera);
-        
-    }
+    //draw selected points
+	cldpoints.setObject(geometies.begin()->getRelative());
+    cldpoints.draw(camera);
 }
 //set & get
 void TrackArea::addMesh(Mesh& obj){
@@ -137,6 +136,10 @@ void TrackArea::addMesh(Mesh& obj){
 	protation.addChild(&geometry,false);
     //add mesh
 	geometry.setMesh(&obj);
+	//equal scale factor
+	geometry.getRelative()->setScale(
+		geometies.begin()->getRelative()->getScale()
+		);
 }
 void TrackArea::setTrackball(Trackball& trk){
 	trackball = &trk;

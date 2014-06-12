@@ -15,8 +15,9 @@ SamplerState sampleShadow;
 
 //uniforms
 cbuffer C_UNIFORMS{
-	float3 light; // = { 0, 2, 1 };
+	float4 color; // = { 1.0, 1.0, 1.0, 1.0 };
 	float4 diffuse; // = { 1.0, 1.0, 1.0, 1.0 };
+	float3 light; // = { 0, 2, 1 };
 };
 
 static float  zBias = 0.005;
@@ -74,5 +75,5 @@ float4 main(VS_OUTPUT input) : SV_Target
 
 	}
 
-	return diffuse*intensity*visibility;
+	return diffuse*intensity*visibility*color;
 }

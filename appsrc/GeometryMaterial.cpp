@@ -49,16 +49,22 @@ void GeometryMaterial::initColor(){
 	if (r.getRenderDriver() == OPENGL_DRIVER){
 		colorSH->loadShader(rpath + "/shader/geometry/geometry.vs.glsl",
 							rpath + "/shader/geometry/geometry.fs.glsl");
+		//light & shadow
 		lightDir = colorSH->getConstVec3("light")->shared();
 		lightDiffuse = colorSH->getConstVec4("diffuse")->shared();
 		colorTEX = colorSH->getConstTexture("shadowMap")->shared();
+		//model color
+		colorC = colorSH->getConstVec4("color")->shared();
 	}
 	else if (r.getRenderDriver() == DIRECTX_DRIVER){
 		colorSH->loadShader(rpath + "/shader/geometry/geometry.vs.hlsl",
 						    rpath + "/shader/geometry/geometry.fs.hlsl");
+		//light & shadow
 		lightDir = colorSH->getConstVec3("ps.light")->shared();
 		lightDiffuse = colorSH->getConstVec4("ps.diffuse")->shared();
 		colorTEX = colorSH->getConstTexture("ps.shadowMap:sampleShadow")->shared();
+		//model color
+		colorC = colorSH->getConstVec4("ps.color")->shared();
 	}
 	//camera 
 	colorP = colorSH->getConstMat4("projection")->shared();
@@ -123,6 +129,7 @@ void GeometryMaterial::drawColor(const Mesh& m){
 	colorV->setValue(camera->getViewMatrix());
 	//model
 	colorM->setValue(object->getGlobalMatrix());
+	colorC->setValue(color);
 	//set light info
 	lightDir->setValue(ldir);
 	lightDiffuse->setValue(ldiffuse);

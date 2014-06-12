@@ -6,6 +6,7 @@ out vec4 oColor;
 //uniforms
 uniform vec3 light;
 uniform vec4 diffuse;
+uniform vec4 color;
 uniform sampler2DShadow shadowMap;
 
 //globals
@@ -54,5 +55,5 @@ void main(){
 	}
 	
     //ouput
-    oColor =  diffuse*intensity*visibility;
+    oColor =  diffuse*intensity*visibility*color;
 }
