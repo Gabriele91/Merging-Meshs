@@ -13,6 +13,7 @@ namespace Easy3D{
         
         
         enum VertexField {
+			NONE=0,
             POSITION2D=1,
             POSITION3D=2,
             COLOR     =4,
@@ -30,7 +31,10 @@ namespace Easy3D{
 		//load mesh from off file
 		void loadOFF(const Utility::Path& path,bool cpudelete = true);
 		void loadOFF(const Utility::Path& path, OFFCompute normals, bool cpudelete = true);
+		bool saveOFF(const Utility::Path& path);
+		bool addMeshOFF(Mesh& mesh, const Matrix4x4& model);
         
+
         //begin create mash
 		void format(uchar type, size_t vsize=0, size_t isize=0);
 
@@ -98,6 +102,8 @@ namespace Easy3D{
         BaseVertexBufferObject* bVertex{ NULL };
         uint sBIndex;
         BaseIndextBufferObject* bIndex{ NULL };
+		//save type field
+		VertexField type{ NONE };
 		//set buffers
 		void set() const;
         //calc size

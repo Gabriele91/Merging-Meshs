@@ -317,6 +317,76 @@ void Mesh::loadOFF(const Utility::Path& path, OFFCompute normals, bool cpudelete
 	//bind mesh
 	bind(cpudelete);
 }
+bool Mesh::saveOFF(const Utility::Path& path)
+{
+	//size index & vertex
+	size_t isize = sizeIndexs();
+	size_t vsize = sizeVertexs();
+	if (vsize == 0) return false;
+	if (isize == 0 || isize % 3) return false;
+	//open a file
+	FILE* pFile = fopen(path, "w");
+	if (!pFile) return false;
+	//header OFF
+	String rawfile;
+	rawfile = String("OFF\n") + vsize  + " " + isize / 3 + " 0\n";
+	//add vertex
+	for (size_t v = 0; v != vsize; ++v)
+	{
+		const Vec3& vt3=offV(v);
+		rawfile += String() + vt3.x + " " + vt3.y + " " + vt3.z + "\n";
+	}
+	//add faces
+	for (long i = 0; i != isize; i += 3)
+	{
+		rawfile +=  String("3 ") + 
+			        indexs[i]   + " " + 
+					indexs[i+1] + " " + 
+					indexs[i+2] + "\n";
+	}
+	//save into file
+	fwrite(rawfile, rawfile.size(), 1,pFile);
+	//close
+	fclose(pFile);
+	//return
+	return true;
+}
+bool Mesh::addMeshOFF(Mesh& mesh, const Matrix4x4& model)
+{
+	//size index & vertex
+	size_t isize = mesh.sizeIndexs();
+	size_t vsize = mesh.sizeVertexs();
+	if (vsize == 0) return false;
+	if (isize == 0 || isize % 3) return false;
+
+	//start to add
+	size_t nvstart = sizeVertexs();
+	if (nvstart == 0)
+		format(mesh.type, vsize, isize);
+	else if (mesh.type != type)
+		return false;
+	//add vertexs
+	for (size_t v = 0; v != vsize; ++v)
+	{
+		//add vertex
+		Vec3 vt3 = model.mul({ mesh.offV(v), 1.0f});
+		vertex(vt3);
+		//add normal
+		if (mesh.type &  Mesh::NORMAL)
+		{
+			Vec3 nt3 = model.mul({ mesh.offN(v), 0.0f });
+			normal(nt3);
+		}
+	}
+
+	//add indexs
+	for (size_t i = 0; i != isize; ++i)
+	{
+		index(mesh.indexs[i] + nvstart);
+	}
+
+	return true;
+}
 
 size_t Mesh::attSize(uchar type){
     switch (type) {
@@ -350,7 +420,7 @@ void Mesh::addFild(const float* b, size_t size){
 	currentVertex += sizeof(float)*size;
 }
 size_t Mesh::sizeVertexs(){
-	return (Math::multipleOfX(currentVertex, vSize) / vSize);
+	return vSize ? (Math::multipleOfX(currentVertex, vSize) / vSize) : 0;
 }
 size_t Mesh::sizeIndexs(){
 	return currentIndex;
@@ -367,9 +437,10 @@ void Mesh::addIndexCPage(){
 	}
 }
 //begin create mash
-void Mesh::format(uchar type, size_t vsize, size_t isize){
+void Mesh::format(uchar argtype, size_t vsize, size_t isize){
 	clear();
-	calcVertexSize(type);
+	calcVertexSize(argtype);
+	type = (VertexField)argtype;
 	vertexs = std::vector<byte> (vSize*(vsize != 0 ? vsize : VBO_N_PAGE));
 	indexs = std::vector<uint> (isize != 0 ? isize : IBO_N_PAGE);
 }

@@ -31,6 +31,8 @@ public:
 	//model 2
 	Mesh modelRight;
 	TrackArea trackAreaRight;
+	//all area
+	TrackArea trackAreaAll;
 	//others
 	Trackball trackball;
 
@@ -51,18 +53,16 @@ public:
 		matTrackball.init();
 		matPoints.init();
 		matGeometry.init();
-		matGeometry.setColor({1.0,0.0,0.0,1.0});
+		matGeometry.setColor({1.0,1.0,1.0,1.0});
 		//init trackball
 		trackball.init(&matTrackball);
 		////////////////
 		//LEFT
 		//init first all.off faccia000.off
 		modelLeft.loadOFF(rspath + "/meshs/faccia000.off", false);
-		modelLeft2.loadOFF(rspath + "/meshs/faccia045.off", false); 
 		//init track 
 		trackAreaLeft.init(&matGeometry, &matPoints);
 		trackAreaLeft.addMesh(modelLeft);
-		trackAreaLeft.addMesh(modelLeft2);
 		trackAreaLeft.setTrackball(trackball);
 		trackAreaLeft.sphere.radius = 1.5;
 		trackAreaLeft.setZoomVelocity(0.1);
@@ -87,7 +87,33 @@ public:
 				 viewport.z*0.5, viewport.w)
 			);
 		////////////////
-
+		//MERGE /ALL
+		//init track 
+		/*
+		trackAreaAll.init(&matGeometry, &matPoints);
+		trackAreaAll.addMesh(modelLeft);
+		trackAreaAll.addMesh(modelRight);
+		trackAreaRight.setTrackball(trackball);
+		trackAreaAll.sphere.radius = 1.5;
+		trackAreaAll.setZoomVelocity(0.1);
+		trackAreaAll.setZDistance(4);
+		trackAreaAll.setViewport(
+			Vec4(0, 0,viewport.z, viewport.w)
+			);
+		*/
+		//test save
+		//modelRight.saveOFF(rspath + "/meshs/faccia045.off");
+		#if 0
+		Mesh m1;
+		m1.addMeshOFF(modelRight, {
+			1, 0, 0, 0,
+			0, 0.5, 0, 0,
+			0, 0, 1, 0,
+			0, 0, 0, 1
+		});
+		m1.saveOFF(rspath + "/meshs/faccia045.off");
+		#endif
+		
 	}
 	
 	void run(float dt){
@@ -108,8 +134,8 @@ public:
 
 int main(){
 	Easy3D::Application::create("Easy3DExemple", 
-												//OPENGL_DRIVER
-												DIRECTX_DRIVER
+												OPENGL_DRIVER
+												//DIRECTX_DRIVER
 												);
 	Easy3D::Application::instance()->exec(new MyGame());
 	delete Easy3D::Application::instance()->getGame();
