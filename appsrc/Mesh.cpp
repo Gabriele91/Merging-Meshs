@@ -369,12 +369,12 @@ bool Mesh::addMeshOFF(Mesh& mesh, const Matrix4x4& model)
 	for (size_t v = 0; v != vsize; ++v)
 	{
 		//add vertex
-		Vec3 vt3 = model.mul({ mesh.offV(v), 1.0f});
+		Vec3 vt3 = model.mul({ mesh.offV(v), 1.0f}).xyz();
 		vertex(vt3);
 		//add normal
 		if (mesh.type &  Mesh::NORMAL)
 		{
-			Vec3 nt3 = model.mul({ mesh.offN(v), 0.0f });
+			Vec3 nt3 = model.mul({ mesh.offN(v), 0.0f }).xyz();
 			normal(nt3);
 		}
 	}
