@@ -33,7 +33,6 @@
 		E02A860518FFF01C00F05C0E /* Screen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E02A85E318FFF01C00F05C0E /* Screen.cpp */; };
 		E02A860718FFF01C00F05C0E /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E02A85E518FFF01C00F05C0E /* Timer.cpp */; };
 		E02A860818FFF01C00F05C0E /* Utility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E02A85E618FFF01C00F05C0E /* Utility.cpp */; };
-		E02A861018FFF02F00F05C0E /* shader in Resources */ = {isa = PBXBuildFile; fileRef = E02A860F18FFF02F00F05C0E /* shader */; };
 		E02A86A918FFF19900F05C0E /* libfreetype.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E02A86A718FFF19900F05C0E /* libfreetype.a */; };
 		E02A86AA18FFF19900F05C0E /* libopenal.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E02A86A818FFF19900F05C0E /* libopenal.a */; };
 		E02A86AD18FFF1F400F05C0E /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E02A86AB18FFF1F400F05C0E /* OpenAL.framework */; };
@@ -54,6 +53,9 @@
 		E0CB39911920B10F00DDF9AF /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E0CB398E1920B10F00DDF9AF /* Camera.cpp */; };
 		E0CB39921920B10F00DDF9AF /* Geometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E0CB39901920B10F00DDF9AF /* Geometry.cpp */; };
 		E0D17A8919000A9A00E4D6E1 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E0D17A8719000A9A00E4D6E1 /* main.cpp */; };
+		E0EFD45319BF09F90088C7CC /* imgui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E0EFD45219BF09F90088C7CC /* imgui.cpp */; };
+		E0EFD45619BF0C840088C7CC /* gui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E0EFD45419BF0C840088C7CC /* gui.cpp */; };
+		E0EFD45719BF45750088C7CC /* shader in Resources */ = {isa = PBXBuildFile; fileRef = E02A860F18FFF02F00F05C0E /* shader */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -246,6 +248,11 @@
 		E0D17A851900097600E4D6E1 /* CocoaOpenGL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CocoaOpenGL.h; sourceTree = "<group>"; };
 		E0D17A8719000A9A00E4D6E1 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		E0D17A8819000A9A00E4D6E1 /* stdafx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		E0EFD45119BF06C40088C7CC /* imgui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imgui.h; sourceTree = "<group>"; };
+		E0EFD45219BF09F90088C7CC /* imgui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui.cpp; sourceTree = "<group>"; };
+		E0EFD45419BF0C840088C7CC /* gui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gui.cpp; sourceTree = "<group>"; };
+		E0EFD45519BF0C840088C7CC /* gui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gui.h; sourceTree = "<group>"; };
+		E0F49EE819C35D28009E771F /* Editorui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Editorui.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -602,6 +609,10 @@
 		E0D17A8619000A9A00E4D6E1 /* appsrc */ = {
 			isa = PBXGroup;
 			children = (
+				E0F49EE819C35D28009E771F /* Editorui.h */,
+				E0EFD45419BF0C840088C7CC /* gui.cpp */,
+				E0EFD45519BF0C840088C7CC /* gui.h */,
+				E0EFD45019BF06C40088C7CC /* ui */,
 				E0AD99D5193477A500403C18 /* PointsCloud.h */,
 				E0AD99D4193477A500403C18 /* PointsCloud.cpp */,
 				E075BF09192B3ABD0071F4E8 /* Materials */,
@@ -618,6 +629,15 @@
 				E0D17A8719000A9A00E4D6E1 /* main.cpp */,
 			);
 			path = appsrc;
+			sourceTree = "<group>";
+		};
+		E0EFD45019BF06C40088C7CC /* ui */ = {
+			isa = PBXGroup;
+			children = (
+				E0EFD45219BF09F90088C7CC /* imgui.cpp */,
+				E0EFD45119BF06C40088C7CC /* imgui.h */,
+			);
+			path = ui;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -696,8 +716,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E0EFD45719BF45750088C7CC /* shader in Resources */,
 				E075BF11192B3C270071F4E8 /* meshs in Resources */,
-				E02A861018FFF02F00F05C0E /* shader in Resources */,
 				E02A857818FFEF3400F05C0E /* InfoPlist.strings in Resources */,
 				E02A858618FFEF3400F05C0E /* Images.xcassets in Resources */,
 				E02A857E18FFEF3400F05C0E /* Credits.rtf in Resources */,
@@ -734,12 +754,14 @@
 				E02A85F218FFF01C00F05C0E /* CocoaScreen.mm in Sources */,
 				E02A860318FFF01C00F05C0E /* Memory.cpp in Sources */,
 				E02A85F018FFF01C00F05C0E /* CocoaApp.mm in Sources */,
+				E0EFD45619BF0C840088C7CC /* gui.cpp in Sources */,
 				E075BF10192B3AD10071F4E8 /* TrackballMaterial.cpp in Sources */,
 				E02A85F718FFF01C00F05C0E /* EString.cpp in Sources */,
 				E02A85F918FFF01C00F05C0E /* Game.cpp in Sources */,
 				E0D17A8919000A9A00E4D6E1 /* main.cpp in Sources */,
 				E02A860118FFF01C00F05C0E /* Math3D_SSE2.cpp in Sources */,
 				E02A85FF18FFF01C00F05C0E /* Math3D.cpp in Sources */,
+				E0EFD45319BF09F90088C7CC /* imgui.cpp in Sources */,
 				E02A85F518FFF01C00F05C0E /* Debug.cpp in Sources */,
 				E0B272A81916747400CABAC1 /* Mesh.cpp in Sources */,
 				E02A85FA18FFF01C00F05C0E /* Input.cpp in Sources */,

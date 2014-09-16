@@ -29,7 +29,7 @@ namespace Easy3D{
 			return points;
 		}
 
-		Mat4 calcRotoTranslate(const PointsCloud& target);
+		Mat4 calcSVD(const PointsCloud& target);
 
 	};
 };

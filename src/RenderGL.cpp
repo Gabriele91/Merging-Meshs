@@ -161,7 +161,21 @@ class BaseIndextBufferObject : public BufferObject  {
 public:
     BaseIndextBufferObject(GLuint idBuffer=0):BufferObject(idBuffer){}
 };
-
+BaseVertexBufferObject* RenderGL::createStreamVBO(const byte* vbo, size_t stride, size_t n)
+{
+    auto ptr=new BaseVertexBufferObject();
+    ptr->genBuffer();
+    glBindBuffer(GL_ARRAY_BUFFER, *ptr);
+	glBufferData(GL_ARRAY_BUFFER, stride*n, vbo, GL_STREAM_DRAW);
+    return ptr;
+}
+BaseIndextBufferObject* RenderGL::createStreamIBO(const uint* ibo, size_t size){
+    auto ptr=new BaseIndextBufferObject();
+    ptr->genBuffer();
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *ptr);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint)*size, ibo, GL_STREAM_DRAW);
+    return ptr;
+}
 BaseVertexBufferObject* RenderGL::createVBO(const byte* vbo, size_t stride, size_t n){
     auto ptr=new BaseVertexBufferObject();
     ptr->genBuffer();
@@ -176,6 +190,28 @@ BaseIndextBufferObject* RenderGL::createIBO(const uint* ibo, size_t size){
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint)*size, ibo, GL_STATIC_DRAW);
     return ptr;
 }
+    
+void RenderGL::updateSteamVBO(BaseVertexBufferObject* vbo, const byte* data, size_t size){
+    //get state
+    GLint lastbind=0;
+    glGetIntegerv(GL_ARRAY_BUFFER, &lastbind);
+    //change
+	glBindBuffer(GL_ARRAY_BUFFER, *vbo);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
+    //restore
+    glBindBuffer(GL_ARRAY_BUFFER, lastbind);
+}
+void RenderGL::updateSteamIBO(BaseIndextBufferObject* ibo, const uint* data, size_t size){
+    //get state
+    GLint lastbind;
+    glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER, &lastbind);
+    //change
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *ibo);
+    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, size*sizeof(uint), data);
+    //restore
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, lastbind);
+}
+    
 void RenderGL::bindVBO(BaseVertexBufferObject* vbo){
 	DEBUG_ASSERT(currentShader);
 	//currentShader->uniform();
@@ -209,6 +245,9 @@ inline static GLuint getOpenGLDrawType(TypeDraw type){
 }
 void RenderGL::drawArrays(TypeDraw type, uint n){
     glDrawArrays(getOpenGLDrawType(type), 0, n);
+}
+void RenderGL::drawArrays(TypeDraw type, uint start,uint size){
+    glDrawArrays(getOpenGLDrawType(type), start, size);
 }
 void RenderGL::drawElements(TypeDraw type, uint n){
     glDrawElements(getOpenGLDrawType(type), n, GL_UNSIGNED_INT, (void*)NULL);
@@ -352,8 +391,62 @@ public:
 		glBindTexture(GL_TEXTURE_2D, (GLuint)0);
 	}
 };
-
-BaseTexture* RenderGL::sendTexture2D(size_t w, size_t h, void* byte, TextureType type){ return NULL; }
+inline const GLuint getGLTextureFormat(TextureType type)
+{
+    switch (type) {
+        case TextureType::TX_RGBA8: return GL_RGBA;
+        case TextureType::TX_RG16: return GL_RG16UI;
+        case TextureType::TX_RG8: return GL_RG;
+        case TextureType::TX_R16: return GL_R16UI;
+        case TextureType::TX_R8: return GL_RED;
+        default: return GL_ZERO; break;
+    }
+}
+inline const GLuint getGLTextureInternalFormat(TextureType type)
+{
+    switch (type) {
+        case TextureType::TX_RGBA8: return GL_RGBA;
+        case TextureType::TX_RG16:
+        case TextureType::TX_RG8: return GL_RG;
+        case TextureType::TX_R16:
+        case TextureType::TX_R8: return GL_RED;
+        default: return GL_ZERO; break;
+    }
+}
+BaseTexture* RenderGL::sendTexture2D(size_t w, size_t h, void* byte, TextureType type){
+    
+    //new texture
+    BaseTexture* texture=new BaseTexture(w,h);
+    //create a texture (COLOR)
+    texture->createTBO();
+    //enable texture id
+    texture->enableTBO();
+    //format
+    GLuint iformat=getGLTextureInternalFormat(type);
+    GLuint format=getGLTextureFormat(type);
+    //send to gpu
+    //create texture buffer
+    glTexImage2D(GL_TEXTURE_2D,
+                 0,
+                 iformat,
+                 texture->width,
+                 texture->height,
+                 0,
+                 format,
+                 GL_UNSIGNED_BYTE,
+                 byte);
+    //set filters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    //disable texture
+	texture->disableTBO();
+    //return texture
+    return texture;
+}
 
 class BaseRenderTexture : public BaseTexture {
 public:

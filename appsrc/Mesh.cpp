@@ -568,5 +568,5 @@ void Mesh::draw(BaseInputLayout* il) const{
 		r.drawElements(dMode, sBIndex);
 	else
 		r.drawArrays(dMode, sBVertex);
-	r.bindIL(il);
+	//r.bindIL(il);??
 }

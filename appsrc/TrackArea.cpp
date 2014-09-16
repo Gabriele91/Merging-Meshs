@@ -16,9 +16,33 @@ inline Quaternion pointTarget(const Vec3& target, const Vec3& point){
 }
 //init
 TrackArea::TrackArea(){
-	//reg input
-	Application::instance()->getInput()->addHandler((Input::MouseHandler*)this);
+    //get input
+    unlock();
 }
+TrackArea::~TrackArea(){
+    //lock input
+    lock();
+}
+
+void TrackArea::lock()
+{
+	//unreg input
+    if(!locked)
+    {
+        Application::instance()->getInput()->removeHandler((Input::MouseHandler*)this);
+        locked=true;
+    }
+}
+void TrackArea::unlock()
+{
+	//reg input
+    if(locked)
+    {
+        Application::instance()->getInput()->addHandler((Input::MouseHandler*)this);
+        locked=false;
+    }
+}
+
 void TrackArea::init(GeometryMaterial* gmap, PointsMaterial* pmat){
 	//set materials
 	matgeom=gmap;
@@ -26,10 +50,7 @@ void TrackArea::init(GeometryMaterial* gmap, PointsMaterial* pmat){
 	//camera
 	//camera.setPerspective(45.0f, 0.1f, 1000.0f);
 }
-TrackArea::~TrackArea(){
-	//unreg input
-	Application::instance()->getInput()->removeHandler((Input::MouseHandler*)this);
-}
+
 
 //utility function
 bool TrackArea::inViewport(const Vec2& point){
@@ -141,6 +162,19 @@ void TrackArea::addMesh(Mesh& obj){
 		geometies.begin()->getRelative()->getScale()
 		);
 }
+void TrackArea::removeMesh(const Mesh& obj){
+    //search
+    for (auto i = geometies.begin(), e = geometies.end(); i !=e; ++i)
+    {
+        if(i->getMesh()==&obj)
+        {
+            protation.erseChild(&(*i));
+            geometies.erase(i);
+            break;
+        }
+    }
+}
+
 void TrackArea::setTrackball(Trackball& trk){
 	trackball = &trk;
 }

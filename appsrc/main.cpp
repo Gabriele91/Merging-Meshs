@@ -14,8 +14,12 @@
 #include "Trackball.h"
 #include "TrackArea.h"
 #include "Geometry.h"
+#include "Editorui.h"
 
+#define DRAW_MODELS
 using namespace Easy3D;
+#define UI_SIZE 200
+
 
 class MyGame : public Easy3D::Game {
 public:
@@ -25,21 +29,100 @@ public:
 	PointsMaterial	  matPoints;
 	GeometryMaterial  matGeometry;
 	//model 1
-	Mesh modelLeft;
-	Mesh modelLeft2;
 	TrackArea trackAreaLeft;
 	//model 2
-	Mesh modelRight;
 	TrackArea trackAreaRight;
-	//all area
-	TrackArea trackAreaAll;
 	//others
 	Trackball trackball;
-
+    //last mesh
+    Mesh* lastMesh{ nullptr };
+    //editor
+    EditorUI ui;
+    //states
+    enum LoadState
+    {
+        NO_LOAD,
+        ONE_LOAD,
+        ALL_LOAD
+    };
+    LoadState lstate{ NO_LOAD };
     
 
 	MyGame() :Game("Easy3D exemple", 1280, 720,32,60){}
+    
+    //rspath + "/meshs/faccia000.off" ship/tet3dcc2/m299/head/m332/m355/m1003/m1372
+    void loadModel(const String& path)
+    {
+        //screen size
+        Vec2 ssize=getScreen().getSize();
+        
+        switch (lstate) {
+            case NO_LOAD:
+            {
+                //init
+                Mesh* mesh=new Mesh;
+                mesh->loadOFF(path, false);
+                lastMesh=mesh;
+                //init track
+                trackAreaLeft.addMesh(*mesh);
+                trackAreaLeft.sphere.radius = 1.5;
+                trackAreaLeft.setZoomVelocity(0.1);
+                trackAreaLeft.setZDistance(4);
+                //viewport
+                trackAreaLeft.setViewport(Vec4(UI_SIZE, 0,  ssize.x-UI_SIZE, ssize.y) );
+                //new state
+                lstate=ONE_LOAD;
+                break;
+            }
+            case ONE_LOAD:
+            {
+                //init
+                Mesh* mesh=new Mesh();
+                mesh->loadOFF(path, false);
+                lastMesh=mesh;
+                //init track
+                trackAreaRight.addMesh(*mesh);
+                trackAreaRight.sphere.radius = 1.5;
+                trackAreaRight.setZoomVelocity(0.1);
+                trackAreaRight.setZDistance(4);
+                //viewport
+                trackAreaLeft.setViewport(Vec4(UI_SIZE, 0,  ssize.x*0.5-UI_SIZE*0.5, ssize.y) );
+                trackAreaRight.setViewport( Vec4(ssize.x*0.5+UI_SIZE*0.5, 0, ssize.x*0.5-UI_SIZE*0.5, ssize.y) );
+                //new state
+                lstate=ALL_LOAD;
+            }
+            break;
+                
+            default:
+                break;
+        }
+    }
 
+    void drawModels()
+    {
+        switch (lstate) {
+            case ALL_LOAD:
+                trackAreaRight.draw();
+            case ONE_LOAD:
+                trackAreaLeft.draw();
+            default:  break;
+        }
+    }
+    
+    void mergeMesh()
+    {
+        if(lstate!=ALL_LOAD || !lastMesh) return;
+        //screen size
+        Vec2 ssize=getScreen().getSize();
+        //add mesh to area
+        trackAreaRight.removeMesh(*lastMesh);
+        trackAreaLeft.addMesh(*lastMesh);
+        //viewport
+        trackAreaLeft.setViewport(Vec4(UI_SIZE, 0,  ssize.x-UI_SIZE, ssize.y) );
+        //new state
+        lstate=ONE_LOAD;
+    }
+    
 	void start(){
 		//resource
 		String rspath = Application::instance()->appResourcesDirectory();
@@ -56,53 +139,23 @@ public:
 		matGeometry.setColor({1.0,1.0,1.0,1.0});
 		//init trackball
 		trackball.init(&matTrackball);
-		////////////////
-		//LEFT
-		//init first all.off faccia000.off
-		modelLeft.loadOFF(rspath + "/meshs/faccia000.off", false);
-		//init track 
-		trackAreaLeft.init(&matGeometry, &matPoints);
-		trackAreaLeft.addMesh(modelLeft);
-		trackAreaLeft.setTrackball(trackball);
-		trackAreaLeft.sphere.radius = 1.5;
-		trackAreaLeft.setZoomVelocity(0.1);
-		trackAreaLeft.setZDistance(4);
-		trackAreaLeft.setViewport(
-			Vec4(0, 0,
-				 viewport.z*0.5, viewport.w)
-			);
-		////////////////
-		//RIGHT
-		//init first ship/tet3dcc2/m299/head/m332/m355/m1003/m1372
-		modelRight.loadOFF(rspath + "/meshs/faccia045.off", false);
-		//init track 
-		trackAreaRight.init(&matGeometry, &matPoints);
-		trackAreaRight.addMesh(modelRight);
-		trackAreaRight.setTrackball(trackball);
-		trackAreaRight.sphere.radius = 1.5;
-		trackAreaRight.setZoomVelocity(0.1);
-		trackAreaRight.setZDistance(4);
-		trackAreaRight.setViewport(
-			Vec4(viewport.z*0.5, 0, 
-				 viewport.z*0.5, viewport.w)
-			);
-		////////////////
-		//MERGE /ALL
-		//init track 
-		/*
-		trackAreaAll.init(&matGeometry, &matPoints);
-		trackAreaAll.addMesh(modelLeft);
-		trackAreaAll.addMesh(modelRight);
-		trackAreaRight.setTrackball(trackball);
-		trackAreaAll.sphere.radius = 1.5;
-		trackAreaAll.setZoomVelocity(0.1);
-		trackAreaAll.setZDistance(4);
-		trackAreaAll.setViewport(
-			Vec4(0, 0,viewport.z, viewport.w)
-			);
-		*/
-		//test save
-		//modelRight.saveOFF(rspath + "/meshs/faccia045.off");
+        //init track area
+        //left
+        trackAreaLeft.init(&matGeometry, &matPoints);
+        trackAreaLeft.setTrackball(trackball);
+        //right
+        trackAreaRight.init(&matGeometry, &matPoints);
+        trackAreaRight.setTrackball(trackball);
+        //init ui
+        ui.setSizeLeft(UI_SIZE);
+        ui.setCallBackLoad([this](const String& path)
+                           {
+                               loadModel(path);
+                           });
+        ui.setCallBackSVD([this]()
+                         {
+                             mergeMesh();
+                         });
 		#if 0
 		Mesh m1;
 		m1.addMeshOFF(modelRight, {
@@ -117,25 +170,22 @@ public:
 	}
 	
 	void run(float dt){
-
 		//clear
 		getRender().doClear();
 		//draw left
-		trackAreaLeft.draw();
-		//draw right
-		trackAreaRight.draw();
-        
+        drawModels();
+        //draw ui
+        ui.draw();
 	}
 	void end(){
-
 	}
 
 };
 
 int main(){
 	Easy3D::Application::create("Easy3DExemple", 
-												OPENGL_DRIVER
-												//DIRECTX_DRIVER
+												//OPENGL_DRIVER
+												DIRECTX_DRIVER
 												);
 	Easy3D::Application::instance()->exec(new MyGame());
 	delete Easy3D::Application::instance()->getGame();

@@ -58,9 +58,14 @@ namespace Easy3D {
 
         //BO
 		//virtual BaseVertexBufferObject* createVBO(const byte* vbo, size_t size, size_t strip, size_t offset)=0;
+		virtual BaseVertexBufferObject* createStreamVBO(const byte* vbo, size_t stride, size_t n);
+        virtual BaseIndextBufferObject* createStreamIBO(const uint* ibo, size_t size);
 		virtual BaseVertexBufferObject* createVBO(const byte* vbo, size_t stride, size_t n);
 		virtual BaseIndextBufferObject* createIBO(const uint* ibo, size_t size);
         
+        
+        virtual void updateSteamVBO(BaseVertexBufferObject* vbo, const byte* vb, size_t n);
+        virtual void updateSteamIBO(BaseIndextBufferObject* vbo, const uint* ib, size_t n);
         
 		virtual void bindVBO(BaseVertexBufferObject*);
 		virtual void bindIBO(BaseIndextBufferObject*);
@@ -70,6 +75,7 @@ namespace Easy3D {
         
         //draw
 		virtual void drawArrays(TypeDraw type, uint n);
+		virtual void drawArrays(TypeDraw type, uint start,uint size);
 		virtual void drawElements(TypeDraw type, uint n);
         
         //DEPTH

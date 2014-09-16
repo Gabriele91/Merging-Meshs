@@ -474,7 +474,8 @@ namespace Easy3D{
 CTexture* ShaderDX::getConstTexture(const char *argName){
 	
 	String sname(argName);
-	auto names=sname.split(':');
+	std::vector<String> names;
+	sname.split(':', names);
 
 	if (names[0][0] && names[1] && '.' == names[0][2]){
 			if ('v' == names[0][0])
@@ -482,7 +483,7 @@ CTexture* ShaderDX::getConstTexture(const char *argName){
 			else if ('p' == names[0][0])
 				return (CTexture*)new UniformPSTexture(this, pResourcesRef[names[0]], pSamplerRef[names[1]]);
 			else if ('g' == names[0][0])
-				return (CTexture*)new UniformGSTexture(this, pResourcesRef[names[0]], pSamplerRef[names[1]]);
+				return (CTexture*)new UniformGSTexture(this, gResourcesRef[names[0]], gSamplerRef[names[1]]);
 			else
 				return nullptr; 
 	}
@@ -508,6 +509,16 @@ CTexture* ShaderDX::getConstTexture(const char *argName){
 		render->d3dDevice->VSSetShader(NULL);
 		render->d3dDevice->PSSetShader(NULL);
 		render->d3dDevice->GSSetShader(NULL);
+		//unbind
+		UINT null = 0;
+		ID3D10Buffer* nullB = 0;
+		//unbind input layout
+		render->d3dDevice->IASetInputLayout(NULL);
+		//unbind vbo
+		render->d3dDevice->IASetVertexBuffers(0, 1, &nullB, &null, &null);
+		//unbind ibo
+		render->d3dDevice->IASetIndexBuffer(nullB, DXGI_FORMAT_R32_UINT, 0);
+
 	}
 	void ShaderDX::uniform(){
 		if (vSizeConstantBuffer)

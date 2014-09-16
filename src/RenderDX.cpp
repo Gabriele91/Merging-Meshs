@@ -20,6 +20,7 @@ namespace Easy3D{
 
 inline static bool dxAssertMsg(HRESULT hr, const char* strcommand,const char* file,int line){
 	if (FAILED(hr)){
+		Debug::message() << "DirectX: " << DXGetErrorString(hr) << "\n";
 		Debug::message() << "DirectX: " << DXGetErrorDescription(hr) << "\n";
 		Debug::doassert(0, "DirectX Render"/*strcommand*/, file, line);
 		return false;
@@ -428,7 +429,8 @@ void  RenderDX::setBlendState(const BlendState& bs){
 //projection matrix
 Mat4 RenderDX::calculatesOrto(float left, float right, float bottom, float top, float vnear, float vfar) const {
 	Mat4 projection;
-	projection.setOrthoRHDX(left, right, bottom, top, vnear, vfar);
+	//projection.setOrthoRHDX(left, right, bottom, top, vnear, vfar);
+	projection.setOrthoRHGL(left, right, bottom, top, vnear, vfar);
 	return projection;
 }
 Mat4 RenderDX::calculatesProjection(float fovy, float aspect, float vnear, float vfar) const {
@@ -473,9 +475,22 @@ public:
 		bd.BindFlags = D3D10_BIND_VERTEX_BUFFER;
 		bd.CPUAccessFlags = 0;
 		bd.MiscFlags = 0;
-		D3D10_SUBRESOURCE_DATA InitData; 
-		InitData.pSysMem = vbo;
-		DX_ASSERT_MSG(device->CreateBuffer(&bd, &InitData, &buffer));
+		D3D10_SUBRESOURCE_DATA initData;
+		initData.pSysMem = vbo;
+		D3D10_SUBRESOURCE_DATA* data = vbo ? &initData : NULL;
+		DX_ASSERT_MSG(device->CreateBuffer(&bd, data, &buffer));
+	}	
+	void genStreamBuffer(ID3D10Device* device, const byte* vbo, size_t size) {
+		D3D10_BUFFER_DESC bd;
+		bd.Usage = D3D10_USAGE_DYNAMIC;
+		bd.ByteWidth = size;
+		bd.BindFlags = D3D10_BIND_VERTEX_BUFFER;
+		bd.CPUAccessFlags = D3D10_CPU_ACCESS_WRITE;
+		bd.MiscFlags = 0;
+		D3D10_SUBRESOURCE_DATA initData;
+		initData.pSysMem = vbo;
+		D3D10_SUBRESOURCE_DATA* data = vbo ? &initData : NULL;
+		DX_ASSERT_MSG(device->CreateBuffer(&bd, data, &buffer));
 	}
 };
 class BaseIndextBufferObject : public BufferObject  {
@@ -488,13 +503,38 @@ public:
 		bd.BindFlags = D3D10_BIND_INDEX_BUFFER;
 		bd.CPUAccessFlags = 0;
 		bd.MiscFlags = 0;
-		D3D10_SUBRESOURCE_DATA InitData;
-		InitData.pSysMem = ibo;
-		DX_ASSERT_MSG(device->CreateBuffer(&bd, &InitData, &buffer));
+		D3D10_SUBRESOURCE_DATA initData;
+		initData.pSysMem = ibo;
+		D3D10_SUBRESOURCE_DATA* data = ibo ? &initData : NULL;
+		DX_ASSERT_MSG(device->CreateBuffer(&bd, data, &buffer));
+	}
+	void genStreamBuffer(ID3D10Device* device, const uint* ibo, size_t size) {
+		D3D10_BUFFER_DESC bd;
+		bd.Usage = D3D10_USAGE_DYNAMIC;
+		bd.ByteWidth = size;
+		bd.BindFlags = D3D10_BIND_INDEX_BUFFER;
+		bd.CPUAccessFlags = D3D10_CPU_ACCESS_WRITE;
+		bd.MiscFlags = 0;
+		D3D10_SUBRESOURCE_DATA initData;
+		initData.pSysMem = ibo;
+		D3D10_SUBRESOURCE_DATA* data = ibo ? &initData : NULL;
+		DX_ASSERT_MSG(device->CreateBuffer(&bd, data, &buffer));
 	}
 };
 
-
+BaseVertexBufferObject* RenderDX::createStreamVBO(const byte* vbo, size_t stride, size_t n){
+	auto ptr = new BaseVertexBufferObject();
+	ptr->size = stride*n;
+	ptr->stride = stride;
+	ptr->offset = 0;
+	ptr->genStreamBuffer(d3dDevice, vbo, ptr->size);
+	return ptr;
+}
+BaseIndextBufferObject* RenderDX::createStreamIBO(const uint* ibo, size_t size){
+	auto ptr = new BaseIndextBufferObject();
+	ptr->genStreamBuffer(d3dDevice, ibo, size*sizeof(uint));
+	return ptr;
+}
 BaseVertexBufferObject* RenderDX::createVBO(const byte* vbo, size_t stride, size_t n){
 	auto ptr = new BaseVertexBufferObject();
 	ptr->size = stride*n;
@@ -508,6 +548,19 @@ BaseIndextBufferObject* RenderDX::createIBO(const uint* ibo, size_t size){
 	ptr->genBuffer(d3dDevice, ibo, size*sizeof(uint));
     return ptr;
 }
+void RenderDX::updateSteamVBO(BaseVertexBufferObject* vbo, const byte* data, size_t size){
+	void* gpudata{ nullptr };
+	vbo->buffer->Map(D3D10_MAP_WRITE_DISCARD, 0, &gpudata);
+	memcpy(gpudata, (void*)data, size);
+	vbo->buffer->Unmap();
+}
+void RenderDX::updateSteamIBO(BaseIndextBufferObject* vbo, const uint* data, size_t size){
+	void* gpudata{ nullptr };
+	vbo->buffer->Map(D3D10_MAP_WRITE_DISCARD, 0, &gpudata);
+	memcpy(gpudata, (void*)data, size);
+	vbo->buffer->Unmap();
+}
+
 void RenderDX::bindVBO(BaseVertexBufferObject* vbo){
     //glBindBuffer(GL_ARRAY_BUFFER,*vbo);
 	d3dDevice->IASetVertexBuffers(0, 1, &vbo->buffer, &vbo->stride, &vbo->offset);
@@ -541,7 +594,13 @@ void RenderDX::drawArrays(TypeDraw type, uint n){
 	DEBUG_ASSERT(currentShader);
 	currentShader->uniform();
 	d3dDevice->IASetPrimitiveTopology(getDirectXDrawType(type));
-	d3dDevice->Draw(n,0);
+	d3dDevice->Draw(n, 0);
+}
+void RenderDX::drawArrays(TypeDraw type, uint start, uint size){
+	DEBUG_ASSERT(currentShader);
+	currentShader->uniform();
+	d3dDevice->IASetPrimitiveTopology(getDirectXDrawType(type));
+	d3dDevice->Draw(size, start);
 }
 void RenderDX::drawElements(TypeDraw type, uint n){
 	DEBUG_ASSERT(currentShader);

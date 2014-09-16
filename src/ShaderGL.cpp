@@ -23,7 +23,7 @@ namespace Easy3D{
 		/////////////////////////////////////////////////////////////////////
 		return out;
 	}
-	DFORCEINLINE static bool logError(unsigned int shader, int status) {
+	DFORCEINLINE static bool logError(unsigned int shader, int status,const String& type) {
 
 		if (!status)
 		{
@@ -33,7 +33,7 @@ namespace Easy3D{
 			{
 				char* infoLog = (char*)malloc(sizeof(char) * infoLen);
 				glGetShaderInfoLog(shader, infoLen, NULL, infoLog);
-				DEBUG_MESSAGE("Error compiling shader:\n" << infoLog);
+				DEBUG_MESSAGE(type<<", error compiling shader:\n" << infoLog);
 				free(infoLog);
 			}
 			return false;
@@ -104,18 +104,18 @@ namespace Easy3D{
 		compiled = 0;
 		glCompileShader(shader_vs);
 		glGetShaderiv(shader_vs, GL_COMPILE_STATUS, &compiled);
-		if (!logError(shader_vs, compiled)){ glDeleteShader(shader_vs); }
+		if (!logError(shader_vs, compiled,"Vertex")){ glDeleteShader(shader_vs); }
 
 		compiled = 0;
 		glCompileShader(shader_fs);
 		glGetShaderiv(shader_fs, GL_COMPILE_STATUS, &compiled);
-		if (!logError(shader_fs, compiled)){ glDeleteShader(shader_fs); }
+		if (!logError(shader_fs, compiled,"Fragment")){ glDeleteShader(shader_fs); }
         
         compiled = 0;
         if(shader_gs){
             glCompileShader(shader_gs);
             glGetShaderiv(shader_gs, GL_COMPILE_STATUS, &compiled);
-            if (!logError(shader_gs, compiled)){ glDeleteShader(shader_gs); }
+            if (!logError(shader_gs, compiled,"Geometry")){ glDeleteShader(shader_gs); }
         }
 		//made a shader program
 		shader_id = glCreateProgram();
@@ -301,7 +301,17 @@ namespace Easy3D{
 
 	//disabilita shader
 	void ShaderGL::unbind(){
+        //disable textures
+        while(ntexture>-1)
+        {
+            getRender().disableTexture(ntexture);
+            --ntexture;
+        }
 		glUseProgram(0);
+        //unbind vbo
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        //unbind ibo
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 	//id programma
 	unsigned int ShaderGL::programID(){

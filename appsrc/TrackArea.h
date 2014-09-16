@@ -47,11 +47,18 @@ namespace Easy3D{
 		void draw();
 		//set & get
 		void addMesh(Mesh& obj);
+        void removeMesh(const Mesh& obj);
 		void setTrackball(Trackball& obj);
 		void setViewport(const ViewportState& viewport);
 		void setZoomVelocity(float zvelocity);
 		void setZDistance(float zdistance);
-		Sphere sphere;	//set and get	
+		Sphere sphere;	//set and get
+        //lock and unlock
+        void lock();
+        void unlock();
+        bool isLocked(){
+            return locked;
+        }
 
 	
 	protected:
@@ -71,6 +78,8 @@ namespace Easy3D{
 		float velocity{ 1.0 };
 		//piking query
 		Vec3 picking;
+        //lock/unlock
+        bool locked{ true };
 		//trackball
 		Quaternion start;
 		Vec3 from;

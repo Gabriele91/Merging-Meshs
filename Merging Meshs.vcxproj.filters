@@ -55,6 +55,18 @@
     <Filter Include="File di risorse\points\OpenGL">
       <UniqueIdentifier>{6072691f-edc1-47c6-af69-7d86524c0b63}</UniqueIdentifier>
     </Filter>
+    <Filter Include="appsrc\ui">
+      <UniqueIdentifier>{3ce3a6cc-09c4-45ab-92b7-5aed909d8bfb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di risorse\gui">
+      <UniqueIdentifier>{71620e15-2ca8-4ff4-ba40-ed19d8f17f90}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di risorse\gui\DirectX">
+      <UniqueIdentifier>{de81e4a0-2140-44fc-bdb3-9a8a7fc5a950}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di risorse\gui\OpenGL">
+      <UniqueIdentifier>{0863c1d6-91ed-4214-adda-6c7610dc2556}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Application.h">
@@ -180,6 +192,21 @@
     <ClInclude Include="appsrc\PointsMaterial.h">
       <Filter>appsrc\Materials</Filter>
     </ClInclude>
+    <ClInclude Include="appsrc\gui.h">
+      <Filter>appsrc</Filter>
+    </ClInclude>
+    <ClInclude Include="appsrc\ui\imconfig.h">
+      <Filter>appsrc\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="appsrc\ui\imgui.h">
+      <Filter>appsrc\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="appsrc\ui\stb_image.h">
+      <Filter>appsrc\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="appsrc\ui\stb_textedit.h">
+      <Filter>appsrc\ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Application.cpp">
@@ -290,6 +317,12 @@
     <ClCompile Include="appsrc\PointsMaterial.cpp">
       <Filter>appsrc\Materials</Filter>
     </ClCompile>
+    <ClCompile Include="appsrc\gui.cpp">
+      <Filter>appsrc</Filter>
+    </ClCompile>
+    <ClCompile Include="appsrc\ui\imgui.cpp">
+      <Filter>appsrc\ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\geometry\geometry.fs.glsl">
@@ -322,6 +355,12 @@
     <None Include="shader\points\points.gs.glsl">
       <Filter>File di risorse\points\OpenGL</Filter>
     </None>
+    <None Include="shader\gui\gui.fs.glsl">
+      <Filter>File di risorse\gui\OpenGL</Filter>
+    </None>
+    <None Include="shader\gui\gui.vs.glsl">
+      <Filter>File di risorse\gui\OpenGL</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="shader\geometry\geometry.fs.hlsl">
@@ -353,6 +392,12 @@
     </Text>
     <Text Include="shader\points\points.gs.hlsl">
       <Filter>File di risorse\points\DirectX</Filter>
+    </Text>
+    <Text Include="shader\gui\gui.vs.hlsl">
+      <Filter>File di risorse\gui\DirectX</Filter>
+    </Text>
+    <Text Include="shader\gui\gui.fs.hlsl">
+      <Filter>File di risorse\gui\DirectX</Filter>
     </Text>
   </ItemGroup>
 </Project>

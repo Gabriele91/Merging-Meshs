@@ -65,7 +65,7 @@ void PointsCloud::addPoint(const Vec3& newv3){
 	points.push_back(newv3);
 }
 
-Mat4 PointsCloud::calcRotoTranslate(const PointsCloud& target){
+Mat4 PointsCloud::calcSVD(const PointsCloud& target){
 	Vec3 centroidP, centroidQ;
 
 	Eigen::MatrixXf v_0 = centroidToZero(target.points, centroidP); // is V^T  = J
