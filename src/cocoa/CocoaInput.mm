@@ -390,6 +390,8 @@ __callOnKeyRelease(KeyMapCocoa[(key)]);\
 		switch ([event type]) {
 			case NSKeyDown:
                 keyDownEvent(event.keyCode);
+                lastInputString=[[event charactersIgnoringModifiers] UTF8String];
+                __callOnStringInput( lastInputString );
             break;
 			case NSKeyUp:
                 keyReleaseEvent(event.keyCode);                
@@ -447,6 +449,10 @@ void CocoaInput::__callOnKeyRelease(Key::Keyboard key) {
 void CocoaInput::__callOnKeyDown(Key::Keyboard key) {
     for(size_t i=0;i!=vkeyboardh.size();++i)
         vkeyboardh[i]->onKeyDown(key);
+}
+void CocoaInput::__callOnStringInput(const String& str) {
+    for(size_t i=0;i!=vkeyboardh.size();++i)
+        vkeyboardh[i]->onStringInput(str);
 }
 //mouse
 void CocoaInput::__callOnMouseMove(Vec2 mousePosition) {

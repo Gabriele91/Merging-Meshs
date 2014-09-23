@@ -25,12 +25,15 @@ void Geometry::setMesh(Mesh* mesh){
 	Vec3 factor = Vec3::ONE / minsize ;
 	//calc offset
 	relative.setScale(factor);
+	//calc offset
+	auto bcenter = geometry->getBox().getCenter();
+	relative.setPosition(-bcenter * relative.getScale());
 }
 GeometryMaterial* Geometry::getMaterial() const{
 	return material;
 }
 Mat4 Geometry::getModelMatrix(){
-	return relative.getGlobalMatrix();
+	return relative.getGlobalMatrix().mul(svdMatrix);
 }
 Object* Geometry::getRelative(){
 	return &relative;
@@ -39,12 +42,10 @@ Object* Geometry::getRelative(){
 void Geometry::draw(Camera& camera){
 	//render
 	DEBUG_ASSERT(geometry);
-	//calc offset
-	auto bcenter = geometry->getBox().getCenter();
-	relative.setPosition(-bcenter * relative.getScale());
 	//update material
 	material->setCamera(&camera);
 	material->setObject(&relative);
+    material->setSVDMatrix(&svdMatrix);
 	material->setLightDir(lDir);
 	material->setLightDiffuse(lDiffuse);
 	//draw

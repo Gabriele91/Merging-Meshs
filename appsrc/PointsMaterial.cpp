@@ -38,7 +38,7 @@ void PointsMaterial::init(){
 }
 int  PointsMaterial::id(){
 	return 0;
-};
+}
 void PointsMaterial::draw(const Mesh& m) {
 	Render& r = *Application::instance()->getRender();
 	//save context
@@ -56,7 +56,7 @@ void PointsMaterial::draw(const Mesh& m) {
 	//model
 	model->setValue(object->getGlobalMatrix());
 	//size
-	gsize->setValue(size);
+	gsize->setValue(size/r.getViewportState().viewport.zw());
 	//draw
 	m.draw(il);
 	//unbind

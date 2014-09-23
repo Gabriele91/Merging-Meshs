@@ -92,6 +92,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="appsrc\Camera.h" />
+    <ClInclude Include="appsrc\Editorui.h" />
+    <ClInclude Include="appsrc\FinderUI.h" />
     <ClInclude Include="appsrc\Geometry.h" />
     <ClInclude Include="appsrc\GeometryMaterial.h" />
     <ClInclude Include="appsrc\gui.h" />
@@ -140,6 +142,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appsrc\Camera.cpp" />
+    <ClCompile Include="appsrc\EditorUI.cpp" />
+    <ClCompile Include="appsrc\FinderUI.cpp" />
     <ClCompile Include="appsrc\Geometry.cpp" />
     <ClCompile Include="appsrc\GeometryMaterial.cpp" />
     <ClCompile Include="appsrc\gui.cpp" />

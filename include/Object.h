@@ -32,6 +32,17 @@ namespace Easy3D{
 		void addChild(Object *child, bool hard = true);
 		void addChild(Object *child, ParentMode type, bool hard = true);
 		void erseChild(Object *child);
+        void clearListChilds()
+        {
+            //dt all childs
+            for(auto& child:childs)
+            {
+                child->parent=nullptr;
+                child->change();
+            }
+            //clear map
+            childs.clear();
+        }
 		void changeParentMode(ParentMode type);
 		//
 		Vector3D getScale(bool global=false);

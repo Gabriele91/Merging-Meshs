@@ -45,7 +45,11 @@ public:
         if( key == Key::LSHIFT || key == Key::RSHIFT )
             io.KeyShift=false;
     }
-    
+    void onStringInput(const String& str)
+    {
+        for (int i=0;str[i];++i)
+            ImGui::GetIO().AddInputCharacter(str[i]);
+    }
 };
 
 struct ImGuiContext

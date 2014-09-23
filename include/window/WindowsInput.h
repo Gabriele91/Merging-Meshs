@@ -257,6 +257,7 @@ namespace Easy3D {
 			void __callOnKeyPress(Key::Keyboard key);
 			void __callOnKeyRelease(Key::Keyboard key);
 			void __callOnKeyDown(Key::Keyboard key);
+			void __callOnStringInput(const String& str);
 			void __callOnMouseMove(Vec2 mousePosition);
 			void __callOnMousePress(Vec2 mousePosition, Key::Mouse button);
 			void __callOnMouseDown(Vec2 mousePosition, Key::Mouse button);

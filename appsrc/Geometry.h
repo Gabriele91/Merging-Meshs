@@ -15,7 +15,7 @@
 namespace Easy3D{
 
 	class Geometry : public Object{
-		
+		Mat4 svdMatrix;
 		Object relative;
 		Mesh* geometry{ nullptr };
 		//
@@ -34,6 +34,14 @@ namespace Easy3D{
 		Mesh* getMesh() const { return geometry; }
 		GeometryMaterial* getMaterial() const;
 		Mat4 getModelMatrix();
+        void setSVDMatrix(const Mat4& mat)
+        {
+            svdMatrix=mat;
+        }
+        const Mat4& getSVDMatrix() const 
+        {
+            return svdMatrix;
+        }
 		Object* getRelative();
 
 	};

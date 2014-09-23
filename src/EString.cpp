@@ -7,13 +7,13 @@ using namespace Easy3D;
 //a void string
 String String::NONE("");
 //
-int String::find(const String& value) const
+size_t String::find(const String& value) const
 {
     return basic_string::find(value);
 }
-int String::rfind(const String& value) const
+size_t String::rfind(const String& value) const
 {
-    return basic_string::find_last_of(value);
+    return basic_string::rfind(value);
 }
 ///
 void String::split(const String& delimiters ,

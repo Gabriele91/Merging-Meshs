@@ -102,7 +102,9 @@ namespace Easy3D
             bool existsFile();
             bool existsDirectory();
             //
-            std::vector<String> getFiles() const;
+			void getFiles(std::vector<String>& dirs) const;
+			std::vector<String> getFiles() const;
+			void getSubDirs(std::vector<String>& dirs) const;
             std::vector<String> getSubDirs() const;
             //
             static String getCanonicalPath(const String& path);

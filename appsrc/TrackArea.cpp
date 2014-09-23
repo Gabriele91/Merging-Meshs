@@ -80,25 +80,31 @@ void TrackArea::calcRay(const Vec2& mouse){
 
 //pikking
 void TrackArea::addPoint(const Vec3& point){
+    //
+    Vec3  mostnear=Vec3::MAX;
+    float mindist=Vec3::MAX.x;
+    //
     for(auto& geometry:geometies){
         //calc mat inverse
-        Mat4 modelinv = geometry.getModelMatrix().getInverse();
-        Vec3 vpoint = modelinv.mul({ point, 1.0 }).xyz();
+        const Mat4& svdM    = geometry.getSVDMatrix();
+        Mat4 modelinv       = geometry.getModelMatrix().getInverse();
+        Vec3 vpoint         = modelinv.mul({ point, 1.0 }).xyz();
         //search the most near point
         Mesh& mesh = *geometry.getMesh();
-        size_t ivertex = mesh.getIndex(0);
-        Vec3  mostnear = mesh.getVertex3(ivertex, 0);
-        float mindist = mostnear.distancePow2(vpoint);
         float tmpdistance = mindist;
+        size_t ivertex = 0;
         //search
-        for (size_t i = 1; i != mesh.sindex(); ++i){
+        for (size_t i = 0; i != mesh.sindex(); ++i){
             ivertex = mesh.getIndex(i);
             tmpdistance = mesh.getVertex3(ivertex, 0).distancePow2(vpoint);
             if (tmpdistance < mindist){
                 mindist = tmpdistance;
-                mostnear = mesh.getVertex3(ivertex, 0);
+                mostnear = svdM.mul(Vec4(mesh.getVertex3(ivertex, 0),1.0)).xyz();
             }
         }
+    }
+    if(mostnear!=Vec3::MAX)
+    {
         //add
         cldpoints.addPoint(mostnear);
     }
@@ -113,10 +119,7 @@ void TrackArea::draw(){
 	Input&  input = *Application::instance()->getInput();
 	//camera left
 	render.setViewportState(camera.getViewport());
-    
-    
     //set shadow camera distance:
-    //get shadow camera
     auto& scam = matgeom->getShadowCamera();
     //dist
     Vec3 dir=Vec3(0.0, 0.9,.9).getNormalize();
@@ -142,7 +145,7 @@ void TrackArea::draw(){
 	}
 
     //draw selected points
-	cldpoints.setObject(geometies.begin()->getRelative());
+	cldpoints.setObject(geometies.begin()->getRelative()/* <- scene scale & offest */);
     cldpoints.draw(camera);
 }
 //set & get
@@ -159,8 +162,11 @@ void TrackArea::addMesh(Mesh& obj){
 	geometry.setMesh(&obj);
 	//equal scale factor
 	geometry.getRelative()->setScale(
-		geometies.begin()->getRelative()->getScale()
-		);
+                                     geometies.begin()->getRelative()->getScale()
+                                    );
+	geometry.getRelative()->setPosition(
+                                       geometies.begin()->getRelative()->getPosition()
+                                       );
 }
 void TrackArea::removeMesh(const Mesh& obj){
     //search
@@ -189,6 +195,46 @@ void TrackArea::setZoomVelocity(float zvelocity){
 void TrackArea::setZDistance(float zdistance) {
 	camera.setPosition({0,0,zdistance});
 }
+
+bool TrackArea::addMeshsSVD(TrackArea& in)
+{
+    if(in.cldpoints.points.size()<3) return false;
+    if(in.cldpoints.points.size()!=cldpoints.points.size()) return false;
+    //compute svd
+    Mat4 rtran=in.cldpoints.calcSVD(cldpoints);
+    //add all mesh
+    for(auto& geom:in.geometies)
+    {
+        addMesh(*geom.getMesh());
+        //get lst geometry
+        auto& geometry=*(--geometies.end());
+        //applay  svd
+        geometry.setSVDMatrix(rtran);
+    }
+    //lcear points
+    cldpoints.points.clear();
+    //clear reference
+    in.geometies.clear();
+    in.protation.clearListChilds();
+    in.cldpoints.points.clear();
+    //return true
+    return true;
+}
+
+
+bool TrackArea::saveMeshs(const String&  path)
+{
+    //I have some meshes?
+    if(!geometies.size()) return false;
+    //save
+    Mesh tosave;
+    for(auto& geom:geometies)
+    {
+        tosave.addMeshOFF(*geom.getMesh(), geom.getSVDMatrix());
+    }
+    return tosave.saveOFF(path);
+}
+
 //events
 void TrackArea::onMouseScroll(short scroll){
 	if (!inViewport(Application::instance()->getInput()->getMouse())) return;
@@ -207,12 +253,13 @@ void TrackArea::onMousePress(Vec2 mouse, Key::Mouse bt){
 			calcRay(mouse);
 			rayCast();
 			from = segment.vnear;
-		break;
-		case Key::BUTTON_MIDDLE:
+        break;
+		case Key::BUTTON_RIGHT:
+		//case Key::BUTTON_MIDDLE:
 			//geometry.setPosition(Vec3::ZERO);
 			addPoint(picking);
 		break;
-		case Key::BUTTON_RIGHT:
+        case Key::BUTTON_MIDDLE:
             for(auto& geometry:geometies)
                 geometry.setMove(-picking, true);
 		break;

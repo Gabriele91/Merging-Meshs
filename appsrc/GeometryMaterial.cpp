@@ -104,8 +104,8 @@ void GeometryMaterial::drawShadow(const Mesh& m){
 
 	shadowP->setValue(shadowCam.getProjectionMatrix());
 	shadowV->setValue(shadowCam.getViewMatrix());
-	shadowM->setValue(object->getGlobalMatrix());
-
+	shadowM->setValue(object->getGlobalMatrix().mul(*m4svd));
+    //
 	m.draw(shadowIL);
 
 	r.unbindShader();	
@@ -128,7 +128,8 @@ void GeometryMaterial::drawColor(const Mesh& m){
 	colorP->setValue(camera->getProjectionMatrix());
 	colorV->setValue(camera->getViewMatrix());
 	//model
-	colorM->setValue(object->getGlobalMatrix());
+	colorM->setValue(object->getGlobalMatrix().mul(*m4svd));
+    //
 	colorC->setValue(color);
 	//set light info
 	lightDir->setValue(ldir);

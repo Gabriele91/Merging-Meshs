@@ -53,7 +53,7 @@ void PointsCloud::draw(Camera& camera){
 	if (ischange) buildMesh();
 	material->setCamera(&camera);
 	material->setObject(object);
-    material->setSize({ 0.01f , 0.01f });
+    material->setSize({ 10.0 , 10.0 });
 	material->draw(*geometry);
 }
 PointsCloud::~PointsCloud(){
@@ -70,7 +70,7 @@ Mat4 PointsCloud::calcSVD(const PointsCloud& target){
 
 	Eigen::MatrixXf v_0 = centroidToZero(target.points, centroidP); // is V^T  = J
 	Eigen::MatrixXf v_1 = centroidToZero(points, centroidQ);		// is V'^T = J'
-
+    
 	//C=VV'^T -> C=J^T * J'
 	Eigen::MatrixXf covariance = v_0.transpose()  * v_1;
 
@@ -87,8 +87,12 @@ Mat4 PointsCloud::calcSVD(const PointsCloud& target){
 	//eigenR to R+Translate
 	Mat4 rotoTranslate;
 	rotoTranslate.setRotMatrix(eigenR.data());
-	rotoTranslate.transpose(); //column major to row major
-	rotoTranslate.addTranslation((const float*)t.data());
+    //column major to row major,
+    //rotoTranslate.transpose();
+    //no because my representation is column major
+	rotoTranslate[12]=t[0];
+	rotoTranslate[13]=t[1];
+	rotoTranslate[14]=t[2];
 	//return
 	return rotoTranslate;
 }

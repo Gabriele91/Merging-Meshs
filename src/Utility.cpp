@@ -205,111 +205,117 @@ bool Path::existsDirectory()
     return false;
 }
 
-std::vector<String> Path::getFiles() const
+void Path::getFiles(std::vector<String>& out) const
 {
-    
-    std::vector<String> out;
-    
+
 #ifdef  PLATFORM_UNIX
-    
-    DIR *dp;
-    struct dirent *dirp;
-    struct stat st;
-    String std_dir=directory+"/";
-    String path_all=std_dir+"*";
-    String namefile;
-    
-    if((dp  = opendir(std_dir)) == NULL)
-        return out;
-    
-    while ((dirp = readdir(dp)) != NULL)
-    {
-        //get all path
-        namefile=std_dir+dirp->d_name;
-        //if isn't a directory
-        if(stat(namefile,&st)==0 && (st.st_mode & S_IFDIR) == 0)
-            //push
-            out.push_back(dirp->d_name);
-    }
-    closedir(dp);
-    
+
+	DIR *dp;
+	struct dirent *dirp;
+	struct stat st;
+	String std_dir = directory + "/";
+	String path_all = std_dir + "*";
+	String namefile;
+
+	if ((dp = opendir(std_dir)) == NULL)
+		return;
+
+	while ((dirp = readdir(dp)) != NULL)
+	{
+		//get all path
+		namefile = std_dir + dirp->d_name;
+		//if isn't a directory
+		if (stat(namefile, &st) == 0 && (st.st_mode & S_IFDIR) == 0)
+			//push
+			out.push_back(dirp->d_name);
+	}
+	closedir(dp);
+
 #elif defined(PLATFORM_WINDOW)
-    
-    WIN32_FIND_DATA ffd;
-    //struct stat st;
-    String std_dir=directory+"/";
-    String path_all=std_dir+"*";
-    String namefile;
-    HANDLE hFind = FindFirstFile(path_all, &ffd);
-    
-    do
-    {
-        if ( !strcmp( ffd.cFileName, "."   )) continue;
-        if ( !strcmp( ffd.cFileName, ".."  )) continue;
-        //if isn't a directory
-        if(!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-            //push
-            out.push_back(ffd.cFileName);
-        
-    }
-    while (FindNextFile(hFind, &ffd) != 0);
-    
+
+	WIN32_FIND_DATA ffd;
+	//struct stat st;
+	String std_dir = directory + "/";
+	String path_all = std_dir + "*";
+	String namefile;
+	HANDLE hFind = FindFirstFile(path_all, &ffd);
+
+	do
+	{
+		if (!strcmp(ffd.cFileName, ".")) continue;
+		if (!strcmp(ffd.cFileName, "..")) continue;
+		//if isn't a directory
+		if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+			//push
+			out.push_back(ffd.cFileName);
+
+	} while (FindNextFile(hFind, &ffd) != 0);
+
 #endif
-    
+}
+std::vector<String> Path::getFiles() const
+{   
+    std::vector<String> out;
+	getFiles(out);
     return out;
+}
+void Path::getSubDirs(std::vector<String>& out) const
+{
+#ifdef  PLATFORM_UNIX
+
+	DIR *dp;
+	struct dirent *dirp;
+	struct stat st;
+	String std_dir=directory+"/";
+	String path_all=std_dir+"*";
+	String namefile;
+
+	if((dp  = opendir(std_dir)) == NULL)
+		return;
+
+	while ((dirp = readdir(dp)) != NULL)
+	{
+		//get all path
+		namefile=std_dir+dirp->d_name;
+		//if is a directory
+		if (stat(namefile, &st) == 0 && (st.st_mode & S_IFDIR) != 0)
+		{
+			if (!strcmp(dirp->d_name, ".")) continue;
+			if (!strcmp(dirp->d_name, "..")) continue;
+			//push
+			out.push_back(dirp->d_name);
+		}
+}
+	closedir(dp);
+
+#elif defined(PLATFORM_WINDOW)
+
+	WIN32_FIND_DATA ffd;
+	//struct stat st;
+	String std_dir = directory + "/";
+	String path_all = std_dir + "*";
+	String namefile;
+	HANDLE hFind = FindFirstFile(path_all, &ffd);
+
+	do
+	{
+		if (!strcmp(ffd.cFileName, ".")) continue;
+		if (!strcmp(ffd.cFileName, "..")) continue;
+		//if is a directory
+		if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+			//push
+			out.push_back(ffd.cFileName);
+
+	} while (FindNextFile(hFind, &ffd) != 0);
+
+#endif
 }
 std::vector<String> Path::getSubDirs() const
 {
-    
-    std::vector<String> out;
-    
-#ifdef  PLATFORM_UNIX
-    
-    DIR *dp;
-    struct dirent *dirp;
-    struct stat st;
-    String std_dir=directory+"/";
-    String path_all=std_dir+"*";
-    String namefile;
-    
-    if((dp  = opendir(std_dir)) == NULL)
-        return out;
-    
-    while ((dirp = readdir(dp)) != NULL)
-    {
-        //get all path
-        namefile=std_dir+dirp->d_name;
-        //if is a directory
-        if(stat(namefile,&st)==0 && (st.st_mode & S_IFDIR) != 0)
-            //push
-            out.push_back(dirp->d_name);
-    }
-    closedir(dp);
-    
-#elif defined(PLATFORM_WINDOW)
-    
-    WIN32_FIND_DATA ffd;
-    //struct stat st;
-    String std_dir=directory+"/";
-    String path_all=std_dir+"*";
-    String namefile;
-    HANDLE hFind = FindFirstFile(path_all, &ffd);
-    
-    do
-    {
-        if ( !strcmp( ffd.cFileName, "."   )) continue;
-        if ( !strcmp( ffd.cFileName, ".."  )) continue;
-        //if is a directory
-        if(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-            //push
-            out.push_back(ffd.cFileName);
-        
-    }
-    while (FindNextFile(hFind, &ffd) != 0);
-    
-#endif
-    
-    return out;
+
+	std::vector<String> out;
+	getSubDirs(out);
+	return out;
 }
 
 String Path::getCanonicalPath(const String& path)

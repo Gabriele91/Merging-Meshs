@@ -52,12 +52,20 @@ namespace Easy3D{
 		void setViewport(const ViewportState& viewport);
 		void setZoomVelocity(float zvelocity);
 		void setZDistance(float zdistance);
+        bool saveMeshs(const String&  path);
 		Sphere sphere;	//set and get
+        //add mesh by svd
+        bool addMeshsSVD(TrackArea& in);
         //lock and unlock
         void lock();
         void unlock();
         bool isLocked(){
             return locked;
+        }
+        void resetPosition()
+        {
+            for(auto& geom:geometies)
+                geom.setPosition(Vec3::ZERO);
         }
 
 	

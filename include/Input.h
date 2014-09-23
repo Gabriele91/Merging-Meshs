@@ -187,6 +187,7 @@ namespace Easy3D {
 					virtual void onKeyPress(Key::Keyboard key) {}
 					virtual void onKeyRelease(Key::Keyboard key) {}
 					virtual void onKeyDown(Key::Keyboard key) {}
+                    virtual void onStringInput(const String& str){}
             };
 			class FingersHandler{
 				public:
@@ -292,6 +293,13 @@ namespace Easy3D {
 			* @return status
 			*/
 			virtual bool getMouseHit(Key::Mouse id) const=0;
+            /**
+            * Return last input string
+            * @return string input
+            */
+            const String& getInputString(){
+                return lastInputString;
+            }
 			/**
 			* Return scroll wheel delta
 			* @return scroll delta
@@ -423,12 +431,14 @@ namespace Easy3D {
 			}
 
 			protected:
-
+                //hendlers
 				std::vector<KeyboardHandler*> vkeyboardh;
 				std::vector<FingersHandler*> vfingersh;
 				std::vector<AccelerometerHandler*> vaccelerometerh;
 				std::vector<MouseHandler*> vmouseh;
 				std::vector<WindowHandler*> vwindowh;
+                //global parameters
+                String lastInputString;
 				
 				/*
 				//window

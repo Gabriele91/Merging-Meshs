@@ -53,6 +53,8 @@
 		E0CB39911920B10F00DDF9AF /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E0CB398E1920B10F00DDF9AF /* Camera.cpp */; };
 		E0CB39921920B10F00DDF9AF /* Geometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E0CB39901920B10F00DDF9AF /* Geometry.cpp */; };
 		E0D17A8919000A9A00E4D6E1 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E0D17A8719000A9A00E4D6E1 /* main.cpp */; };
+		E0E7758C19CB03F20004474D /* FinderUI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E0E7758A19CB03F20004474D /* FinderUI.cpp */; };
+		E0E7758E19CB05E30004474D /* EditorUI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E0E7758D19CB05E30004474D /* EditorUI.cpp */; };
 		E0EFD45319BF09F90088C7CC /* imgui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E0EFD45219BF09F90088C7CC /* imgui.cpp */; };
 		E0EFD45619BF0C840088C7CC /* gui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E0EFD45419BF0C840088C7CC /* gui.cpp */; };
 		E0EFD45719BF45750088C7CC /* shader in Resources */ = {isa = PBXBuildFile; fileRef = E02A860F18FFF02F00F05C0E /* shader */; };
@@ -248,11 +250,14 @@
 		E0D17A851900097600E4D6E1 /* CocoaOpenGL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CocoaOpenGL.h; sourceTree = "<group>"; };
 		E0D17A8719000A9A00E4D6E1 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		E0D17A8819000A9A00E4D6E1 /* stdafx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		E0E7758A19CB03F20004474D /* FinderUI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FinderUI.cpp; sourceTree = "<group>"; };
+		E0E7758B19CB03F20004474D /* FinderUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FinderUI.h; sourceTree = "<group>"; };
+		E0E7758D19CB05E30004474D /* EditorUI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EditorUI.cpp; sourceTree = "<group>"; };
 		E0EFD45119BF06C40088C7CC /* imgui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imgui.h; sourceTree = "<group>"; };
 		E0EFD45219BF09F90088C7CC /* imgui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui.cpp; sourceTree = "<group>"; };
 		E0EFD45419BF0C840088C7CC /* gui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gui.cpp; sourceTree = "<group>"; };
 		E0EFD45519BF0C840088C7CC /* gui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gui.h; sourceTree = "<group>"; };
-		E0F49EE819C35D28009E771F /* Editorui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Editorui.h; sourceTree = "<group>"; };
+		E0F49EE819C35D28009E771F /* EditorUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditorUI.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -609,7 +614,7 @@
 		E0D17A8619000A9A00E4D6E1 /* appsrc */ = {
 			isa = PBXGroup;
 			children = (
-				E0F49EE819C35D28009E771F /* Editorui.h */,
+				E0F49EE819C35D28009E771F /* EditorUI.h */,
 				E0EFD45419BF0C840088C7CC /* gui.cpp */,
 				E0EFD45519BF0C840088C7CC /* gui.h */,
 				E0EFD45019BF06C40088C7CC /* ui */,
@@ -627,6 +632,9 @@
 				E0B272A71916747400CABAC1 /* Mesh.cpp */,
 				E0B272A619166AFE00CABAC1 /* Mesh.h */,
 				E0D17A8719000A9A00E4D6E1 /* main.cpp */,
+				E0E7758A19CB03F20004474D /* FinderUI.cpp */,
+				E0E7758B19CB03F20004474D /* FinderUI.h */,
+				E0E7758D19CB05E30004474D /* EditorUI.cpp */,
 			);
 			path = appsrc;
 			sourceTree = "<group>";
@@ -744,6 +752,8 @@
 				E045E9EE1903E55C0033A7E2 /* RenderGL.cpp in Sources */,
 				E06FBC60191A74A600B2A4E2 /* Object.cpp in Sources */,
 				E02A860818FFF01C00F05C0E /* Utility.cpp in Sources */,
+				E0E7758E19CB05E30004474D /* EditorUI.cpp in Sources */,
+				E0E7758C19CB03F20004474D /* FinderUI.cpp in Sources */,
 				E02A85F618FFF01C00F05C0E /* EStack.cpp in Sources */,
 				E0AD99D8193477A500403C18 /* PointsCloud.cpp in Sources */,
 				E0CB398D1920B10000DDF9AF /* Trackball.cpp in Sources */,

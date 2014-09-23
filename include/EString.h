@@ -26,8 +26,8 @@ namespace Easy3D
         String(const std::string& str):std::string(str) {};
         String(const char* str):std::string(str) {};
         //find
-        int find(const String& value) const;
-        int rfind(const String& value) const;
+        size_t find(const String& value) const;
+        size_t rfind(const String& value) const;
         //replace
         void replace(const String& toReplace,const String& replaceWith)
         {

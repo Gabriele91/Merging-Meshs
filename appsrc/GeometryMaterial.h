@@ -55,6 +55,7 @@ namespace Easy3D {
 		//uniform input
 		Camera* camera{ nullptr };
 		Object* object{ nullptr };
+        Mat4* m4svd{ nullptr };
 		Vec3 ldir;
 		Vec4 ldiffuse;
 		Vec4 color;
@@ -65,7 +66,10 @@ namespace Easy3D {
 		virtual int  id();
 		virtual void init();
 		virtual void draw(const Mesh& m);
-
+        
+		DFORCEINLINE void setSVDMatrix(Mat4* msvd){
+			m4svd = msvd;
+		}
 		DFORCEINLINE void setObject(Object* obj){
 			object = obj;
 		}

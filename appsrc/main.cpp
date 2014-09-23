@@ -111,12 +111,40 @@ public:
     
     void mergeMesh()
     {
-        if(lstate!=ALL_LOAD || !lastMesh) return;
+		if (lstate != ALL_LOAD || !lastMesh)
+		{
+			ui.showWrongMessage("can't merge mesh");
+			return;
+		}
         //screen size
         Vec2 ssize=getScreen().getSize();
         //add mesh to area
-        trackAreaRight.removeMesh(*lastMesh);
-        trackAreaLeft.addMesh(*lastMesh);
+        if(!trackAreaLeft.addMeshsSVD(trackAreaRight))
+        {
+            ui.showWrongMessage("can't merge mesh");
+            return;
+        }
+        //viewport
+        trackAreaLeft.setViewport(Vec4(UI_SIZE, 0,  ssize.x-UI_SIZE, ssize.y) );
+        //new state
+        lstate=ONE_LOAD;
+    }
+    
+    void saveModels(const String& path)
+    {
+		if (lstate == NO_LOAD || !lastMesh)
+		{
+			ui.showWrongMessage("can't save mesh");
+			return;
+		}
+        //screen size
+        Vec2 ssize=getScreen().getSize();
+        //add mesh to area
+        if(!trackAreaLeft.saveMeshs(path))
+        {
+            ui.showWrongMessage("can't save mesh");
+            return;
+        }
         //viewport
         trackAreaLeft.setViewport(Vec4(UI_SIZE, 0,  ssize.x-UI_SIZE, ssize.y) );
         //new state
@@ -129,6 +157,7 @@ public:
 		//init renders
 		Vec4 viewport(0, 0, 1280, 720);
 		getRender().setViewportState(viewport);
+        getRender().setClearColorState({64,64,64,255});
 		getRender().setZBufferState(true);
 		getRender().setBlendState(BlendState(BLEND::ONE, BLEND::ZERO));
 		getRender().setCullFaceState(CullFace::DISABLE);
@@ -151,6 +180,10 @@ public:
         ui.setCallBackLoad([this](const String& path)
                            {
                                loadModel(path);
+                           });
+        ui.setCallBackSave([this](const String& path)
+                           {
+                               saveModels(path);
                            });
         ui.setCallBackSVD([this]()
                          {

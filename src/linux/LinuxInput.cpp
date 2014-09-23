@@ -203,6 +203,7 @@ void LinuxInput::__update(XEvent &event){
             ewindow.focus=false;
             //
         break;
+            
         //close event
         case ClientMessage:
             if (strcmp(XGetAtomName(display, event.xclient.message_type), "WM_PROTOCOLS") == 0)
@@ -223,7 +224,7 @@ void LinuxInput::__update(XEvent &event){
                         __callOnKeyPress(KeyMapUnix[(key)]);\
                         }\
                 }
-            {//stack
+            {
             KeySym keysym = XLookupKeysym(&event.xkey, 0);
             if((XK_Help)&0x0FFF==(keysym)&0x0FFF) keyDownEvent(Key::HELP)
             else if((XK_Print)&0x0FFF==(keysym)&0x0FFF) keyDownEvent(Key::PRINT)
@@ -235,6 +236,17 @@ void LinuxInput::__update(XEvent &event){
             event.xkey.state &= ~ShiftMask;
             event.xkey.state &= ~LockMask;
             #undef keyDownEvent
+            //input event stirng
+            {
+                KeySym key;
+                char text[255]
+                int size=XLookupString(&event.xkey,text,255,&key,0);
+                if(size)
+                {
+                    lastInputString=text;
+                    __callOnStringInput( lastInputString );
+                }
+            }
         break;
         case KeyRelease:
             #define keyReleaseEvent(key) \
@@ -336,6 +348,10 @@ void LinuxInput::__callOnKeyRelease(Key::Keyboard key) {
 void LinuxInput::__callOnKeyDown(Key::Keyboard key) {
 	for(size_t i=0;i!=vkeyboardh.size();++i)
 		vkeyboardh[i]->onKeyDown(key);
+}
+void LinuxInput::__callOnStringInput(const String& str) {
+    for(size_t i=0;i!=vkeyboardh.size();++i)
+        vkeyboardh[i]->onStringInput(str);
 }
 //mouse
 void LinuxInput::__callOnMouseMove(Vec2 mousePosition) {
